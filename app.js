@@ -9,8 +9,14 @@ app.set( 'view engine', 'ejs' );
 app.set('port', ( process.env.PORT || 3000 ) );
 app.use( express.static(__dirname + '/inc') );
 
+// home route, replace placeholder with actual ejs file and move to seperate route file
 app.get( '/', function( req, res, next ) {
-	res.send( 'Hello World!' );
+	res.send( 'Placeholder' );
+} );
+
+// messenger route, TODO: implement messenger.ejs and messenger.js front end files
+app.get( '/messenger', function( req, res, next ) {
+	res.render( 'messenger' );
 } );
 
 // Include routes above this point
