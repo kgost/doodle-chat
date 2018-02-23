@@ -1,13 +1,18 @@
-var express 			= require( 'express' ),
-		app						= express(),
-		http					= require( 'http' ).Server(app),
-		mongoose			= require( 'mongoose' );
+var express 					= require( 'express' ),
+		app								= express(),
+		http							= require( 'http' ).Server(app),
+		mongoose					= require( 'mongoose' ),
+		io								= require( 'socket.io' ).listen( http );
+		socketController	= require( './controllers/socket' );
 
+// connect to mongoose
 mongoose.connect( 'mongodb://localhost/doodle_chat' );
 
 app.set( 'view engine', 'ejs' );
 app.set('port', ( process.env.PORT || 3000 ) );
 app.use( express.static(__dirname + '/inc') );
+
+socketController( io );
 
 // home route, replace placeholder with actual ejs file and move to seperate route file
 app.get( '/', function( req, res, next ) {
@@ -17,6 +22,21 @@ app.get( '/', function( req, res, next ) {
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
 app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
+} );
+
+app.post( '/api/test-conversation', function( req, res, next ) {
+	// save new message
+	Message.create( { text: req.body.text }, function( err ) {
+		if ( err ) {
+			res.status( 500 );
+			return next( err );
+		}
+
+		res.status( 200 ).json({
+			message: 'Reply Successful'
+		});
+	} );
+	// respond with success message
 } );
 
 // Include routes above this point
