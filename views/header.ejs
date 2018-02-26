@@ -11,6 +11,45 @@
 		<script>
 			var socket = io();
 		</script>
+		<style>
+	ul {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		background-color: #333;
+	}
 
+	li {
+		float: left;
+	}
+
+	li a {
+		display: block;
+		color: white;
+		text-align: center;
+		padding: 14px 16px;
+		text-decoration: none;
+	}
+
+	li a:hover:not(.active) {
+		background-color: #2554C7;
+		text-decoration: none;
+		color: #333;
+	}
+
+	.active {
+		background-color: #2554C7;
+	}
+	</style>
+	</head>
+	<body>
+
+	<ul>
+	  <li><a class="active" href="#home">Home</a></li>
+	  <li><a href="#messenger">Messenger</a></li>
+	  <li><a href="#settings">Settings</a></li>
+	  <li style="float:right"><a href="#profile">Profile</a>
+	</ul>
 	</head>
 	<body>
