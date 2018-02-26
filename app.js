@@ -2,14 +2,18 @@ var express 					= require( 'express' ),
 		app								= express(),
 		http							= require( 'http' ).Server(app),
 		mongoose					= require( 'mongoose' ),
-		io								= require( 'socket.io' ).listen( http );
-		socketController	= require( './controllers/socket' );
+		io								= require( 'socket.io' ).listen( http ),
+		bodyParser				= require( 'body-parser' ),
+		socketController	= require( './controllers/socket' ),
+		Message 					= require( './models/message' );
 
 // connect to mongoose
 mongoose.connect( 'mongodb://localhost/doodle_chat' );
 
 app.set( 'view engine', 'ejs' );
 app.set('port', ( process.env.PORT || 3000 ) );
+app.use( bodyParser.json() );
+app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( express.static(__dirname + '/inc') );
 
 socketController( io );

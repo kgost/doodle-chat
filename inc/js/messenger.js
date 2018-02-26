@@ -1,17 +1,19 @@
-$(document).ready( function()
+$(document).ready( function() {
+    console.log( 'alert' );
     var socket = io();
     $('#send-button').on('click', function(e) {
+        console.log( 'jeff' );
         e.preventDefault();
         //test-conversation will be replaced with conversation id.
         $.ajax({
             url: '/api/test-conversation',  //TODO: change to conersation id
             method: 'post',
-            data: {$('#text-entry-box'.val())}
+            data: { text: $('#text-entry-box').val()}
         }).done(function(data) {
             if (data.message == 'Reply Successful')
                 socket.emit('new-message', 'test-conversation') //TODO: change to conersation id
         }).always(function() {
-            $('#text-entry-box'.val(''))
+            $('#text-entry-box').val('');
         });
     });
 
@@ -23,8 +25,9 @@ $(document).ready( function()
         }).done(function(data) {
             if (data.message == 'Reply Successful') {
                 $('#message-container').empty();
-                for (var i; i < data.obj.length; i++) {
-                    $("#message-container").append('<div class="card"> <div class="card-body">' + data.obj[i] + '</div> </div>');
+                console.log( data.obj );
+                for (var i = 0; i < data.obj.length; i++) {
+                    $("#message-container").append('<div class="card"> <div class="card-body">' + data.obj[i].text + '</div> </div>');
                 }
             }
         })
