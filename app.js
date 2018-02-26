@@ -24,6 +24,20 @@ app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
 } );
 
+app.get( '/api/test-conversation', function( req, res, next ) {
+	Message.find( {}, function( err, messages ) {
+		if ( err ) {
+			res.status( 500 );
+			return next( err );
+		}
+
+		res.status( 200 ).json({
+			message: 'Reply Successful',
+			obj: messages
+		});
+	} );
+} );
+
 app.post( '/api/test-conversation', function( req, res, next ) {
 	// save new message
 	Message.create( { text: req.body.text }, function( err ) {

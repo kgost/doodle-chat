@@ -12,7 +12,7 @@ exports = module.exports = function( io ) {
 		} );
 
 		socket.on( 'new-message', ( conversation ) => {
-			io.sockets.in( 'test-conversation' ).emit( 'refresh messages', 'test-conversation' );
+			io.sockets.in( 'test-conversation' ).emit( 'refresh', 'test-conversation' );
 		} );
 
 		socket.on( 'disconnect', () => {
