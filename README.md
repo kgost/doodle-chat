@@ -5,5 +5,6 @@ Doodle Chat is a messaging application that allows users to create and send draw
 - Clone or download the repository
 - cd to project directory
 - run `$ npm install`
-- run `$ node app.js`
+- Setup MongoDB and edit mongoose route (MongoDB not included)
+- run `$ MNPASS="<YourPassword>" node app.js`
 - Use a browser to access localhost:3000/messenger
