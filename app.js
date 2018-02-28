@@ -2,14 +2,18 @@ var express 					= require( 'express' ),
 		app								= express(),
 		http							= require( 'http' ).Server(app),
 		mongoose					= require( 'mongoose' ),
-		io								= require( 'socket.io' ).listen( http );
-		socketController	= require( './controllers/socket' );
+		io								= require( 'socket.io' ).listen( http ),
+		bodyParser				= require( 'body-parser' ),
+		socketController	= require( './controllers/socket' ),
+		Message 					= require( './models/message' );
 
 // connect to mongoose
 mongoose.connect( 'mongodb://localhost/doodle_chat' );
 
 app.set( 'view engine', 'ejs' );
 app.set('port', ( process.env.PORT || 3000 ) );
+app.use( bodyParser.json() );
+app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( express.static(__dirname + '/inc') );
 
 socketController( io );
@@ -22,6 +26,20 @@ app.get( '/', function( req, res, next ) {
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
 app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
+} );
+
+app.get( '/api/test-conversation', function( req, res, next ) {
+	Message.find( {}, function( err, messages ) {
+		if ( err ) {
+			res.status( 500 );
+			return next( err );
+		}
+
+		res.status( 200 ).json({
+			message: 'Reply Successful',
+			obj: messages
+		});
+	} );
 } );
 
 app.post( '/api/test-conversation', function( req, res, next ) {
