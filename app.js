@@ -8,7 +8,11 @@ var express 					= require( 'express' ),
 		Message 					= require( './models/message' );
 
 // connect to mongoose
-mongoose.connect( 'mongodb://localhost/doodle_chat' );
+mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@mdotslr.org:27017/doodle_chat', function( err ) {
+	if ( err ) {
+		throw err;
+	}
+} );
 
 app.set( 'view engine', 'ejs' );
 app.set('port', ( process.env.PORT || 3000 ) );
