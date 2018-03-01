@@ -4,6 +4,7 @@
   "description": "a web app for messaging and sending drawing",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "mocha"
   },
   "repository": {
