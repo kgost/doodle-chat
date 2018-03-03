@@ -8,7 +8,7 @@ var express 					= require( 'express' ),
 		Message 					= require( './models/message' );
 
 // connect to mongoose
-mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@mdotslr.org:27017/doodle_chat', function( err ) {
+mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@141.219.196.207:27017/doodle_chat', function( err ) {
 	if ( err ) {
 		throw err;
 	}
