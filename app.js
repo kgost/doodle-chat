@@ -44,7 +44,7 @@ app.post('/auth', function(req, res, next) {
 	user.save( function( err, user ) {
 		if ( err ) {
 			return res.status( 500 ).json({
-				title: 'An error occored',
+				title: 'An error occured',
 				error: err
 			});
 		}
@@ -58,7 +58,26 @@ app.post('/auth', function(req, res, next) {
 
 // login route
 app.post('/auth/login', function(req, res, next) {
-	res.render( 'login' );
+	User.findOne( { username: req.body.username }, function( err, user ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		if ( !user || !bcrypt.compareSync( req.body.password, user.password ) ) {
+			return res.status( 401 ).json({
+				title: 'Login failed',
+				error: { message: 'Invalid login credentials' }
+			});
+		}
+		var token = jwt.sign( { user: user }, 'my nama jeff', { expiresIn: 7200 } );
+		res.status( 200 ).json( {
+			message: 'Successfully logged in',
+			token: token,
+			userId: user._id
+		} );
+	});
 } );
 
 app.get( '/api/test-conversation', function( req, res, next ) {
