@@ -1,11 +1,14 @@
 var express 					= require( 'express' ),
-		app								= express(),
-		http							= require( 'http' ).Server(app),
-		mongoose					= require( 'mongoose' ),
-		io								= require( 'socket.io' ).listen( http ),
+		app						= express(),
+		http					= require( 'http' ).Server(app),
+		mongoose				= require( 'mongoose' ),
+		io						= require( 'socket.io' ).listen( http ),
 		bodyParser				= require( 'body-parser' ),
-		socketController	= require( './controllers/socket' ),
-		Message 					= require( './models/message' );
+		bcrypt					= require( 'bcryptjs' ),
+		jwt						= require( 'jsonwebtoken' ),
+		socketController		= require( './controllers/socket' ),
+		Message 				= require( './models/message' ),
+		User					= require( './models/user' );
 
 // connect to mongoose
 mongoose.connect( 'mongodb://localhost/doodle_chat' );
@@ -26,6 +29,32 @@ app.get( '/', function( req, res, next ) {
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
 app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
+} );
+
+// auth route
+app.post('/auth', function(req, res, next) {
+	var user = new User({
+		username: req.body.username,
+		password: bcrypt.hashSync( req.body.password, 10 )
+	});
+	user.save( function( err, user ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occored',
+				error: err
+			});
+		}
+		res.status( 200 ).json( {
+			message: 'Successfully logged in',
+			token: jwt.sign( { user: user },
+			userId: user._id
+		});
+	});
+} );
+
+// login route
+app.post('/auth/login', function(req, res, next) {
+	res.render( 'login' );
 } );
 
 app.get( '/api/test-conversation', function( req, res, next ) {
