@@ -50,7 +50,7 @@ app.post('/auth', function(req, res, next) {
 		}
 		res.status( 200 ).json( {
 			message: 'Successfully logged in',
-			token: jwt.sign( { user: user },
+			token: jwt.sign( { user: user }, "my nama jeff", {expiresIn : 7200}),
 			userId: user._id
 		});
 	});
