@@ -50,7 +50,7 @@ app.post('/auth', function(req, res, next) {
 		}
 		res.status( 200 ).json( {
 			message: 'Successfully logged in',
-			token: jwt.sign( { user: user }, "my nama jeff", {expiresIn : 7200}),
+			token: jwt.sign( { user: user }, 'my nama jeff', {expiresIn : 7200}),
 			userId: user._id
 		});
 	});
@@ -75,7 +75,7 @@ app.get( '/api/test-conversation', function( req, res, next ) {
 	} );
 } );
 
-app.post( '/api/test-conversation', function( req, res, next ) {
+app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 	// save new message
 	Message.create( { text: req.body.text }, function( err ) {
 		if ( err ) {
@@ -89,6 +89,27 @@ app.post( '/api/test-conversation', function( req, res, next ) {
 	} );
 	// respond with success message
 } );
+
+// Middleware
+
+function authenticate(req, res, next) {
+	var decoded = jwt.decode(req.query.token);
+	User.findbyID(decoded.user._id, function(err, user) {
+		if (err) {
+			return res.status(500).json({
+				title: 'An error occurred',
+				error: err
+			});
+		}
+		if (!user) {
+			return res.status(401).json({
+				title: 'User not logged in.',
+				error: {message: 'Invalid JWT to server.'}
+			});
+		}
+		return next;
+	});
+}
 
 // Include routes above this point
 http.listen( app.get( 'port' ), function() {
