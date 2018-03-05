@@ -13,19 +13,22 @@ $(document).ready( function() {
 
 	var socket = io();
 	$('#send-button').on('click', function(e) {
-		console.log( 'jeff' );
 		e.preventDefault();
-		//test-conversation will be replaced with conversation id.
-		$.ajax({
-			url: '/api/test-conversation',  //TODO: change to conersation id
-			method: 'post',
-			data: { text: $('#text-entry-box').val()}
-		}).done(function(data) {
-			if (data.message == 'Reply Successful')
-				socket.emit('new-message', 'test-conversation') //TODO: change to conersation id
-		}).always(function() {
-			$('#text-entry-box').val('');
-		});
+		if ( localStorage.getItem( 'token' ) ) {
+			//test-conversation will be replaced with conversation id.
+			$.ajax({
+				url: '/api/test-conversation',  //TODO: change to conersation id
+				method: 'post',
+				data: { text: $('#text-entry-box').val(), token: localStorage.getItem( 'token' ) }
+			}).done(function(data) {
+				if (data.message == 'Reply Successful')
+					socket.emit('new-message', 'test-conversation') //TODO: change to conersation id
+			} ).fail( function( fqXHR, textStatus ) {
+				console.log( 'failure' );
+			} ).always(function() {
+				$('#text-entry-box').val('');
+			});
+		}
 	});
 
 //test-conversation will be replaced with conversation id.
