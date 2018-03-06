@@ -1,11 +1,14 @@
 var express 					= require( 'express' ),
-		app								= express(),
-		http							= require( 'http' ).Server(app),
-		mongoose					= require( 'mongoose' ),
-		io								= require( 'socket.io' ).listen( http ),
+		app						= express(),
+		http					= require( 'http' ).Server(app),
+		mongoose				= require( 'mongoose' ),
+		io						= require( 'socket.io' ).listen( http ),
 		bodyParser				= require( 'body-parser' ),
-		socketController	= require( './controllers/socket' ),
-		Message 					= require( './models/message' );
+		bcrypt					= require( 'bcryptjs' ),
+		jwt						= require( 'jsonwebtoken' ),
+		socketController		= require( './controllers/socket' ),
+		Message 				= require( './models/message' ),
+		User					= require( './models/user' );
 
 // connect to mongoose
 mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@141.219.197.147:27017/doodle_chat', function( err ) {
@@ -40,6 +43,51 @@ app.get( '/register', function( req, res, next ) {
 	res.render( 'register' );
 } );
 
+// auth route
+app.post('/auth', function(req, res, next) {
+	var user = new User({
+		username: req.body.username,
+		password: bcrypt.hashSync( req.body.password, 10 )
+	});
+	user.save( function( err, user ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		res.status( 200 ).json( {
+			message: 'Successfully logged in',
+			token: jwt.sign( { user: user }, 'my nama jeff', {expiresIn : 7200}),
+			userId: user._id
+		});
+	});
+} );
+
+// login route
+app.post('/auth/login', function(req, res, next) {
+	User.findOne( { username: req.body.username }, function( err, user ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		if ( !user || !bcrypt.compareSync( req.body.password, user.password ) ) {
+			return res.status( 401 ).json({
+				title: 'Login failed',
+				error: { message: 'Invalid login credentials' }
+			});
+		}
+		var token = jwt.sign( { user: user }, 'my nama jeff', { expiresIn: 7200 } );
+		res.status( 200 ).json( {
+			message: 'Successfully logged in',
+			token: token,
+			userId: user._id
+		} );
+	});
+} );
+
 app.get( '/api/test-conversation', function( req, res, next ) {
 	Message.find( {}, function( err, messages ) {
 		if ( err ) {
@@ -54,7 +102,7 @@ app.get( '/api/test-conversation', function( req, res, next ) {
 	} );
 } );
 
-app.post( '/api/test-conversation', function( req, res, next ) {
+app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 	// save new message
 	Message.create( { text: req.body.text }, function( err ) {
 		if ( err ) {
@@ -68,6 +116,27 @@ app.post( '/api/test-conversation', function( req, res, next ) {
 	} );
 	// respond with success message
 } );
+
+// Middleware
+
+function authenticate(req, res, next) {
+	var decoded = jwt.decode(req.query.token);
+	User.findbyID(decoded.user._id, function(err, user) {
+		if (err) {
+			return res.status(500).json({
+				title: 'An error occurred',
+				error: err
+			});
+		}
+		if (!user) {
+			return res.status(401).json({
+				title: 'User not logged in.',
+				error: {message: 'Invalid JWT to server.'}
+			});
+		}
+		return next;
+	});
+}
 
 // Include routes above this point
 http.listen( app.get( 'port' ), function() {
