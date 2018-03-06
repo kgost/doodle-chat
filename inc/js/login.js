@@ -4,7 +4,7 @@ $( document ).ready( function() {
 	$( '#submit' ).on( 'click', function( e ) {
 		e.preventDefault();
 
-		if ( !validPassword( $( '#username' ).val() ) ) {
+		if ( !validUsername( $( '#username' ).val() ) ) {
 			return;
 		}
 
@@ -26,4 +26,12 @@ $( document ).ready( function() {
 			console.log( 'failure' );
 		} );
 	} );
+
+	function validUsername( username ) {
+		return true;
+	}
+
+	function validPassword( password ) {
+		return true;
+	}
 } );

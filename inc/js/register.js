@@ -26,4 +26,13 @@ $( document ).ready( function() {
 			console.log( 'failure' );
 		} );
 	} );
+
+
+	function validUsername( username ) {
+		return true;
+	}
+
+	function validPassword( password ) {
+		return true;
+	}
 } );
