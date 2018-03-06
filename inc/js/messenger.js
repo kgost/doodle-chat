@@ -28,6 +28,8 @@ $(document).ready( function() {
 			} ).always(function() {
 				$('#text-entry-box').val('');
 			});
+		} else {
+			flashError( 'You Must Be Logged In' );
 		}
 	});
 
