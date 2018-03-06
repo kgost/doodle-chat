@@ -19,9 +19,8 @@ $( document ).ready( function() {
 		}).done(function(data) {
 			localStorage.setItem( 'token', data.userId );
 			localStorage.setItem( 'userId', data.token );
-			console.log( data );
 		} ).fail( function( fqXHR, textStatus ) {
-			console.log( 'failure' );
+			flashError( fqXHR.responseJSON.error.message );
 		} );
 	} );
 

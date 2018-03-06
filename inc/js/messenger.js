@@ -24,7 +24,7 @@ $(document).ready( function() {
 				if (data.message == 'Reply Successful')
 					socket.emit('new-message', 'test-conversation') //TODO: change to conersation id
 			} ).fail( function( fqXHR, textStatus ) {
-				console.log( 'failure' );
+				flashError( fqXHR.responseJSON.error.message );
 			} ).always(function() {
 				$('#text-entry-box').val('');
 			});
@@ -43,6 +43,8 @@ $(document).ready( function() {
 					$("#message-container").append('<div class="card"> <div class="card-body">' + data.obj[i].text + '</div> </div>');
 				}
 			}
-		});
+		}).fail( function( fqXHR, textStatus ) {
+			flashError( fqXHR.responseJSON.error.message );
+		} );
 	});
 });
