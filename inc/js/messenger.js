@@ -17,9 +17,9 @@ $(document).ready( function() {
 		if ( localStorage.getItem( 'token' ) ) {
 			//test-conversation will be replaced with conversation id.
 			$.ajax({
-				url: '/api/test-conversation',  //TODO: change to conersation id
+				url: '/api/test-conversation?token=' + localStorage.getItem( 'token' ),  //TODO: change to conersation id
 				method: 'post',
-				data: { text: $('#text-entry-box').val(), token: localStorage.getItem( 'token' ) }
+				data: { text: $('#text-entry-box').val() }
 			}).done(function(data) {
 				if (data.message == 'Reply Successful')
 					socket.emit('new-message', 'test-conversation') //TODO: change to conersation id
