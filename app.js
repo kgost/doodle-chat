@@ -121,7 +121,8 @@ app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 
 function authenticate(req, res, next) {
 	var decoded = jwt.decode(req.query.token);
-	User.findbyID(decoded.user._id, function(err, user) {
+	console.log(decoded);
+	User.findById(decoded.user._id, function(err, user) {
 		if (err) {
 			return res.status(500).json({
 				title: 'An error occurred',
@@ -134,7 +135,7 @@ function authenticate(req, res, next) {
 				error: {message: 'Invalid JWT to server.'}
 			});
 		}
-		return next;
+		return next();
 	});
 }
 
