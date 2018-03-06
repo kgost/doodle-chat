@@ -27,12 +27,20 @@ socketController( io );
 
 // home route, replace placeholder with actual ejs file and move to seperate route file
 app.get( '/', function( req, res, next ) {
-	res.send( 'Placeholder' );
+	res.render( 'home' );
 } );
 
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
 app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
+} );
+
+app.get( '/login', function( req, res, next ) {
+	res.render( 'login' );
+} );
+
+app.get( '/register', function( req, res, next ) {
+	res.render( 'register' );
 } );
 
 // auth route
