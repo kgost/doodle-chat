@@ -88,6 +88,28 @@ app.post('/auth/login', function(req, res, next) {
 	});
 } );
 
+//username uniqueness
+app.get('/api/userUniqueness/:username', function(req, res, next) {
+	User.findOne( { username: req.params.username}, function( err, user ) {
+		if (err) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		if ( Object.keys(user).length === 0 ) {
+			return res.status (200 ).json({
+				message: 'Username avaliable',
+				obj: true
+			});
+		}
+		res.status( 200 ).json( {
+			message: 'Username in use',
+			obj: false
+		});
+	});
+});
+
 app.get( '/api/test-conversation', authenticate, function( req, res, next ) {
 	Message.find( {}, function( err, messages ) {
 		if ( err ) {
