@@ -17,8 +17,8 @@ $( document ).ready( function() {
 			method: 'post',
 			data: user
 		}).done(function(data) {
-			localStorage.setItem( 'token', data.userId );
-			localStorage.setItem( 'userId', data.token );
+			localStorage.setItem( 'token', data.token );
+			localStorage.setItem( 'userId', data.userId );
 		} ).fail( function( fqXHR, textStatus ) {
 			flashError( fqXHR.responseJSON.error.message );
 		} );
