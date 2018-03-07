@@ -31,13 +31,13 @@ app.get( '/', function( req, res, next ) {
 } );
 
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
-app.get( '/messenger', function( req, res, next ) {
+app.get( '/messenger', authenticate, function( req, res, next ) {
 	res.render( 'messenger' );
 } );
 
 app.get( '/login', function( req, res, next ) {
-	res.render( 'login' );
-} );
+	res.render( 'login');
+});
 
 app.get( '/register', function( req, res, next ) {
 	res.render( 'register' );
@@ -88,7 +88,29 @@ app.post('/auth/login', function(req, res, next) {
 	});
 } );
 
-app.get( '/api/test-conversation', function( req, res, next ) {
+//username uniqueness
+app.get('/api/userUniqueness/:username', function(req, res, next) {
+	User.findOne( { username: req.params.username}, function( err, user ) {
+		if (err) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		if ( Object.keys(user).length === 0 ) {
+			return res.status (200 ).json({
+				message: 'Username avaliable',
+				obj: true
+			});
+		}
+		res.status( 200 ).json( {
+			message: 'Username in use',
+			obj: false
+		});
+	});
+});
+
+app.get( '/api/test-conversation', authenticate, function( req, res, next ) {
 	Message.find( {}, function( err, messages ) {
 		if ( err ) {
 			res.status( 500 );
@@ -120,15 +142,20 @@ app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 // Middleware
 
 function authenticate(req, res, next) {
+	if (!req.query.token) {
+		return res.redirect('/login?e=401');
+	}
 	var decoded = jwt.decode(req.query.token);
 	User.findById(decoded.user._id, function(err, user) {
 		if (err) {
+			res.redirect('/login');
 			return res.status(500).json({
 				title: 'An error occurred',
 				error: err
 			});
 		}
 		if (!user) {
+			res.redirect('/login');
 			return res.status(401).json({
 				title: 'User not logged in.',
 				error: {message: 'Invalid JWT to server.'}
@@ -141,4 +168,4 @@ function authenticate(req, res, next) {
 // Include routes above this point
 http.listen( app.get( 'port' ), function() {
   console.log( 'Node app is running on port', app.get( 'port' ) );
-} );
+});
