@@ -27,12 +27,20 @@ socketController( io );
 
 // home route, replace placeholder with actual ejs file and move to seperate route file
 app.get( '/', function( req, res, next ) {
-	res.send( 'Placeholder' );
+	res.render( 'home' );
 } );
 
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
 app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
+} );
+
+app.get( '/login', function( req, res, next ) {
+	res.render( 'login' );
+} );
+
+app.get( '/register', function( req, res, next ) {
+	res.render( 'register' );
 } );
 
 // auth route
@@ -113,7 +121,8 @@ app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 
 function authenticate(req, res, next) {
 	var decoded = jwt.decode(req.query.token);
-	User.findbyID(decoded.user._id, function(err, user) {
+	console.log(decoded);
+	User.findById(decoded.user._id, function(err, user) {
 		if (err) {
 			return res.status(500).json({
 				title: 'An error occurred',
@@ -126,7 +135,7 @@ function authenticate(req, res, next) {
 				error: {message: 'Invalid JWT to server.'}
 			});
 		}
-		return next;
+		return next();
 	});
 }
 
