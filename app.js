@@ -36,8 +36,8 @@ app.get( '/messenger', authenticate, function( req, res, next ) {
 } );
 
 app.get( '/login', function( req, res, next ) {
-	res.render( 'login' );
-} );
+	res.render( 'login');
+});
 
 app.get( '/register', function( req, res, next ) {
 	res.render( 'register' );
@@ -143,7 +143,7 @@ app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 
 function authenticate(req, res, next) {
 	if (!req.query.token) {
-		return res.redirect('/login');
+		return res.redirect('/login?e=401');
 	}
 	var decoded = jwt.decode(req.query.token);
 	User.findById(decoded.user._id, function(err, user) {
@@ -168,4 +168,4 @@ function authenticate(req, res, next) {
 // Include routes above this point
 http.listen( app.get( 'port' ), function() {
   console.log( 'Node app is running on port', app.get( 'port' ) );
-} );
+});
