@@ -121,7 +121,6 @@ app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 
 function authenticate(req, res, next) {
 	var decoded = jwt.decode(req.query.token);
-	console.log(decoded);
 	User.findById(decoded.user._id, function(err, user) {
 		if (err) {
 			return res.status(500).json({
