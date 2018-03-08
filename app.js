@@ -31,7 +31,7 @@ app.get( '/', function( req, res, next ) {
 } );
 
 // messenger route, TODO: implement messenger.ejs and messenger.js front end files
-app.get( '/messenger', authenticate, function( req, res, next ) {
+app.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
 } );
 
@@ -142,8 +142,11 @@ app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
 // Middleware
 
 function authenticate(req, res, next) {
-	if (!req.query.token) {
-		return res.redirect('/login?e=401');
+	if (!req.query.token || req.query.token == 'null') {
+		return res.status(401).json({
+			title: 'User not logged in.',
+			error: {message: 'Invalid JWT to server.'}
+		});
 	}
 	var decoded = jwt.decode(req.query.token);
 	User.findById(decoded.user._id, function(err, user) {
@@ -155,7 +158,6 @@ function authenticate(req, res, next) {
 			});
 		}
 		if (!user) {
-			res.redirect('/login');
 			return res.status(401).json({
 				title: 'User not logged in.',
 				error: {message: 'Invalid JWT to server.'}
