@@ -53,7 +53,7 @@ app.post('/auth', function(req, res, next) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
-				error: err
+				error: { message: 'Username taken.' }
 			});
 		}
 		res.status( 200 ).json( {

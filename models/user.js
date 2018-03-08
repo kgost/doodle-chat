@@ -1,11 +1,9 @@
 //Model File for Users
-//https://thinkster.io/tutorials/node-json-api/creating-the-user-model
-
 var mongoose = require( 'mongoose' );
 
 var userSchema = new mongoose.Schema({
-  username: String,
-  password: String,
+  username: {type:String, unique:true, required:true},
+  password: {type:String, required:true}
 }, { timestamps: true } );
 
 module.exports = mongoose.model( 'User' , userSchema );
