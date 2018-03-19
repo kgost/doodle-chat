@@ -1,17 +1,16 @@
-var express 					= require( 'express' ),
+var 	express 				= require( 'express' ),
 		app						= express(),
 		http					= require( 'http' ).Server(app),
 		mongoose				= require( 'mongoose' ),
 		io						= require( 'socket.io' ).listen( http ),
 		bodyParser				= require( 'body-parser' ),
-		bcrypt					= require( 'bcryptjs' ),
-		jwt						= require( 'jsonwebtoken' ),
 		socketController		= require( './controllers/socket' ),
-		Message 				= require( './models/message' ),
-		User					= require( './models/user' );
+		appRoutes				= require('./routes/app'),
+		apiRoutes				= require('./routes/api'),
+		authRoutes				= require('./routes/auth');
 
 // connect to mongoose
-mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@141.219.197.147:27017/doodle_chat', function( err ) {
+mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@141.219.196.232:27017/doodle_chat', function( err ) {
 	if ( err ) {
 		throw err;
 	}
@@ -23,149 +22,12 @@ app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( express.static(__dirname + '/inc') );
 
+app.use('/', appRoutes);
+app.use('/api', apiRoutes);
+app.use('/auth', authRoutes);
+
 socketController( io );
 
-// home route, replace placeholder with actual ejs file and move to seperate route file
-app.get( '/', function( req, res, next ) {
-	res.render( 'home' );
-} );
-
-// messenger route, TODO: implement messenger.ejs and messenger.js front end files
-app.get( '/messenger', function( req, res, next ) {
-	res.render( 'messenger' );
-} );
-
-app.get( '/login', function( req, res, next ) {
-	res.render( 'login');
-});
-
-app.get( '/register', function( req, res, next ) {
-	res.render( 'register' );
-} );
-
-// auth route
-app.post('/auth', function(req, res, next) {
-	var user = new User({
-		username: req.body.username,
-		password: bcrypt.hashSync( req.body.password, 10 )
-	});
-	user.save( function( err, user ) {
-		if ( err ) {
-			return res.status( 500 ).json({
-				title: 'An error occured',
-				error: { message: 'Username taken.' }
-			});
-		}
-		res.status( 200 ).json( {
-			message: 'Successfully logged in',
-			token: jwt.sign( { user: user }, 'my nama jeff', {expiresIn : 7200}),
-			userId: user._id
-		});
-	});
-} );
-
-// login route
-app.post('/auth/login', function(req, res, next) {
-	User.findOne( { username: req.body.username }, function( err, user ) {
-		if ( err ) {
-			return res.status( 500 ).json({
-				title: 'An error occured',
-				error: err
-			});
-		}
-		if ( !user || !bcrypt.compareSync( req.body.password, user.password ) ) {
-			return res.status( 401 ).json({
-				title: 'Login failed',
-				error: { message: 'Invalid login credentials' }
-			});
-		}
-		var token = jwt.sign( { user: user }, 'my nama jeff', { expiresIn: 7200 } );
-		res.status( 200 ).json( {
-			message: 'Successfully logged in',
-			token: token,
-			userId: user._id
-		} );
-	});
-} );
-
-//username uniqueness
-app.get('/api/userUniqueness/:username', function(req, res, next) {
-	User.findOne( { username: req.params.username}, function( err, user ) {
-		if (err) {
-			return res.status( 500 ).json({
-				title: 'An error occured',
-				error: err
-			});
-		}
-		if ( Object.keys(user).length === 0 ) {
-			return res.status (200 ).json({
-				message: 'Username avaliable',
-				obj: true
-			});
-		}
-		res.status( 200 ).json( {
-			message: 'Username in use',
-			obj: false
-		});
-	});
-});
-
-app.get( '/api/test-conversation', authenticate, function( req, res, next ) {
-	Message.find( {}, function( err, messages ) {
-		if ( err ) {
-			res.status( 500 );
-			return next( err );
-		}
-
-		res.status( 200 ).json({
-			message: 'Reply Successful',
-			obj: messages
-		});
-	} );
-} );
-
-app.post( '/api/test-conversation', authenticate, function( req, res, next ) {
-	// save new message
-	Message.create( { text: req.body.text }, function( err ) {
-		if ( err ) {
-			res.status( 500 );
-			return next( err );
-		}
-
-		res.status( 200 ).json({
-			message: 'Reply Successful'
-		});
-	} );
-	// respond with success message
-} );
-
-// Middleware
-
-function authenticate(req, res, next) {
-	if (!req.query.token || req.query.token == 'null') {
-		return res.status(401).json({
-			title: 'User not logged in.',
-			error: {message: 'Invalid JWT to server.'}
-		});
-	}
-	var decoded = jwt.decode(req.query.token);
-	User.findById(decoded.user._id, function(err, user) {
-		if (err) {
-			res.redirect('/login');
-			return res.status(500).json({
-				title: 'An error occurred',
-				error: err
-			});
-		}
-		if (!user) {
-			return res.status(401).json({
-				title: 'User not logged in.',
-				error: {message: 'Invalid JWT to server.'}
-			});
-		}
-		return next();
-	});
-}
 
 // Include routes above this point
 http.listen( app.get( 'port' ), function() {
