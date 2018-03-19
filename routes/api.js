@@ -1,7 +1,8 @@
 var express 		= require('express'),
 	router 			= express.Router(),
 	Message 		= require( '../models/message' ),
-	User			= require( '../models/user' )
+	Conversation 		= require( '../models/conversation' ),
+	User			= require( '../models/user' ),
 	middleware		= require('../functions/middleware');
 
 
@@ -26,6 +27,22 @@ router.get('/userUniqueness/:username', function(req, res, next) {
 		});
 	});
 });
+
+router.post( '/conversations', middleware.authenticate, function( req, res, next ) {
+	Conversation.create( req.body, function( err, conversation ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+
+		res.status( 201 ).json({
+			message: 'Conversation Created',
+			obj: conversation
+		});
+	} );
+} );
 
 router.get( '/test-conversation',  middleware.authenticate, function( req, res, next ) {
 	Message.find( {}, function( err, messages ) {
