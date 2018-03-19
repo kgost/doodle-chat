@@ -47,12 +47,15 @@ router.post( '/conversations', middleware.authenticate, function( req, res, next
 router.get( '/test-conversation',  middleware.authenticate, function( req, res, next ) {
 	Message.find( {}, function( err, messages ) {
 		if ( err ) {
-			res.status( 500 );
-			return next( err );
+			res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
 		}
+		
 		res.status( 200 ).json({
-		message: 'Reply Successful',
-		obj: messages
+			message: 'Reply Successful',
+			obj: messages
 		});
 	});
 });
@@ -61,9 +64,12 @@ router.post( '/test-conversation', middleware.authenticate, function( req, res, 
 	// save new message
 	Message.create( { text: req.body.text }, function( err ) {
 		if ( err ) {
-			res.status( 500 );
-			return next( err );
+			res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
 		}
+		
 		res.status( 200 ).json({
 			message: 'Reply Successful'
 		});
