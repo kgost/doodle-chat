@@ -44,15 +44,15 @@ router.post( '/conversations', middleware.authenticate, function( req, res, next
 	} );
 } );
 
-router.get( '/test-conversation',  middleware.authenticate, function( req, res, next ) {
-	Message.find( {}, function( err, messages ) {
+router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
+	Message.find( { conversation_id: req.params.conversationId } ).sort( '-createdAt' ).exec( function( err, messages ) {
 		if ( err ) {
-			res.status( 500 ).json({
+			return res.status( 500 ).json({
 				title: 'An error occured',
 				error: err
 			});
 		}
-		
+
 		res.status( 200 ).json({
 			message: 'Reply Successful',
 			obj: messages
@@ -60,17 +60,17 @@ router.get( '/test-conversation',  middleware.authenticate, function( req, res, 
 	});
 });
 
-router.post( '/test-conversation', middleware.authenticate, function( req, res, next ) {
+router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
 	// save new message
-	Message.create( { text: req.body.text }, function( err ) {
+	Message.create( { text: req.body.text, conversation_id: req.params.conversationId }, function( err ) {
 		if ( err ) {
-			res.status( 500 ).json({
+			return res.status( 500 ).json({
 				title: 'An error occured',
 				error: err
 			});
 		}
 		
-		res.status( 200 ).json({
+		res.status( 201 ).json({
 			message: 'Reply Successful'
 		});
 	} );
