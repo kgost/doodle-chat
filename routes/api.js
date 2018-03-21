@@ -65,8 +65,20 @@ router.put('/conversation/:id', middleware.authenticate, middleware.isConversati
 });
 
 //DESTROY Conversation
-//TODO: Make DESTROY Route
-
+router.delete(' /conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
+	Conversation.findOneByIdAndDelete(req.params.id, req.body, function(err) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		
+		res.status( 200 ).json({
+			message: 'Conversation deleted'
+		});
+	});
+});
 
 //Message Routes
 

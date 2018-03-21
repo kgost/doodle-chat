@@ -65,14 +65,14 @@ var actions = {
 
 	//Check if user making request is the owner
 	isConversationOwner: function(req, res, next) {
-		if ( !req.params.conversationId || req.params.conversationId == 'null' ) {
+		if ( !req.params.id || req.params.id == 'null' ) {
 			return res.status(400).json({
 				title: 'No conversation provided.',
 				error: {message: 'Invalid conversation id sent to server.'}
 			});
 		}
 
-		Conversation.findById( req.params.conversationId, function( err, conversation ) {
+		Conversation.findById( req.params.id, function( err, conversation ) {
 			if ( !conversation ) {
 				return res.status(404).json({
 					title: 'No conversation found.',
