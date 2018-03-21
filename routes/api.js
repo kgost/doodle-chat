@@ -52,7 +52,7 @@ router.post( '/conversations', middleware.authenticate, function( req, res, next
 
 //UPDATE Conversation
 router.put('/conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
-	Conversation.findOneByIdAndUpdate(req.params.ids, req.body, , function(err) {
+	Conversation.findOneByIdAndUpdate(req.params.ids, req.body, function(err) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
