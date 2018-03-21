@@ -31,7 +31,7 @@ router.get('/userUniqueness/:username', function(req, res, next) {
 //Conversation Routes
 
 //CREATE Conversation
-router.post( '/conversations', middleware.authenticate, function( req, res, next ) {
+router.post( '/conversation', middleware.authenticate, function( req, res, next ) {
 	Conversation.create( req.body, function( err, conversation ) {
 		if ( err ) {
 			return res.status( 500 ).json({
@@ -52,7 +52,7 @@ router.post( '/conversations', middleware.authenticate, function( req, res, next
 
 //UPDATE Conversation
 router.put('/conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
-	Conversation.findOneByIdAndUpdate(req.params.ids, req.body, function(err) {
+	Conversation.findOneByIdAndUpdate(req.params.id, req.body, function(err) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
