@@ -2,7 +2,8 @@ var express 		= require('express'),
 	router 			= express.Router(),
 	Message 		= require( '../models/message' ),
 	User			= require( '../models/user' )
-	middleware		= require('../functions/middleware');
+	Conversation	= require( '../models/conversation' )
+	middleware		= require( '../functions/middleware' );
 
 
 //username uniqueness
@@ -26,6 +27,24 @@ router.get('/userUniqueness/:username', function(req, res, next) {
 		});
 	});
 });
+
+//	Message routes
+
+//update
+router.put('/conversation/:id', authenticate, isOwner, function(req, res, next) {		//TODO:make isOwner middleware
+	Conversation.findOneByIdAndUpdate(req.params.ids, req.body, , function(err) {
+		if (err) return res.send(500, {error: err});
+		return res.send("successfully updated");
+	});
+
+});
+
+
+
+//Conversation routes
+
+
+
 
 router.get( '/test-conversation',  middleware.authenticate, function( req, res, next ) {
 	Message.find( {}, function( err, messages ) {
