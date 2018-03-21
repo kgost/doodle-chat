@@ -48,7 +48,47 @@ router.post( '/conversation', middleware.authenticate, function( req, res, next 
 } );
 
 //READ Conversation
-//TODO: Create conversation READ route
+	router.get( '/conversations', middleware.authenticate, function( req, res, next ){
+		//Finding all conversations this user is a part of
+		Conversation.find({ participants: req.user._id })
+		.select( '_id' )
+		.exec( function( err, conversations ) {
+			if ( err ) {
+				return res.status( 500 ).json({
+					title: 'An error occured',
+					error: err
+				});
+			}
+			//Filling an array with all conversations the user is a part of
+			let fullConversations = [];
+			conversations.forEach( function( conversation ) {
+				//Grabbing most recent message to display for this conversation
+				Message.find({ 'conversationId' : conversation._id})
+				.sort( '-createdAt' )
+				.limit(1)
+				.populate({
+					path: "author",
+					select: "username"
+				})
+				.exec( function( err, message ) {
+					if ( err ) {
+						return res.status( 500 ).json({
+							title: 'An error occured',
+							error: err
+						});
+					}
+					//Once the fullConversations array is full return it
+					fullConversations.push( message );
+					if( fullConversations.length == conversations.length ) {
+						return res.status( 200 ).json({
+							conversations: fullConversations
+						});
+					}
+				});
+			});
+		});
+});
+
 
 //UPDATE Conversation
 router.put('/conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
