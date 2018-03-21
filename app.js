@@ -97,7 +97,7 @@ app.get('/api/userUniqueness/:username', function(req, res, next) {
 				error: err
 			});
 		}
-		if ( Object.keys(user).length === 0 ) {
+		if ( !user || Object.keys(user).length === 0 ) {
 			return res.status (200 ).json({
 				message: 'Username avaliable',
 				obj: true

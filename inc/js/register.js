@@ -21,35 +21,38 @@ $( document ).ready( function() {
 		} );
 	} );
 	
-	$( '#username' ).on( 'keypress', function ( e ) {
+	$( '#username' ).on( 'keyup', function ( e ) {
 		var uName = $(this).val();
-		$.ajax({
-			url: '/api/userUniqueness/' + uName,
-			method: 'get'
-		}).done(function(data) {
-			if (data.obj) {
-				username = true;
-			}
-			else {
-				username = false; //flash error
-			}
-			checkAll();
-		}).fail( function( fqXHR, textStatus ) {
-			if ( fqXHR.status == 401 ) {
-				socket.disconnect();
-				document.location.href='/login?e=401';
-			} else {
-				flashError( fqXHR.responseJSON.error.message );
-			}
-			checkAll();
-		});
+		if (uName.length > 0) {
+			$.ajax({
+				url: '/api/userUniqueness/' + uName,
+				method: 'get'
+			}).done(function(data) {
+				if (data.obj) {
+					username = true;
+				}
+				else {
+					username = false; //flash error
+				}
+				checkAll();
+			}).fail( function( fqXHR, textStatus ) {
+				if ( fqXHR.status == 401 ) {
+					socket.disconnect();
+					document.location.href='/login?e=401';
+				} else {
+					flashError( fqXHR.responseJSON.error.message );
+				}
+				checkAll();
+			});
+		}
 	});
 	
-	$( '#password' ).on( 'keypress', function ( e ) {
+	$( '#password' ).on( 'keyup', function ( e ) {
 		var pw = $(this).val();
 		var cpw = $( '#confirm-password' ).val();
 		if(pw.length >= 6 && pw == cpw) {
 			password = true;
+			cPassword = true;
 		}
 		else {
 			if(pw != cpw) { //flash not equal message
@@ -62,11 +65,12 @@ $( document ).ready( function() {
 		checkAll();
 	});
 	
-	$( '#confirm-password' ).on( 'keypress', function ( e ) {
+	$( '#confirm-password' ).on( 'keyup', function ( e ) {
 		var cpw = $(this).val();
 		var pw = $( '#password' ).val();
-		if(pw == cpw) {
+		if(pw == cpw && pw.length >= 6) {
 			cPassword = true;
+			password = true;
 		}
 		else { //flash not equal message
 			cPassword = false;
@@ -76,7 +80,7 @@ $( document ).ready( function() {
 	
 	function checkAll() {
 		if (username && password && cPassword) {
-			$( '#submit' ).prop('disabled', false);
+			$( '#submit' ).removeAttr('disabled');
 		}
 		else {
 			$( '#submit' ).prop('disabled', true);
