@@ -48,26 +48,17 @@ router.post( '/conversations', middleware.authenticate, function( req, res, next
 } );
 
 //READ Conversation
-router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
-	Message.find( { conversation_id: req.params.conversationId } ).sort( '-createdAt' ).exec( function( err, messages ) {
+//TODO: Create conversation READ route
+
+//UPDATE Conversation
+router.put('/conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
+	Conversation.findOneByIdAndUpdate(req.params.ids, req.body, , function(err) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
 				error: err
 			});
 		}
-
-		res.status( 200 ).json({
-			message: 'Reply Successful',
-			obj: messages
-		});
-	});
-});
-
-//UPDATE Conversation
-router.put('/conversation/:id', authenticate, isOwner, function(req, res, next) {		//TODO:make isOwner middleware
-	Conversation.findOneByIdAndUpdate(req.params.ids, req.body, , function(err) {
-		if (err) return res.send(500, {error: err});
 		return res.send("successfully updated");
 	});
 
@@ -77,7 +68,9 @@ router.put('/conversation/:id', authenticate, isOwner, function(req, res, next) 
 //TODO: Make DESTROY Route
 
 
+//Message Routes
 
+//CREATE message
 router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
 	// save new message
 	Message.create( { text: req.body.text, conversation_id: req.params.conversationId }, function( err ) {
@@ -94,5 +87,22 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 	} );
 	// respond with success message
 } );
+
+//UPDATE messages
+router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
+	Message.find( { conversation_id: req.params.conversationId } ).sort( '-createdAt' ).exec( function( err, messages ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+
+		res.status( 200 ).json({
+			message: 'Reply Successful',
+			obj: messages
+		});
+	});
+});
 
 module.exports = router;

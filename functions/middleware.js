@@ -61,6 +61,36 @@ var actions = {
 
 			return next();
 		} );
+	},
+
+	//Check if user making request is the owner
+	isConversationOwner: function(req, res, next) {
+		if ( !req.params.conversationId || req.params.conversationId == 'null' ) {
+			return res.status(400).json({
+				title: 'No conversation provided.',
+				error: {message: 'Invalid conversation id sent to server.'}
+			});
+		}
+
+		Conversation.findById( req.params.conversationId, function( err, conversation ) {
+			if ( !conversation ) {
+				return res.status(404).json({
+					title: 'No conversation found.',
+					error: {message: 'Invalid conversation id sent to server.'}
+				});
+			}
+
+			var decoded = jwt.decode(req.query.token);
+
+			if ( conversation.owner != decoded.user._id ) {
+				return res.status( 401 ).json({
+					title: 'Unauthorized User.',
+					error: {message: 'You are not the owner of this conversation.'}
+				});
+			}
+
+			return next();
+		} );
 	}
 
 };
