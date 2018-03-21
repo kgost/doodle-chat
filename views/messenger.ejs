@@ -1,8 +1,35 @@
 
-<%include header%>   
+<%include header%>
+	<!-- Modal -->
+	<div id="new-convo-modal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<!-- Modal content-->
+		<div class="modal-content">
+	  	<div class="modal-header">
+			<h4 class="modal-title">New Conversation</h4>
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	  	</div>
+	  	<div class="modal-body">
+			<p>Some text in the modal.</p>
+	  	</div>
+		<div class="modal-footer">
+			<button id="cancel" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+			<button id="submit" type="button" class="btn btn-primary" >Submit</button>
+	  	</div>
+		</div>
+
+	</div>
+	</div>
+
+
 	<div id="placeholder-container-id" class="container">
-	<br><a href="#" class="badge badge-primary">Home</a>
-	<a href="#" class="badge badge-secondary">Profile</a>
+	<br>
+	<div id="conversation-list" class="sidenav">
+		<button id="new-convo-button" type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#new-convo-modal">New Conversation</button>
+		<br>
+	</div>
+	<br>
 	<div id="message-container" class="container">
 		<div class="card">
 			<div class="card-body">
