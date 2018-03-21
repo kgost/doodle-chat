@@ -28,7 +28,6 @@ app.use('/auth', authRoutes);
 
 socketController( io );
 
-
 // Include routes above this point
 http.listen( app.get( 'port' ), function() {
   console.log( 'Node app is running on port', app.get( 'port' ) );
