@@ -15,7 +15,7 @@ router.get('/userUniqueness/:username', function(req, res, next) {
 				error: err
 			});
 		}
-		if ( Object.keys(user).length === 0 ) {
+		if ( !user || Object.keys(user).length === 0 ) {
 			return res.status (200 ).json({
 				message: 'Username avaliable',
 				obj: true
@@ -65,8 +65,25 @@ router.put('/conversation/:id', middleware.authenticate, middleware.isConversati
 });
 
 //DESTROY Conversation
+<<<<<<< HEAD
 //TODO: Make DESTROY Route
 
+=======
+router.delete(' /conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
+	Conversation.findOneByIdAndDelete(req.params.id, req.body, function(err) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+
+		res.status( 200 ).json({
+			message: 'Conversation deleted'
+		});
+	});
+});
+>>>>>>> d524addc7969983e937933ee1b112f409547624b
 
 //Message Routes
 

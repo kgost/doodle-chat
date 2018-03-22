@@ -18,5 +18,11 @@ exports = module.exports = function( io ) {
 		socket.on( 'disconnect', () => {
 			console.log( 'user disconnected' );
 		} )
+		
+		socket.on( 'destroy', ( conversationId ) => {
+			io.sockets.clients( conversationId ).forEach(function(s) {
+				s.leave( conversationId );
+			});
+		});
 	} );
 }

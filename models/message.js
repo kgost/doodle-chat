@@ -5,8 +5,8 @@ var mongoose = require( 'mongoose' );
 
 var messageSchema = new mongoose.Schema({
   text: String,
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  conversation_id: { type: mongoose.Schema.Types.ObjectId }
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' , required:true},
+  conversation_id: { type: mongoose.Schema.Types.ObjectId, required: true}
 }, { timestamps: true } );
 
 module.exports = mongoose.model( 'Message' , messageSchema );
