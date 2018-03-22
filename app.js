@@ -10,7 +10,7 @@ var 	express 				= require( 'express' ),
 		authRoutes				= require('./routes/auth');
 
 // connect to mongoose
-mongoose.connect( 'mongodb://ci.mtuopensource.club:27017/doodle_chat', function( err ) {
+mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.club:27017/doodle_chat?authSource=doodle_chat', function( err ) {
 	if ( err ) {
 		throw err;
 	}

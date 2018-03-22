@@ -105,6 +105,8 @@ router.put('/conversation/:id', middleware.authenticate, middleware.isConversati
 });
 
 //DESTROY Conversation
+//TODO: Make DESTROY Route
+
 router.delete(' /conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
 	Conversation.findOneByIdAndDelete(req.params.id, req.body, function(err) {
 		if ( err ) {
@@ -113,7 +115,7 @@ router.delete(' /conversation/:id', middleware.authenticate, middleware.isConver
 				error: err
 			});
 		}
-		
+
 		res.status( 200 ).json({
 			message: 'Conversation deleted'
 		});
