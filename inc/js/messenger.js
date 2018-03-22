@@ -7,7 +7,7 @@ $(document).ready( function() {
 		}).done(function(data) {
 			if (data.message == 'Reply Successful') {
 				for (var i = 0; i < data.obj.length; i++) {
-					$("#conversation-list").append('<div class="card"> <div class="card-body">' + data.obj[i].name + '</div> </div>');
+					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card conversation"> <div class="card-body">' + data.obj[i].name + '</div> </div>');
 				}
 			}
 		}).fail( function( fqXHR, textStatus ) {
@@ -22,6 +22,26 @@ $(document).ready( function() {
 		socket.disconnect();
 		document.location.href="/login?e=401";
 	}
+	
+	$('.conversation').on('click', function(e) {
+		$.ajax({
+			url: '/api/messages/' + $(this).id + '?token=' + localStorage.getItem( 'token' ), //TODO: change to conersation id
+			method: 'get'
+		}).done(function(data) {
+			if (data.message == 'Reply Successful') {
+				for (var i = 0; i < data.obj.length; i++) {
+					$("#message-container").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body">' + data.obj[i].text + '</div> </div>');
+				}
+			}
+		}).fail( function( fqXHR, textStatus ) {
+			if ( fqXHR.status == 401 ) {
+				socket.disconnect();
+				document.location.href='/login?e=401';
+			} else {
+				flashError( fqXHR.responseJSON.error.message );
+			}
+		} );
+	});
 
 	$('#send-button').on('click', function(e) {
 		e.preventDefault();
