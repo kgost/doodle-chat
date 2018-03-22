@@ -65,10 +65,8 @@ router.put('/conversation/:id', middleware.authenticate, middleware.isConversati
 });
 
 //DESTROY Conversation
-<<<<<<< HEAD
 //TODO: Make DESTROY Route
 
-=======
 router.delete(' /conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
 	Conversation.findOneByIdAndDelete(req.params.id, req.body, function(err) {
 		if ( err ) {
@@ -83,7 +81,6 @@ router.delete(' /conversation/:id', middleware.authenticate, middleware.isConver
 		});
 	});
 });
->>>>>>> d524addc7969983e937933ee1b112f409547624b
 
 //Message Routes
 
