@@ -1,7 +1,7 @@
 //Model File for Messages
 //http://blog.slatepeak.com/creating-a-real-time-chat-api-with-node-express-socket-io-and-mongodb/
 
-var mongoose = require( 'mongoose' );
+var mongoose 	= require( 'mongoose' );
 
 var messageSchema = new mongoose.Schema({
   text: String,

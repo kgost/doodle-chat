@@ -1,5 +1,6 @@
 var express 		= require('express'),
 	router 			= express.Router(),
+	jwt					= require( 'jsonwebtoken' ),
 	Message 		= require( '../models/message' ),
 	User			= require( '../models/user' )
 	Conversation	= require( '../models/conversation' )
@@ -48,45 +49,59 @@ router.post( '/conversation', middleware.authenticate, function( req, res, next 
 } );
 
 //READ Conversation
-	router.get( '/conversations', middleware.authenticate, function( req, res, next ){
-		//Finding all conversations this user is a part of
-		Conversation.find({ participants: req.user._id })
-		.select( '_id' )
-		.exec( function( err, conversations ) {
-			if ( err ) {
-				return res.status( 500 ).json({
-					title: 'An error occured',
-					error: err
-				});
-			}
-			//Filling an array with all conversations the user is a part of
-			let fullConversations = [];
-			conversations.forEach( function( conversation ) {
-				//Grabbing most recent message to display for this conversation
-				Message.find({ 'conversationId' : conversation._id})
-				.sort( '-createdAt' )
-				.limit(1)
-				.populate({
-					path: "author",
-					select: "username"
-				})
-				.exec( function( err, message ) {
-					if ( err ) {
-						return res.status( 500 ).json({
-							title: 'An error occured',
-							error: err
-						});
-					}
-					//Once the fullConversations array is full return it
-					fullConversations.push( message );
-					if( fullConversations.length == conversations.length ) {
-						return res.status( 200 ).json({
-							conversations: fullConversations
-						});
-					}
-				});
+router.get( '/conversations', middleware.authenticate, function( req, res, next ){
+	var user = jwt.decode(req.query.token).user;
+
+	//Finding all conversations this user is a part of
+	Conversation.find({ participants: user.username })
+	.select( '_id' )
+	.select( 'name' )
+	.exec( function( err, conversations ) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+
+		var ids = [];
+
+		conversations.forEach( function( conversation ) {
+			ids.push( { _id: conversation._id, name: conversation.name } );
+		} );
+
+		return res.status( 200 ).json({
+			obj: ids
+		});
+
+		//Filling an array with all conversations the user is a part of
+		let fullConversations = [];
+		conversations.forEach( function( conversation ) {
+			//Grabbing most recent message to display for this conversation
+			Message.find({ 'conversationId' : conversation._id})
+			.sort( '-createdAt' )
+			.limit(1)
+			.populate({
+				path: "author",
+				select: "username"
+			})
+			.exec( function( err, message ) {
+				if ( err ) {
+					return res.status( 500 ).json({
+						title: 'An error occured',
+						error: err
+					});
+				}
+				//Once the fullConversations array is full return it
+				fullConversations.push( message );
+				if( fullConversations.length == conversations.length ) {
+					return res.status( 200 ).json({
+						conversations: fullConversations
+					});
+				}
 			});
 		});
+	});
 });
 
 
@@ -108,7 +123,7 @@ router.put('/conversation/:id', middleware.authenticate, middleware.isConversati
 //TODO: Make DESTROY Route
 
 router.delete('/conversation/:id', middleware.authenticate, middleware.isConversationOwner, function(req, res, next) {
-	Conversation.findOneByIdAndDelete(req.params.id, req.body, function(err) {
+	Conversation.findByIdAndRemove(req.params.id, req.body, function(err) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
@@ -116,9 +131,18 @@ router.delete('/conversation/:id', middleware.authenticate, middleware.isConvers
 			});
 		}
 
-		res.status( 200 ).json({
-			message: 'Conversation deleted'
-		});
+		Message.remove( { conversation_id: req.params.id }, function( err ) {
+			if ( err ) {
+				return res.status( 500 ).json({
+					title: 'An error occured',
+					error: err
+				});
+			}
+
+			res.status( 200 ).json({
+				message: 'Conversation deleted'
+			});
+		} );
 	});
 });
 
@@ -126,8 +150,9 @@ router.delete('/conversation/:id', middleware.authenticate, middleware.isConvers
 
 //CREATE message
 router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
+	var user = jwt.decode(req.query.token).user;
 	// save new message
-	Message.create( { text: req.body.text, conversation_id: req.params.conversationId }, function( err ) {
+	Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id }, function( err ) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
@@ -144,7 +169,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 
 //UPDATE messages
 router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
-	Message.find( { conversation_id: req.params.conversationId } ).sort( '-createdAt' ).exec( function( err, messages ) {
+	Message.find( { conversation_id: req.params.conversationId } ).sort( '+createdAt' ).exec( function( err, messages ) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',

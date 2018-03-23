@@ -52,7 +52,7 @@ var actions = {
 
 			var decoded = jwt.decode(req.query.token);
 
-			if ( conversation.participants.indexOf( decoded.user._id ) == -1 ) {
+			if ( conversation.participants.indexOf( decoded.user.username ) == -1 ) {
 				return res.status( 401 ).json({
 					title: 'Unauthorized User.',
 					error: {message: 'You are not in this conversation.'}
