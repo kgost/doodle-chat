@@ -1,18 +1,17 @@
 exports = module.exports = function( io ) {
 	io.on( 'connection', ( socket ) => {
 		console.log( 'user connected' );
-		socket.join( 'test-conversation' );
 
-		socket.on( 'enter conversation', ( conversation ) => {
-			socket.join( conversation );
+		socket.on( 'enter conversation', ( conversationId ) => {
+			socket.join( conversationId );
 		} );
 
-		socket.on( 'leave conversation', ( conversation ) => {
-			socket.leave( conversation );
+		socket.on( 'leave conversation', ( conversationId ) => {
+			socket.leave( conversationId );
 		} );
 
-		socket.on( 'new-message', ( conversation ) => {
-			io.sockets.in( 'test-conversation' ).emit( 'refresh', 'test-conversation' );
+		socket.on( 'new-message', ( conversationId ) => {
+			io.sockets.in( conversationId  ).emit( 'refresh', conversationId );
 		} );
 
 		socket.on( 'disconnect', () => {
