@@ -1,4 +1,5 @@
 var errorTimeout;
+var successTimeout;
 
 $( document ).ready( function() {
 	if (getUrlVars().e && getUrlVars().e == 401) {
@@ -40,6 +41,21 @@ function flashError( text ) {
 		$( '#error-box' ).empty();
 
 		errorTimeout = null;
+	}, 5000 );
+}
+
+function flashSuccess( text ) {
+	var html = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + text + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>';
+
+	$( '#success-box' ).html( html );
+	if ( successTimeout ) {
+		clearTimeout( successTimeout );
+	}
+
+	successTimeout = setTimeout( function() {
+		$( '#success-box' ).empty();
+
+	successTimeout = null;
 	}, 5000 );
 }
 

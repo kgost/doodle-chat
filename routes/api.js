@@ -1,6 +1,6 @@
 var express 		= require('express'),
 	router 			= express.Router(),
-	jwt					= require( 'jsonwebtoken' ),
+	jwt				= require( 'jsonwebtoken' ),
 	Message 		= require( '../models/message' ),
 	User			= require( '../models/user' )
 	Conversation	= require( '../models/conversation' )
@@ -33,6 +33,9 @@ router.get('/userUniqueness/:username', function(req, res, next) {
 
 //CREATE Conversation
 router.post( '/conversation', middleware.authenticate, function( req, res, next ) {
+	var user = jwt.decode(req.query.token).user;
+	console.log(req.body.participants);
+	req.body.participants.push(user.username);
 	Conversation.create( req.body, function( err, conversation ) {
 		if ( err ) {
 			return res.status( 500 ).json({

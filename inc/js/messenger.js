@@ -22,7 +22,7 @@ $(document).ready( function() {
 		socket.disconnect();
 		document.location.href="/login?e=401";
 	}
-	
+
 	$('body').on('click', '.conversation', function(e) {
 		var id = $(this).parent().attr('id');
 
@@ -53,7 +53,7 @@ $(document).ready( function() {
 			}
 		} );
 	});
-	
+
 	$('body').on('click', '.closeConversation', function(e) {
 		$.ajax({
 			url: '/api/conversation/' + $(this).parent().attr('id') + '?token=' + localStorage.getItem( 'token' ), //TODO: change to conersation id
@@ -67,8 +67,6 @@ $(document).ready( function() {
 			socket.emit( 'destroy', $(this).parent().attr('id') );
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
-				socket.disconnect();
-				document.location.href='/login?e=401';
 			} else {
 				flashError( fqXHR.responseJSON.error.message );
 			}
@@ -76,7 +74,6 @@ $(document).ready( function() {
 	});
 
 	$( '#submit-conversation' ).on( 'click', function( e ) {
-		console.log( 'jeff' );
 		if ( !localStorage.getItem( 'token' ) ) return;
 
 		var name = $( '#new-conversation-name' ).val(),
@@ -87,12 +84,30 @@ $(document).ready( function() {
 			method: 'post',
 			data: { name: name, owner: localStorage.getItem( 'userId' ), participants: users }
 		}).done(function(data) {
-			flashError( 'Conversation Created' );
+			flashSuccess( 'Conversation Created' );
 		} ).fail( function( fqXHR, textStatus ) {
 			flashError( fqXHR.responseJSON.error.message );
 		} ).always(function() {
 			$('#text-entry-box').val('');
 		});
+
+		$("#conversation-list").empty();
+		$.ajax({
+			url: '/api/conversations?token=' + localStorage.getItem( 'token' ), //TODO: change to conersation id
+			method: 'get'
+		}).done(function(data) {
+			console.log( data );
+			for (var i = 0; i < data.obj.length; i++) {
+				$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>');
+			}
+		}).fail( function( fqXHR, textStatus ) {
+			if ( fqXHR.status == 401 ) {
+				socket.disconnect();
+				document.location.href='/login?e=401';
+			} else {
+				flashError( fqXHR.responseJSON.error.message );
+			}
+		} );
 	} );
 
 	$('#send-button').on('click', function(e) {
