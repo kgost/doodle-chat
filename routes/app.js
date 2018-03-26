@@ -2,20 +2,20 @@ var express 		= require('express'),
 	router 			= express.Router();
 
 
-// home route, replace placeholder with actual ejs file and move to seperate route file
+// Home route
 router.get( '/', function( req, res, next ) {
 	res.render( 'home' );
 } );
 
-// messenger route, TODO: implement messenger.ejs and messenger.js front end files
+// Messenger route
 router.get( '/messenger', function( req, res, next ) {
 	res.render( 'messenger' );
 } );
-
+// Login route
 router.get( '/login', function( req, res, next ) {
 	res.render( 'login');
 });
-
+// Register rout
 router.get( '/register', function( req, res, next ) {
 	res.render( 'register' );
 } );
