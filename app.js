@@ -1,12 +1,12 @@
 var express 						= require( 'express' ),
-		app									= express(),
-		http								= require( 'http' ).Server(app),
-		mongoose						= require( 'mongoose' ),
-		io									= require( 'socket.io' ).listen( http ),
+		app							= express(),
+		http						= require( 'http' ).Server(app),
+		mongoose					= require( 'mongoose' ),
+		io							= require( 'socket.io' ).listen( http ),
 		bodyParser					= require( 'body-parser' ),
-		socketController		= require( './controllers/socket' ),
-		appRoutes						= require('./routes/app'),
-		apiRoutes						= require('./routes/api'),
+		socketController			= require( './controllers/socket' ),
+		appRoutes					= require('./routes/app'),
+		apiRoutes					= require('./routes/api'),
 		authRoutes					= require('./routes/auth');
 
 //Connecting to mongoose
