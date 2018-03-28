@@ -142,6 +142,7 @@ $(document).ready( function() {
 				var div = '<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name
 						+ '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>';
 				$("#conversation-list").append(div);
+			}
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
 				socket.disconnect();
