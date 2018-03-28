@@ -2,8 +2,9 @@ var express 		= require('express'),
 	router 			= express.Router(),
 	jwt				= require( 'jsonwebtoken' ),
 	Message 		= require( '../models/message' ),
-	User			= require( '../models/user' )
-	Conversation	= require( '../models/conversation' )
+	User			= require( '../models/user' ),
+	Image			= require( '../models/image' ),
+	Conversation	= require( '../models/conversation' ),
 	middleware		= require( '../functions/middleware' );
 
 
@@ -178,18 +179,45 @@ router.delete('/conversation/:id', middleware.authenticate, middleware.isConvers
 router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
 	var user = jwt.decode(req.query.token).user;
 	// Save new message with corresponding conversationId
-	Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id }, function( err ) {
-		if ( err ) {
-			return res.status( 500 ).json({
-				title: 'An error occured',
-				error: err
+	// if the message had an image, create that image
+	if ( req.body.image ) {
+		Image.create( { image: req.body.image }, function( err, image ) {
+			if ( err ) {
+				return res.status( 500 ).json({
+					title: 'An error occured',
+					error: err
+				});
+			}
+
+			// create the message with the image field populated as the image _id
+			Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id, image: image._id }, function( err ) {
+				if ( err ) {
+					return res.status( 500 ).json({
+						title: 'An error occured',
+						error: err
+					});
+				}
+				// respond with success message
+				res.status( 201 ).json({
+					message: 'Reply Successful'
+				});
+			} );
+		} );
+	// otherwise just save the message as is
+	} else {
+		Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id }, function( err ) {
+			if ( err ) {
+				return res.status( 500 ).json({
+					title: 'An error occured',
+					error: err
+				});
+			}
+			// respond with success message
+			res.status( 201 ).json({
+				message: 'Reply Successful'
 			});
-		}
-		// respond with success message
-		res.status( 201 ).json({
-			message: 'Reply Successful'
-		});
-	} );
+		} );
+	}
 } );
 
 
