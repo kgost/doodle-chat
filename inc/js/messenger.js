@@ -15,10 +15,12 @@ $(document).ready( function() {
 		}).done(function(data) {
 			//Add a new card for each conversation
 			for (var i = 0; i < data.obj.length; i++) {
-				//Conversation card HTML
-				var div = '<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name
-						+ '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>';
-				$("#conversation-list").append(div);
+				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>');
+				}
+				else {
+					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> </div>');
+				}
 			}
 		//On fail: disconnect from the socket and redirect to the login screen
 		}).fail( function( fqXHR, textStatus ) {
@@ -140,6 +142,7 @@ $(document).ready( function() {
 				var div = '<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name
 						+ '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>';
 				$("#conversation-list").append(div);
+			}
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
 				socket.disconnect();
