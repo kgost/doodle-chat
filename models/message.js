@@ -3,6 +3,7 @@
 
 var mongoose 	= require( 'mongoose' );
 
+// define the message schema, must have a user and conversation that it belongs to
 var messageSchema = new mongoose.Schema({
   text: String,
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' , required:true},
