@@ -8,7 +8,12 @@ $(document).ready( function() {
 		}).done(function(data) {
 			console.log( data );
 			for (var i = 0; i < data.obj.length; i++) {
-				$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>');
+				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>');
+				}
+				else {
+					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> </div>');
+				}
 			}
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
