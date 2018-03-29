@@ -232,7 +232,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
  */
 router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, function( req, res, next ) {
 	//Finds all messages associated with given conversationId
-	Message.find( { conversation_id: req.params.conversationId } ).sort( '+createdAt' ).exec( function( err, messages ) {
+	Message.find( { conversation_id: req.params.conversationId } ).sort( '+createdAt' ).populate('image').exec( function( err, messages ) {
 		if ( err ) {
 			return res.status( 500 ).json({
 				title: 'An error occured',
