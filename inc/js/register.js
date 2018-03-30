@@ -30,8 +30,10 @@ $( document ).ready( function() {
 			}).done(function(data) {
 				if (data.obj) {
 					username = true;
+					$( '#bad-username').addClass("hidden");
 				}
 				else { //flash error
+					$( '#bad-username').removeClass("hidden");
 					username = false;
 				}
 				checkAll();
@@ -53,14 +55,20 @@ $( document ).ready( function() {
 		if(pw.length >= 6 && pw == cpw) {
 			password = true;
 			cPassword = true;
+			$( '#bad-password-match').addClass("hidden");
+			$( '#bad-password-length').addClass("hidden");
+		}
+		if(pw.length >= 6) {
+			$( '#bad-password-length').addClass("hidden");
 		}
 		else {
-			if(pw != cpw) { //flash not equal message
-				password = false;
-			}
-			else { //less than 6 chars message
-				password = false;
-			}
+			$( '#bad-password-length').removeClass("hidden");
+		}
+		if(pw == cpw) {
+			$( '#bad-password-match').addClass("hidden");
+		}
+		else {
+			$( '#bad-password-match').removeClass("hidden");
 		}
 		checkAll();
 	});
@@ -71,9 +79,20 @@ $( document ).ready( function() {
 		if(pw == cpw && pw.length >= 6) {
 			cPassword = true;
 			password = true;
+			$( '#bad-password-match').addClass("hidden");
+			$( '#bad-password-length').addClass("hidden");
 		}
-		else { //flash not equal message
-			cPassword = false;
+		if(pw.length >= 6) {
+			$( '#bad-password-length').addClass("hidden");
+		}
+		else {
+			$( '#bad-password-length').removeClass("hidden");
+		}
+		if(pw == cpw) {
+			$( '#bad-password-match').addClass("hidden");
+		}
+		else {
+			$( '#bad-password-match').removeClass("hidden");
 		}
 		checkAll();
 	});
