@@ -185,6 +185,12 @@ $(document).ready( function() {
 		}
 	});
 
+	$( '#open-canvas' ).on( 'click', function( e ) {
+		e.preventDefault();
+
+		$( '#doodle-canvas' ).removeClass( 'hidden' );
+	} );
+
 	/**
 	 * Socket listener to refresh conversation
 	 */
