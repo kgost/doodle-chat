@@ -11,15 +11,18 @@
 -->
 			<label for="username" class="sr-only">Username</label>
 			<input type="text" id="username" class="form-control" placeholder="Username" required autofocus>
+			<small id="bad-username" class="form-text text-danger hidden">This username is taken!</small>
 
 			<label for="password" class="sr-only">Password</label>
 			<input type="password" id="password" class="form-control" placeholder="Password" required>
+			<small id="bad-password-length" class="form-text text-danger hidden">Your password must be 6 characters or more!</small>
 
 			<label for="confirm-password" class="sr-only">Confirm Password</label>
 			<input type="password" id="confirm-password" class="form-control" placeholder="Confirm Password" required>
+			<small id="bad-password-match" class="form-text text-danger hidden">Passwords do not match!</small>
 
 			<button id="submit" type="submit" class="btn btn-primary btn-lg" disabled>Register</button>
-			<p>Already have an account? Click <a href="/login">here </a>to login!</p>
+			<p>Already have an account? <br>Click <a href="/login">here </a>to login!</p>
 
 		</form>
 	</body>
