@@ -33,8 +33,8 @@ $( document ).ready( function() {
 					$( '#bad-username').addClass("hidden");
 				}
 				else { //flash error
-					$( '#bad-username').removeClass("hidden");
 					username = false;
+					$( '#bad-username').removeClass("hidden");
 				}
 				checkAll();
 			}).fail( function( fqXHR, textStatus ) {
@@ -46,6 +46,10 @@ $( document ).ready( function() {
 				}
 				checkAll();
 			});
+		}
+		else {
+			username = false;
+			checkAll();
 		}
 	});
 	
