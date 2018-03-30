@@ -31,8 +31,8 @@ $( document ).ready( function() {
 				if (data.obj) {
 					username = true;
 				}
-				else {
-					username = false; //flash error
+				else { //flash error
+					username = false;
 				}
 				checkAll();
 			}).fail( function( fqXHR, textStatus ) {
@@ -58,7 +58,7 @@ $( document ).ready( function() {
 			if(pw != cpw) { //flash not equal message
 				password = false;
 			}
-			else {	//less than 6 chars message
+			else { //less than 6 chars message
 				password = false;
 			}
 		}
