@@ -2,7 +2,7 @@
 var mongoose = require( 'mongoose' );
 
 // Define Schema for Image
-  var imageSchema = new mongoose.Schema({
+var imageSchema = new mongoose.Schema({
   img: { data: Buffer, contentType: String }
 }, { timestamps: true } );
 
