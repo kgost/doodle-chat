@@ -7,4 +7,10 @@ var userSchema = new mongoose.Schema({
   password: {type:String, required:true}
 }, { timestamps: true } );
 
+userSchema.path('password').validate(function(password) {
+    if (password.length < 6) return false;
+
+    return true;
+});
+
 module.exports = mongoose.model( 'User' , userSchema );
