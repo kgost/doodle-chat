@@ -13,14 +13,26 @@ $(document).ready( function() {
 			method: 'get'
 		//Create a list of conversations
 		}).done(function(data) {
-			//Add a new card for each conversation
 			for (var i = 0; i < data.obj.length; i++) {
+				var outputhtml = '';
+				outputhtml += '<div id="' + data.obj[i]._id + '" class="card">';
+				outputhtml += 	'<div class="card-body conversation">' + data.obj[i].name + '</div> ';
+
 				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>');
+					outputhtml += 	'<button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> ';
 				}
-				else {
-					$("#conversation-list").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name + '</div> </div>');
+				outputhtml += 	'<div class="participant-container hidden">';
+				for (var j = 0; j < data.obj[i].participants.length; j++) {
+					outputhtml += '<div class="card participant">' + data.obj[i].participants[j];
+					if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+						outputhtml += '<button type="button" class="close kickUser" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>';
+					}
+					outputhtml += '</div>';
 				}
+				outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
+				outputhtml +=	'</div>';
+				outputhtml += '</div>';
+				$('#conversation-list').append(outputhtml);
 			}
 		//On fail: disconnect from the socket and redirect to the login screen
 		}).fail( function( fqXHR, textStatus ) {
@@ -42,6 +54,9 @@ $(document).ready( function() {
 	 */
 	$('body').on('click', '.conversation', function(e) {
 		var id = $(this).parent().attr('id');
+		console.log($(this).siblings('.participant-container'));
+		$('.participant-container').addClass('hidden');
+		$(this).siblings('.participant-container').removeClass('hidden');
 
 		//Validate token
 		$.ajax({
