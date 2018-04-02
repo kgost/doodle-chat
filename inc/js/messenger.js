@@ -54,7 +54,6 @@ $(document).ready( function() {
 	 */
 	$('body').on('click', '.conversation', function(e) {
 		var id = $(this).parent().attr('id');
-		console.log($(this).siblings('.participant-container'));
 		$('.participant-container').addClass('hidden');
 		$(this).siblings('.participant-container').removeClass('hidden');
 
@@ -78,7 +77,8 @@ $(document).ready( function() {
 
 				//Load messages from new conversation
 				for (var i = 0; i < data.obj.length; i++) {
-					$("#message-container").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].text + '</div> </div>');
+					$("#message-container").append(	'<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].text + '</div>'+
+													'<i class="fas fa-pencil-alt"></i></div>');
 				}
 			}
 			//On fail, return 401 and redirect to login.
