@@ -83,6 +83,8 @@ router.get( '/conversations', middleware.authenticate, function( req, res, next 
 	Conversation.find({ participants: user.username })
 	.select( '_id' )
 	.select( 'name' )
+	.select('participants')
+	.select('owner')
 	.exec( function( err, conversations ) {
 		if ( err ) {
 			return res.status( 500 ).json({
@@ -94,7 +96,7 @@ router.get( '/conversations', middleware.authenticate, function( req, res, next 
 		var ids = [];
 		//Add conversation id and name to the array
 		conversations.forEach( function( conversation ) {
-			ids.push( { _id: conversation._id, name: conversation.name } );
+			ids.push( { _id: conversation._id, name: conversation.name, participants: conversation.participants, owner: conversation.owner} );
 		} );
 
 		return res.status( 200 ).json({
@@ -222,7 +224,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 
 
 /**
- * GET route for message:
+ * READ route for message:
  * 		Finds and returns all messages for a given conversation
  * @param  {[type]}   conversationId conversationID sent in req.params
  * @param  {[type]}   req  request object from user to server
