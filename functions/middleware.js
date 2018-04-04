@@ -158,7 +158,6 @@ var actions = {
 					error: {message: 'You are not the owner of this message.'}
 				});
 			}
-
 			return next();
 		});
 	}
