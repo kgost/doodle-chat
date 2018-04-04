@@ -1,2 +1,6 @@
 .hidden { display:none }
-#doodle-canvas { width: 600px; height: 600px; position: absolute; left: 50%; top: 0; margin-left: -300px; background: white; border: 2px solid green; }
+.relative-container { position: relative; }
+
+.doodle-canvas-container { width: 600px; height: 600px; position: absolute; left: 50%; top: 0; margin-left: -300px; }
+#doodle-canvas { height: 100%; width: 100%; background: white; border: 2px solid green; }
+#close-canvas { position: absolute; right: 5px; }

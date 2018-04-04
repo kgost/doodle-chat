@@ -1,7 +1,7 @@
 var express 				= require( 'express' ),
 	jwt						= require( 'jsonwebtoken' ),
 	User					= require( '../models/user' ),
-	Conversation					= require( '../models/conversation' );
+	Conversation			= require( '../models/conversation' );
 
 
 var actions = {
@@ -149,7 +149,7 @@ var actions = {
 					error: {message: 'Invalid message id sent to server.'}
 				});
 			}
-			
+
 			var decoded = jwt.decode(req.query.token);
 			
 			if ( message.user != decoded.user._id ) {
@@ -158,9 +158,9 @@ var actions = {
 					error: {message: 'You are not the owner of this message.'}
 				});
 			}
-			
 			return next();
 		});		
-};
+	}
+}
 
 module.exports = actions;
