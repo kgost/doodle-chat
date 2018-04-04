@@ -1,3 +1,6 @@
 #ignore node modules
 node_modules/*
 Procfile
+
+#ignore vim swp files ( big boys use vim )
+*.swp

@@ -69,7 +69,11 @@
 	</div>
 	<br>
 
-	<canvas id="doodle-canvas" ></canvas>
+	<div class="doodle-canvas-container hidden">
+		<div class="relative-container"><button id="exit-canvas" type="button" class="close" aria-label="Close"> <span aria-hidden="true">&times;</span></button></div>		
+		<canvas id="doodle-canvas"></canvas>
+		<button id="submit-canvas" type="submit" class="btn btn-primary btn-lg">Send Doodle</button>
+	</div>
 
 	<script type="text/javascript" src="/js/messenger.js"></script>
 <%- include footer%>

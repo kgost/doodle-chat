@@ -203,7 +203,22 @@ $(document).ready( function() {
 	$( '#open-canvas' ).on( 'click', function( e ) {
 		e.preventDefault();
 
-		$( '#doodle-canvas' ).removeClass( 'hidden' );
+		clearCanvas();
+
+		$( '.doodle-canvas-container' ).removeClass( 'hidden' );
+	} );
+
+	$( '#exit-canvas' ).on( 'click', function( e ) {
+		e.preventDefault();
+
+		$( '.doodle-canvas-container' ).addClass( 'hidden' );
+	} );
+
+	$( '#submit-canvas' ).on( 'click', function( e ) {
+		e.preventDefault();
+
+		// TODO: Convert Canvas to base64 image
+		// TODO: Send image to server via ajax call
 	} );
 
 	/**
@@ -237,4 +252,8 @@ $(document).ready( function() {
 		socket.emit( 'leave conversation', conversationId );
 		delete conversationId;
 	} );
+
+	// TODO: Remove last drawing from canvas
+	function clearCanvas() {
+	}
 });
