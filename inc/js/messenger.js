@@ -77,8 +77,15 @@ $(document).ready( function() {
 
 				//Load messages from new conversation
 				for (var i = 0; i < data.obj.length; i++) {
-					$("#message-container").append(	'<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].text + '</div>'+
-													'<i class="fas fa-pencil-alt"></i></div>');
+					var showx = '';
+						showx += '<div id="' + data.obj[i]._id + '" class="card">';
+						showx += '<div class="card-body conversation">' + data.obj[i].text + '</div>';
+					if ( data.obj[i].user == localStorage.getItem('userId')) {
+						showx += 	'<i class="fas fa-pencil-alt"></i>';
+						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
+					}
+					showx += '</div>';
+					$("#message-container").append(showx);
 				}
 			}
 			//On fail, return 401 and redirect to login.
@@ -235,7 +242,15 @@ $(document).ready( function() {
 				$('#message-container').empty();
 				//Load messages
 				for (var i = 0; i < data.obj.length; i++) {
-					$("#message-container").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].text + '</div> </div>');
+					var showx = '';
+						showx += '<div id="' + data.obj[i]._id + '" class="card">';
+						showx += '<div class="card-body conversation">' + data.obj[i].text + '</div>';
+					if ( data.obj[i].user == localStorage.getItem('userId')) {
+						showx += 	'<i class="fas fa-pencil-alt"></i>';
+						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
+					}
+					showx += '</div>';
+					$("#message-container").append(showx);
 				}
 			}
 			//Send failure
