@@ -217,17 +217,25 @@ $(document).ready( function() {
 		var text = $(this).siblings('.message').text();
 		$(this).siblings('.message').addClass('hidden');
 		$(this).addClass('hidden');
-		console.log(text);
 		var html = '';
 		html += '<div class="mx-auto edit-container" style="width: 200px;">';
-		html += '	<form>';
+		//html += '	<form>';
 		html +=			'<textarea id="edit-message-box" placeholder="Enter Your Message Here...">' + text +'</textarea>';
-		html +=			'<button id="change-message-button" type="submit" class="btn btn-primary btn-lg">Send Message</button>';
-		html +=	'</form>';
+		html +=			'<button id="change-message-button" class="btn btn-primary btn-lg">Update</button>';
+		//html +=	'</form>';
 		html +=	'</div>';
-		console.log($(this).parent());
 		$(this).parent().append(html);
+	});
 
+	/**
+	 * Change Message Click Listener
+	 */
+	$('body').on('click', '#change-message-button', function(e) {
+		console.log($('#edit-message-box').val());
+		 e.preventDefault();
+		 var id = $(this).parent().parent().attr('id');
+		 console.log(id);
+		 //TODO: finish listener
 	});
 
 	$( '#open-canvas' ).on( 'click', function( e ) {
