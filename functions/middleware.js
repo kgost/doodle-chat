@@ -1,7 +1,7 @@
 var express 				= require( 'express' ),
 	jwt						= require( 'jsonwebtoken' ),
 	User					= require( '../models/user' ),
-	Conversation					= require( '../models/conversation' );
+	Conversation			= require( '../models/conversation' );
 
 
 var actions = {
@@ -134,7 +134,7 @@ var actions = {
 			return next();
 		} );
 	},
-	
+
 	isMessageOwner: function(req, res, next) {
 		if ( !req.params.id || req.params.id == 'null' ) {
 			return res.status(400).json({
@@ -149,18 +149,19 @@ var actions = {
 					error: {message: 'Invalid message id sent to server.'}
 				});
 			}
-			
+
 			var decoded = jwt.decode(req.query.token);
-			
+
 			if ( message.user != decoded.user._id ) {
 				return res.status( 401 ).json({
 					title: 'Unauthorized User.',
 					error: {message: 'You are not the owner of this message.'}
 				});
 			}
-			
+
 			return next();
-		});		
-};
+		});
+	}
+}
 
 module.exports = actions;
