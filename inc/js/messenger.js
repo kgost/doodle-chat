@@ -235,7 +235,30 @@ $(document).ready( function() {
 		 e.preventDefault();
 		 var id = $(this).parent().parent().attr('id');
 		 console.log(id);
-		 //TODO: finish listener
+		if ( localStorage.getItem( 'token' ) ) {
+			if ( conversationId ) {
+				//Send text to update message route
+				$.ajax({
+					url: '/api/messages/' + id + '?token=' + localStorage.getItem( 'token' ),
+					method: 'put',
+					data: { text: $('#edit-message-box').val() }
+					//Force users in conversation to update the covnersation
+				}).done(function(data) {
+					if (data.message == 'Reply Successful')
+						socket.emit('new-message', conversationId);
+					//Send fail
+				} ).fail( function( fqXHR, textStatus ) {
+					flashError(fqXHR.responseJSON.error.message );
+				} ).always(function() {
+					$('#text-entry-box').val('');
+				});
+			} else {
+				flashError( 'You Must Select A Conversation' );
+			}
+		//Auth error
+		} else {
+			flashError( 'You Must Be Logged In' );
+		}
 	});
 
 	$( '#open-canvas' ).on( 'click', function( e ) {

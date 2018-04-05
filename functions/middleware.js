@@ -1,7 +1,8 @@
 var express 				= require( 'express' ),
 	jwt						= require( 'jsonwebtoken' ),
 	User					= require( '../models/user' ),
-	Conversation			= require( '../models/conversation' );
+	Conversation			= require( '../models/conversation' ),
+	Message			= require( '../models/message' );
 
 
 var actions = {
