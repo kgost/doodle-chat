@@ -274,4 +274,28 @@ router.put( '/messages/:id', middleware.authenticate, middleware.isMessageOwner,
 	});
 });
 
+/**
+ * DELETE route for message:
+ * 		Deletes a specific message
+ * @param  {[type]}   id id sent in req.params
+ * @param  {[type]}   req  request object from user to server
+ * @param  {[type]}   res  response object to user from server
+ * @param  {Function} next next function in express function list
+ * @return {[type]}        Returns a status code
+ */
+router.delete('/messages/:id', middleware.authenticate, middleware.isMessageOwner, function(req, res, next) {
+	//Finds conversation with given id and removes form the database
+	Message.findByIdAndRemove(req.params.id, req.body, function(err) {
+		if ( err ) {
+			return res.status( 500 ).json({
+				title: 'An error occured',
+				error: err
+			});
+		}
+		res.status( 200 ).json({
+			message: 'Message deleted'
+		});
+	} );
+});
+
 module.exports = router;
