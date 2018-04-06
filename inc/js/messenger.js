@@ -231,10 +231,8 @@ $(document).ready( function() {
 	 * Change Message Click Listener
 	 */
 	$('body').on('click', '#change-message-button', function(e) {
-		console.log($('#edit-message-box').val());
 		 e.preventDefault();
 		 var id = $(this).parent().parent().attr('id');
-		 console.log(id);
 		if ( localStorage.getItem( 'token' ) ) {
 			if ( conversationId ) {
 				//Send text to update message route
