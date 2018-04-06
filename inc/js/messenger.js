@@ -226,7 +226,23 @@ $(document).ready( function() {
 		html +=	'</div>';
 		$(this).parent().append(html);
 	});
-
+	
+	/**
+	 * Delete Message Click Listener
+	 */
+	$('body').on('click', '.delete-message', function(e) {
+		$.ajax({
+			url: '/api/messages/' + $(this).parent().attr('id') + '?token=' + localStorage.getItem( 'token' ),
+			method: 'delete',
+			//Force users in conversation to update the covnersation
+		}).done(function(data) {
+			socket.emit('new-message', conversationId);
+			//Send fail
+		} ).fail( function( fqXHR, textStatus ) {
+			flashError( fqXHR.responseJSON.error.message );
+		} );
+	});
+	
 	/**
 	 * Change Message Click Listener
 	 */
