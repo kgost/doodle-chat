@@ -77,8 +77,15 @@ $(document).ready( function() {
 
 				//Load messages from new conversation
 				for (var i = 0; i < data.obj.length; i++) {
-					$("#message-container").append(	'<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].text + '</div>'+
-													'<i class="fas fa-pencil-alt"></i></div>');
+					var showx = '';
+						showx += '<div id="' + data.obj[i]._id + '" class="card">';
+						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
+					if ( data.obj[i].user == localStorage.getItem('userId')) {
+						showx += 	'<i class="fas fa-pencil-alt edit-message"></i>';
+						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
+					}
+					showx += '</div>';
+					$("#message-container").append(showx);
 				}
 			}
 			//On fail, return 401 and redirect to login.
@@ -200,6 +207,58 @@ $(document).ready( function() {
 		}
 	});
 
+	/**
+	 * Edit Message Click Listener
+	 */
+	$('body').on('click', '.edit-message', function(e) {
+		$('.edit-container').remove();
+		$('.message').removeClass('hidden');
+		$('#edit-message').removeClass('hidden');
+		var text = $(this).siblings('.message').text();
+		$(this).siblings('.message').addClass('hidden');
+		$(this).addClass('hidden');
+		var html = '';
+		html += '<div class="mx-auto edit-container" style="width: 200px;">';
+		//html += '	<form>';
+		html +=			'<textarea id="edit-message-box" placeholder="Enter Your Message Here...">' + text +'</textarea>';
+		html +=			'<button id="change-message-button" class="btn btn-primary btn-lg">Update</button>';
+		//html +=	'</form>';
+		html +=	'</div>';
+		$(this).parent().append(html);
+	});
+
+	/**
+	 * Change Message Click Listener
+	 */
+	$('body').on('click', '#change-message-button', function(e) {
+		 e.preventDefault();
+		 var id = $(this).parent().parent().attr('id');
+		if ( localStorage.getItem( 'token' ) ) {
+			if ( conversationId ) {
+				//Send text to update message route
+				$.ajax({
+					url: '/api/messages/' + id + '?token=' + localStorage.getItem( 'token' ),
+					method: 'put',
+					data: { text: $('#edit-message-box').val() }
+					//Force users in conversation to update the covnersation
+				}).done(function(data) {
+					if (data.message == 'Reply Successful')
+						socket.emit('new-message', conversationId);
+					//Send fail
+				} ).fail( function( fqXHR, textStatus ) {
+					flashError(fqXHR.responseJSON.error.message );
+				} ).always(function() {
+					$('#text-entry-box').val('');
+				});
+			} else {
+				flashError( 'You Must Select A Conversation' );
+			}
+		//Auth error
+		} else {
+			flashError( 'You Must Be Logged In' );
+		}
+	});
+
 	$( '#open-canvas' ).on( 'click', function( e ) {
 		e.preventDefault();
 
@@ -235,7 +294,15 @@ $(document).ready( function() {
 				$('#message-container').empty();
 				//Load messages
 				for (var i = 0; i < data.obj.length; i++) {
-					$("#message-container").append('<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].text + '</div> </div>');
+					var showx = '';
+						showx += '<div id="' + data.obj[i]._id + '" class="card">';
+						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
+					if ( data.obj[i].user == localStorage.getItem('userId')) {
+						showx += 	'<i class="fas fa-pencil-alt"></i>';
+						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
+					}
+					showx += '</div>';
+					$("#message-container").append(showx);
 				}
 			}
 			//Send failure
@@ -255,5 +322,13 @@ $(document).ready( function() {
 
 	// TODO: Remove last drawing from canvas
 	function clearCanvas() {
+	}
+
+	function loadConversations() {
+
+	}
+
+	function loadMessages() {
+		
 	}
 });
