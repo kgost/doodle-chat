@@ -48,6 +48,86 @@ $(document).ready( function() {
 		document.location.href="/login?e=401";
 	}
 
+	// CANVAS LOGIC 
+	var canvas = document.getElementById( 'doodle-canvas' ),
+			ctx = canvas.getContext( '2d' ),
+			paint = false,
+			clickX = [],
+			clickY = [],
+			clickDrag = [];
+
+	$( '#doodle-canvas' ).mousedown( function( e ){
+		var x = ( e.pageX - $(this).offset().left ) / 2;
+		var y = ( e.pageY ) / 4;
+
+		paint = true;
+		addClick( x, y );
+		redraw();
+	}	);
+
+	$( '#doodle-canvas' ).mousemove( function( e ){
+		if ( paint ) {
+			var x = ( e.pageX - $(this).offset().left ) / 2;
+			var y = ( e.pageY ) / 4;
+			
+			addClick( x, y, true );
+			redraw();
+		}
+	}	);
+
+	$( '#doodle-canvas' ).mouseup( function( e ){
+		paint = false;
+	}	);
+
+	$( '#doodle-canvas' ).mouseleave( function( e ){
+		paint = false;
+	}	);
+
+	function addClick( x, y, dragging ) {
+		clickX.push( x );
+		clickY.push( y );
+		clickDrag.push( dragging );
+	}
+
+	//function redraw() {
+		//ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+		//ctx.strokeStyle = '#df4b26';
+		//ctx.lineJoin = 'round';
+		//ctx.lineWidth = 5;
+
+		//for ( var i = 0; i < clickX.length; i++ ) {
+			//ctx.beginPath();
+
+			//if ( clickDrag[i] && i ) {
+				//ctx.moveTo( clickX[i - 1], clickY[i - 1] );
+			//} else {
+				//ctx.moveTo( clickX[i] - 1, clickY[i] );
+			//}
+
+			//ctx.lineTo( clickX[i], clickY[i] );
+			//ctx.closePath();
+			//ctx.stroke();
+		//}
+	//}
+function redraw(){
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
+  
+  ctx.strokeStyle = "#df4b26";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 5;
+			
+  for(var i=0; i < clickX.length; i++) {		
+    ctx.beginPath();
+    if(clickDrag[i] && i){
+      ctx.moveTo(clickX[i-1], clickY[i-1]);
+     }else{
+       ctx.moveTo(clickX[i]-1, clickY[i]);
+     }
+     ctx.lineTo(clickX[i], clickY[i]);
+     ctx.closePath();
+     ctx.stroke();
+  }
+}
 	/**
 	 * Conversation card Event Listener:
 	 * 		When a conversation card is clicked, return and display all of the messages
