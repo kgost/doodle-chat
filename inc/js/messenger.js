@@ -57,8 +57,8 @@ $(document).ready( function() {
 			clickDrag = [];
 
 	$( '#doodle-canvas' ).mousedown( function( e ){
-		var x = ( e.pageX - $(this).offset().left ) / 2;
-		var y = ( e.pageY ) / 4;
+		var x = ( e.pageX - $(this).offset().left );
+		var y = ( e.pageY - $(this).offset().top );
 
 		paint = true;
 		addClick( x, y );
@@ -67,8 +67,8 @@ $(document).ready( function() {
 
 	$( '#doodle-canvas' ).mousemove( function( e ){
 		if ( paint ) {
-			var x = ( e.pageX - $(this).offset().left ) / 2;
-			var y = ( e.pageY ) / 4;
+			var x = ( e.pageX - $(this).offset().left );
+			var y = ( e.pageY - $(this).offset().top );
 			
 			addClick( x, y, true );
 			redraw();
@@ -89,45 +89,26 @@ $(document).ready( function() {
 		clickDrag.push( dragging );
 	}
 
-	//function redraw() {
-		//ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-		//ctx.strokeStyle = '#df4b26';
-		//ctx.lineJoin = 'round';
-		//ctx.lineWidth = 5;
+	function redraw(){
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
+		
+		ctx.strokeStyle = "#df4b26";
+		ctx.lineJoin = "round";
+		ctx.lineWidth = 1;
+				
+		for(var i=0; i < clickX.length; i++) {		
+			ctx.beginPath();
+			if(clickDrag[i] && i){
+				ctx.moveTo(clickX[i-1], clickY[i-1]);
+			 }else{
+				 ctx.moveTo(clickX[i]-1, clickY[i]);
+			 }
+			 ctx.lineTo(clickX[i], clickY[i]);
+			 ctx.closePath();
+			 ctx.stroke();
+		}
+	}
 
-		//for ( var i = 0; i < clickX.length; i++ ) {
-			//ctx.beginPath();
-
-			//if ( clickDrag[i] && i ) {
-				//ctx.moveTo( clickX[i - 1], clickY[i - 1] );
-			//} else {
-				//ctx.moveTo( clickX[i] - 1, clickY[i] );
-			//}
-
-			//ctx.lineTo( clickX[i], clickY[i] );
-			//ctx.closePath();
-			//ctx.stroke();
-		//}
-	//}
-function redraw(){
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
-  
-  ctx.strokeStyle = "#df4b26";
-  ctx.lineJoin = "round";
-  ctx.lineWidth = 5;
-			
-  for(var i=0; i < clickX.length; i++) {		
-    ctx.beginPath();
-    if(clickDrag[i] && i){
-      ctx.moveTo(clickX[i-1], clickY[i-1]);
-     }else{
-       ctx.moveTo(clickX[i]-1, clickY[i]);
-     }
-     ctx.lineTo(clickX[i], clickY[i]);
-     ctx.closePath();
-     ctx.stroke();
-  }
-}
 	/**
 	 * Conversation card Event Listener:
 	 * 		When a conversation card is clicked, return and display all of the messages
@@ -291,6 +272,11 @@ function redraw(){
 	$( '#exit-canvas' ).on( 'click', function( e ) {
 		e.preventDefault();
 
+		clickX = [];
+		clickY = [];
+		clickDrag = [];
+		redraw();
+
 		$( '.doodle-canvas-container' ).addClass( 'hidden' );
 	} );
 
@@ -298,7 +284,27 @@ function redraw(){
 		e.preventDefault();
 
 		// TODO: Convert Canvas to base64 image
+		var pngUrl = $( '#doodle-canvas' )[0].toDataURL();
 		// TODO: Send image to server via ajax call
+		$.ajax({
+			url: '/api/message',
+			method: 'post',
+			data: { text: '', image: pngUrl }
+		}).done( function( data ) {
+			if (data.message == 'Reply Successful') {
+				socket.emit('new-message', conversationId);
+
+				clickX = [];
+				clickY = [];
+				clickDrag = [];
+				redraw();
+
+				$( '.doodle-canvas-container' ).addClass( 'hidden' );
+			}
+		} ).fail( function( fqXHR, textStatus ) {
+			flashError( fqXHR.responseJSON.error.message );
+		} ).always( function() {
+		} );
 	} );
 
 	/**
