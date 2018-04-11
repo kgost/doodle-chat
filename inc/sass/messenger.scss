@@ -1,6 +1,38 @@
 .hidden { display:none }
 .relative-container { position: relative; }
+.delete-message { position: absolute; right: 3px; top: -4px; }
+.edit-button { position: absolute; right: 3px; top: 45px; }
 
 .doodle-canvas-container { width: 600px; height: 600px; position: absolute; left: 50%; top: 0; margin-left: -300px; }
 #doodle-canvas { height: 100%; width: 100%; background: white; border: 2px solid green; }
-#close-canvas { position: absolute; right: 5px; }
+#exit-canvas { position: absolute; right: 5px; }
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #333;
+}
+
+li {
+	float: left;
+}
+
+li a {
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+li a:hover:not(.active) {
+	background-color: #2554C7;
+	text-decoration: none;
+	color: #333;
+}
+
+.active {
+	background-color: #2554C7;
+}

@@ -48,6 +48,67 @@ $(document).ready( function() {
 		document.location.href="/login?e=401";
 	}
 
+	// CANVAS LOGIC 
+	var canvas = document.getElementById( 'doodle-canvas' ),
+			ctx = canvas.getContext( '2d' ),
+			paint = false,
+			clickX = [],
+			clickY = [],
+			clickDrag = [];
+
+	$( '#doodle-canvas' ).mousedown( function( e ){
+		var x = ( e.pageX - $(this).offset().left );
+		var y = ( e.pageY - $(this).offset().top );
+
+		paint = true;
+		addClick( x, y );
+		redraw();
+	}	);
+
+	$( '#doodle-canvas' ).mousemove( function( e ){
+		if ( paint ) {
+			var x = ( e.pageX - $(this).offset().left );
+			var y = ( e.pageY - $(this).offset().top );
+			
+			addClick( x, y, true );
+			redraw();
+		}
+	}	);
+
+	$( '#doodle-canvas' ).mouseup( function( e ){
+		paint = false;
+	}	);
+
+	$( '#doodle-canvas' ).mouseleave( function( e ){
+		paint = false;
+	}	);
+
+	function addClick( x, y, dragging ) {
+		clickX.push( x );
+		clickY.push( y );
+		clickDrag.push( dragging );
+	}
+
+	function redraw(){
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
+		
+		ctx.strokeStyle = "#df4b26";
+		ctx.lineJoin = "round";
+		ctx.lineWidth = 1;
+				
+		for(var i=0; i < clickX.length; i++) {		
+			ctx.beginPath();
+			if(clickDrag[i] && i){
+				ctx.moveTo(clickX[i-1], clickY[i-1]);
+			 }else{
+				 ctx.moveTo(clickX[i]-1, clickY[i]);
+			 }
+			 ctx.lineTo(clickX[i], clickY[i]);
+			 ctx.closePath();
+			 ctx.stroke();
+		}
+	}
+
 	/**
 	 * Conversation card Event Listener:
 	 * 		When a conversation card is clicked, return and display all of the messages
@@ -81,7 +142,7 @@ $(document).ready( function() {
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
 						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
 					if ( data.obj[i].user == localStorage.getItem('userId')) {
-						showx += 	'<i class="fas fa-pencil-alt edit-message"></i>';
+						showx += 	'<i class="fas fa-pencil-alt edit-message edit-button"></i>';
 						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
 					}
 					showx += '</div>';
@@ -238,6 +299,22 @@ $(document).ready( function() {
 		html +=	'</div>';
 		$(this).parent().append(html);
 	});
+	
+	/**
+	 * Delete Message Click Listener
+	 */
+	$('body').on('click', '.delete-message', function(e) {
+		$.ajax({
+			url: '/api/messages/' + $(this).parent().attr('id') + '?token=' + localStorage.getItem( 'token' ),
+			method: 'delete',
+			//Force users in conversation to update the covnersation
+		}).done(function(data) {
+			socket.emit('new-message', conversationId);
+			//Send fail
+		} ).fail( function( fqXHR, textStatus ) {
+			flashError( fqXHR.responseJSON.error.message );
+		} );
+	});
 
 	/**
 	 * Change Message Click Listener
@@ -282,6 +359,11 @@ $(document).ready( function() {
 	$( '#exit-canvas' ).on( 'click', function( e ) {
 		e.preventDefault();
 
+		clickX = [];
+		clickY = [];
+		clickDrag = [];
+		redraw();
+
 		$( '.doodle-canvas-container' ).addClass( 'hidden' );
 	} );
 
@@ -289,7 +371,27 @@ $(document).ready( function() {
 		e.preventDefault();
 
 		// TODO: Convert Canvas to base64 image
+		var pngUrl = $( '#doodle-canvas' )[0].toDataURL();
 		// TODO: Send image to server via ajax call
+		$.ajax({
+			url: '/api/message',
+			method: 'post',
+			data: { text: '', image: pngUrl }
+		}).done( function( data ) {
+			if (data.message == 'Reply Successful') {
+				socket.emit('new-message', conversationId);
+
+				clickX = [];
+				clickY = [];
+				clickDrag = [];
+				redraw();
+
+				$( '.doodle-canvas-container' ).addClass( 'hidden' );
+			}
+		} ).fail( function( fqXHR, textStatus ) {
+			flashError( fqXHR.responseJSON.error.message );
+		} ).always( function() {
+		} );
 	} );
 
 	/**
@@ -310,7 +412,7 @@ $(document).ready( function() {
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
 						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
 					if ( data.obj[i].user == localStorage.getItem('userId')) {
-						showx += 	'<i class="fas fa-pencil-alt"></i>';
+						showx += 	'<i class="fas fa-pencil-alt edit-button"></i>';
 						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
 					}
 					showx += '</div>';
