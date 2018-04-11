@@ -48,7 +48,7 @@ $(document).ready( function() {
 		document.location.href="/login?e=401";
 	}
 
-	// CANVAS LOGIC 
+	// CANVAS LOGIC
 	var canvas = document.getElementById( 'doodle-canvas' ),
 			ctx = canvas.getContext( '2d' ),
 			paint = false,
@@ -69,7 +69,7 @@ $(document).ready( function() {
 		if ( paint ) {
 			var x = ( e.pageX - $(this).offset().left );
 			var y = ( e.pageY - $(this).offset().top );
-			
+
 			addClick( x, y, true );
 			redraw();
 		}
@@ -91,12 +91,12 @@ $(document).ready( function() {
 
 	function redraw(){
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
-		
+
 		ctx.strokeStyle = "#df4b26";
 		ctx.lineJoin = "round";
 		ctx.lineWidth = 1;
-				
-		for(var i=0; i < clickX.length; i++) {		
+
+		for(var i=0; i < clickX.length; i++) {
 			ctx.beginPath();
 			if(clickDrag[i] && i){
 				ctx.moveTo(clickX[i-1], clickY[i-1]);
@@ -220,11 +220,14 @@ $(document).ready( function() {
 			method: 'get'
 		}).done(function(data) {
 			//Add a new card for each conversation
-			for (var i = 0; i < data.obj.length; i++) {
-				//Conversation card HTML
-				var outputhtml = '<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name
-						+ '<button type="button" class="btn btn-danger closeConversation" aria-label="Close"> <span aria-hidden="true">Delete</span> </button> ';
+			 for (var i = 0; i < data.obj.length; i++) {
+				var outputhtml = '';
+				outputhtml += '<div id="' + data.obj[i]._id + '" class="card">';
+				outputhtml += 	'<div class="card-body conversation">' + data.obj[i].name + '</div> ';
 
+				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+					outputhtml += 	'<button type="button" class="btn btn-danger closeConversation" aria-label="Close"> <span aria-hidden="true">Delete</span> </button> ';
+				}
 				outputhtml += 	'<div class="participant-container hidden">';
 				for (var j = 0; j < data.obj[i].participants.length; j++) {
 					outputhtml += '<div class="card participant">' + data.obj[i].participants[j];
@@ -236,7 +239,7 @@ $(document).ready( function() {
 				outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
 				outputhtml +=	'</div>';
 				outputhtml += '</div>';
-				$("#conversation-list").append(outputhtml);
+				$('#conversation-list').append(outputhtml);
 			}
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
@@ -299,7 +302,7 @@ $(document).ready( function() {
 		html +=	'</div>';
 		$(this).parent().append(html);
 	});
-	
+
 	/**
 	 * Delete Message Click Listener
 	 */
