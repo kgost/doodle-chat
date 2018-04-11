@@ -19,13 +19,13 @@ $(document).ready( function() {
 				outputhtml += 	'<div class="card-body conversation">' + data.obj[i].name + '</div> ';
 
 				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-					outputhtml += 	'<button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> ';
+					outputhtml += 	'<button type="button" class="btn btn-danger closeConversation" aria-label="Close"> <span aria-hidden="true">Delete</span> </button> ';
 				}
 				outputhtml += 	'<div class="participant-container hidden">';
 				for (var j = 0; j < data.obj[i].participants.length; j++) {
 					outputhtml += '<div class="card participant">' + data.obj[i].participants[j];
 					if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-						outputhtml += '<button type="button" class="close kickUser" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>';
+						outputhtml += '<button type="button" class="btn btn-danger kickUser" aria-label="Close"> <span aria-hidden="true">Kick</span> </button>';
 					}
 					outputhtml += '</div>';
 				}
@@ -161,9 +161,21 @@ $(document).ready( function() {
 			//Add a new card for each conversation
 			for (var i = 0; i < data.obj.length; i++) {
 				//Conversation card HTML
-				var div = '<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name
-						+ '</div> <button type="button" class="close closeConversation" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div>';
-				$("#conversation-list").append(div);
+				var outputhtml = '<div id="' + data.obj[i]._id + '" class="card"> <div class="card-body conversation">' + data.obj[i].name
+						+ '<button type="button" class="btn btn-danger closeConversation" aria-label="Close"> <span aria-hidden="true">Delete</span> </button> ';
+
+				outputhtml += 	'<div class="participant-container hidden">';
+				for (var j = 0; j < data.obj[i].participants.length; j++) {
+					outputhtml += '<div class="card participant">' + data.obj[i].participants[j];
+					if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+						outputhtml += '<button type="button" class="btn btn-danger kickUser" aria-label="Close"> <span aria-hidden="true">Kick</span> </button>';
+					}
+					outputhtml += '</div>';
+				}
+				outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
+				outputhtml +=	'</div>';
+				outputhtml += '</div>';
+				$("#conversation-list").append(outputhtml);
 			}
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
@@ -329,6 +341,6 @@ $(document).ready( function() {
 	}
 
 	function loadMessages() {
-		
+
 	}
 });
