@@ -29,9 +29,11 @@
 }
 
 .kickUser {
+  padding-top: 0px;
+  padding-bottom: 0px;
   position: absolute;
   right: 4px;
-  top: 4px;
+  top: 1px;
 }
 
 .doodle-canvas-container {

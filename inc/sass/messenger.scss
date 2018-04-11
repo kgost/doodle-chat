@@ -5,7 +5,7 @@
 
 .participant{ padding-left: 10px;}
 .closeConversation { position: absolute; right: 4px; top: 4px;}
-.kickUser { position: absolute; right: 4px; top: 4px;}
+.kickUser { padding-top: 0px; padding-bottom: 0px; position: absolute; right: 4px; top: 1px;}
 
 .doodle-canvas-container { width: 600px; height: 600px; position: absolute; left: 50%; top: 0; margin-left: -300px; }
 #doodle-canvas { height: 100%; width: 100%; background: white; border: 2px solid green; }

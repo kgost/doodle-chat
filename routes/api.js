@@ -183,7 +183,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 	// Save new message with corresponding conversationId
 	// if the message had an image, create that image
 	if ( req.body.image ) {
-		Image.create( { image: req.body.image }, function( err, image ) {
+		Image.create( { img: req.body.image }, function( err, image ) {
 			if ( err ) {
 				return res.status( 500 ).json({
 					title: 'An error occured',

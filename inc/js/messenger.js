@@ -141,6 +141,10 @@ $(document).ready( function() {
 					var showx = '';
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
 						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
+					if (data.obj[i].image){
+						console.log(data.obj[i].image);
+						showx+= '<img src="'+ data.obj[i].image.img +'">';
+					}
 					if ( data.obj[i].user == localStorage.getItem('userId')) {
 						showx += 	'<i class="fas fa-pencil-alt edit-message edit-button"></i>';
 						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
@@ -377,7 +381,7 @@ $(document).ready( function() {
 		var pngUrl = $( '#doodle-canvas' )[0].toDataURL();
 		// TODO: Send image to server via ajax call
 		$.ajax({
-			url: '/api/message',
+			url: '/api/messages/' + conversationId + '?token=' + localStorage.getItem( 'token' ),
 			method: 'post',
 			data: { text: '', image: pngUrl }
 		}).done( function( data ) {
@@ -414,6 +418,9 @@ $(document).ready( function() {
 					var showx = '';
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
 						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
+					if (data.obj[i].image){
+						showx+= '<img src="'+ data.obj[i].image.img +'">';
+					}
 					if ( data.obj[i].user == localStorage.getItem('userId')) {
 						showx += 	'<i class="fas fa-pencil-alt edit-button"></i>';
 						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
