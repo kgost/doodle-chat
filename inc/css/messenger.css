@@ -18,6 +18,22 @@
   top: 45px;
 }
 
+.participant {
+  padding-left: 10px;
+}
+
+.closeConversation {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
+.kickUser {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
 .doodle-canvas-container {
   width: 600px;
   height: 600px;
