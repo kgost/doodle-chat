@@ -3,7 +3,15 @@ exports = module.exports = function( io ) {
 	io.on( 'connection', ( socket ) => {
 		//Log message to confirm connected user
 		console.log( 'user connected' );
-		
+
+		socket.on( 'listen conversation', (conversationId) => {
+			socket.join( 'listen-' + conversationId );
+		} );
+
+		socket.on( 'unlisten conversation', (conversationId) => {
+			socket.leave( 'listen-' + conversationId );
+		} );
+
 		//On user joining coversation connects them to the socket for that conversation
 		socket.on( 'enter conversation', ( conversationId ) => {
 			socket.join( conversationId );
@@ -23,9 +31,10 @@ exports = module.exports = function( io ) {
 		socket.on( 'disconnect', () => {
 			console.log( 'user disconnected' );
 		} )
-		
+
 		//Destroys socket tied to a specific conversation
 		socket.on( 'destroy', ( conversationId ) => {
+			io.sockets.in( 'listen-' + conversationId  ).emit( 'refresh-conversations');
 		});
 	} );
 }

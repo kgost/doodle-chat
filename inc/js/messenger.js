@@ -3,6 +3,7 @@
  * 		Set-up everything within function as private
  */
 $(document).ready( function() {
+	var conversationIds = [];
 	var socket = io(),
 		conversationId;
 	//If a token exists: continue, otherwise: return 401
@@ -13,27 +14,7 @@ $(document).ready( function() {
 			method: 'get'
 		//Create a list of conversations
 		}).done(function(data) {
-			for (var i = 0; i < data.obj.length; i++) {
-				var outputhtml = '';
-				outputhtml += '<div id="' + data.obj[i]._id + '" class="card">';
-				outputhtml += 	'<div class="card-body conversation"><h4>' + data.obj[i].name + '</h4></div> ';
-
-				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-					outputhtml += 	'<button type="button" class="btn btn-danger closeConversation" aria-label="Close"> <span aria-hidden="true">Delete</span> </button> ';
-				}
-				outputhtml += 	'<div class="participant-container hidden">';
-				for (var j = 0; j < data.obj[i].participants.length; j++) {
-					outputhtml += '<div class="card participant">' + data.obj[i].participants[j];
-					if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-						outputhtml += '<button type="button" class="btn btn-danger btn-sm kickUser" aria-label="Close"> <span aria-hidden="true">Kick</span> </button>';
-					}
-					outputhtml += '</div>';
-				}
-				outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
-				outputhtml +=	'</div>';
-				outputhtml += '</div>';
-				$('#conversation-list').append(outputhtml);
-			}
+			loadConversations(data);
 		//On fail: disconnect from the socket and redirect to the login screen
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
@@ -142,7 +123,6 @@ $(document).ready( function() {
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
 						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
 					if (data.obj[i].image){
-						console.log(data.obj[i].image);
 						showx+= '<img src="'+ data.obj[i].image.img +'">';
 					}
 					if ( data.obj[i].user == localStorage.getItem('userId')) {
@@ -169,9 +149,10 @@ $(document).ready( function() {
 	 * 		When the button is clicked, call the delete conversation route.
 	 */
 	$('body').on('click', '.closeConversation', function(e) {
+		var that = this;
 		//Authenticate and delete
 		$.ajax({
-			url: '/api/conversation/' + $(this).parent().attr('id') + '?token=' + localStorage.getItem( 'token' ),
+			url: '/api/conversation/' + $(that).parent().attr('id') + '?token=' + localStorage.getItem( 'token' ),
 			method: 'delete'
 			//Show success
 		}).done(function(data) {
@@ -179,7 +160,7 @@ $(document).ready( function() {
 				flashError( data.message );
 			}
 			//Send to all users to remove the conversation from their list
-			socket.emit( 'destroy', $(this).parent().attr('id') );
+			socket.emit( 'destroy', $(that).parent().attr('id') );
 			//Send fail if not deleted
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
@@ -224,27 +205,7 @@ $(document).ready( function() {
 			method: 'get'
 		}).done(function(data) {
 			//Add a new card for each conversation
-			 for (var i = 0; i < data.obj.length; i++) {
-				var outputhtml = '';
-				outputhtml += '<div id="' + data.obj[i]._id + '" class="card">';
-				outputhtml += 	'<div class="card-body conversation"><h4>' + data.obj[i].name + '</h4></div> ';
-
-				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-					outputhtml += 	'<button type="button" class="btn btn-danger closeConversation" aria-label="Close">Delete</button> ';
-				}
-				outputhtml += 	'<div class="participant-container hidden">';
-				for (var j = 0; j < data.obj[i].participants.length; j++) {
-					outputhtml += '<div class="card participant"><span class="participant-name">' + data.obj[i].participants[j] + '</span>';
-					if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-						outputhtml += '<button type="button" class="btn btn-danger btn-sm kickUser" aria-label="Close">Kick</button>';
-					}
-					outputhtml += '</div>';
-				}
-				outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
-				outputhtml +=	'</div>';
-				outputhtml += '</div>';
-				$('#conversation-list').append(outputhtml);
-			}
+			loadConversations(data);
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
 				socket.disconnect();
@@ -438,37 +399,49 @@ $(document).ready( function() {
 	/**
 	 * Socket listener to leave conversation and remove from list
 	 */
-	socket.on( 'destroy', function() {
-		$('#message-container').empty();
-		socket.emit( 'leave conversation', conversationId );
-		delete conversationId;
+	socket.on( 'refresh-conversations', function() {
+		console.log("me llamo jeffe");
+		$('#conversation-list').empty();
+		for (var i = 0; i < conversationIds.length; i++) {
+			socket.emit('unlisten conversation', conversationIds[i] );
+		}
+		$.ajax({
+			url: '/api/conversations?token=' + localStorage.getItem( 'token' ),
+			method: 'get'
+		}).done(function(data) {
+			loadConversations(data);
+		}).fail( function( fqXHR, textStatus ) {
+			flashError( fqXHR.responseJSON.error.message );
+		} );
 	} );
 
 	// TODO: Remove last drawing from canvas
 	function clearCanvas() {
 	}
 
-	function loadConversations() {
+	function loadConversations(data) {
 		for (var i = 0; i < data.obj.length; i++) {
-		   var outputhtml = '';
-		   outputhtml += '<div id="' + data.obj[i]._id + '" class="card">';
-		   outputhtml += 	'<div class="card-body conversation">' + data.obj[i].name + '</div> ';
+			socket.emit( 'listen conversation', data.obj[i]._id );
+			conversationIds.push(data.obj[i]._id);
+			var outputhtml = '';
+			outputhtml += '<div id="' + data.obj[i]._id + '" class="card">';
+			outputhtml += 	'<div class="card-body conversation"><h4>' + data.obj[i].name + '</h4></div> ';
 
-		   if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-			   outputhtml += 	'<button type="button" class="btn btn-danger closeConversation" aria-label="Close">Delete</button> ';
-		   }
-		   outputhtml += 	'<div class="participant-container hidden">';
-		   for (var j = 0; j < data.obj[i].participants.length; j++) {
-			   outputhtml += '<div class="card participant"><span class="participant-name">' + data.obj[i].participants[j] + '</span>';
-			   if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
-				   outputhtml += '<button type="button" class="btn btn-danger btn-sm kickUser" aria-label="Close">Kick</button>';
-			   }
-			   outputhtml += '</div>';
-		   }
-		   outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
-		   outputhtml +=	'</div>';
-		   outputhtml += '</div>';
-		   $('#conversation-list').append(outputhtml);
+			if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+				outputhtml += 	'<button type="button" class="btn btn-danger closeConversation" aria-label="Close"> <span aria-hidden="true">Delete</span> </button> ';
+			}
+			outputhtml += 	'<div class="participant-container hidden">';
+			for (var j = 0; j < data.obj[i].participants.length; j++) {
+				outputhtml += '<div class="card participant">' + data.obj[i].participants[j];
+				if(data.obj[i].owner == localStorage.getItem( 'userId' )) {
+					outputhtml += '<button type="button" class="btn btn-danger btn-sm kickUser" aria-label="Close"> <span aria-hidden="true">Kick</span> </button>';
+				}
+				outputhtml += '</div>';
+			}
+			outputhtml += 	'<button id="add-user-button" type="button" class="btn btn-primary btn-sml btn-block">Add User</button>';
+			outputhtml +=	'</div>';
+			outputhtml += '</div>';
+			$('#conversation-list').append(outputhtml);
 	   }
 	}
 
