@@ -4,6 +4,10 @@ exports = module.exports = function( io ) {
 		//Log message to confirm connected user
 		console.log( 'user connected' );
 
+		socket.on('login', (username) => {
+			socket.join(username);
+		});
+
 		socket.on( 'listen conversation', (conversationId) => {
 			socket.join( 'listen-' + conversationId );
 		} );

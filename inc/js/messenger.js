@@ -8,6 +8,7 @@ $(document).ready( function() {
 		conversationId;
 	//If a token exists: continue, otherwise: return 401
 	if ( localStorage.getItem( 'token' ) ) {
+		socket.emit('login', localStorage.getItem('username'));
 		//Validate token
 		$.ajax({
 			url: '/api/conversations?token=' + localStorage.getItem( 'token' ),
@@ -189,6 +190,9 @@ $(document).ready( function() {
 			//Send success
 		}).done(function(data) {
 			flashSuccess( 'Conversation Created' );
+			users.forEach(function(user) {
+				socket.emit('refresh-conversations', user);
+			});
 			//Send failure
 		} ).fail( function( fqXHR, textStatus ) {
 			flashError( fqXHR.responseJSON.error.message );

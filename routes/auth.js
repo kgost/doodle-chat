@@ -34,7 +34,8 @@ router.post('/login', function(req, res, next) {
 		res.status( 200 ).json( {
 			message: 'Successfully logged in',
 			token: token,
-			userId: user._id
+			userId: user._id,
+			username: user.username
 		} );
 	});
 } );
@@ -66,7 +67,8 @@ router.post('/', function(req, res, next) {
 		res.status( 200 ).json( {
 			message: 'Successfully logged in',
 			token: jwt.sign( { user: user }, 'my nama jeff', {expiresIn : 7200}),
-			userId: user._id
+			userId: user._id,
+			username: user.username
 		});
 	});
 } );

@@ -2,7 +2,7 @@ $( document ).ready( function() {
 	var username = false;
 	var password = false;
 	var cPassword = false;
-	
+
 	$( '#submit' ).on( 'click', function( e ) {
 		e.preventDefault();
 
@@ -15,12 +15,13 @@ $( document ).ready( function() {
 		}).done(function(data) {
 			localStorage.setItem( 'token', data.token );
 			localStorage.setItem( 'userId', data.userId );
+			localStorage.setItem('username', data.username);
 			document.location.href="/messenger";
 		} ).fail( function( fqXHR, textStatus ) {
 			flashError( fqXHR.responseJSON.error.message );
 		} );
 	} );
-	
+
 	$( '#username' ).on( 'keyup', function ( e ) {
 		var uName = $(this).val();
 		if (uName.length > 0) {
@@ -52,7 +53,7 @@ $( document ).ready( function() {
 			checkAll();
 		}
 	});
-	
+
 	$( '#password' ).on( 'keyup', function ( e ) {
 		var pw = $(this).val();
 		var cpw = $( '#confirm-password' ).val();
@@ -76,7 +77,7 @@ $( document ).ready( function() {
 		}
 		checkAll();
 	});
-	
+
 	$( '#confirm-password' ).on( 'keyup', function ( e ) {
 		var cpw = $(this).val();
 		var pw = $( '#password' ).val();
@@ -100,7 +101,7 @@ $( document ).ready( function() {
 		}
 		checkAll();
 	});
-	
+
 	function checkAll() {
 		if (username && password && cPassword) {
 			$( '#submit' ).removeAttr('disabled');
