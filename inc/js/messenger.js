@@ -161,7 +161,7 @@ $(document).ready( function() {
 				flashError( data.message );
 			}
 			//Send to all users to remove the conversation from their list
-			socket.emit( 'destroy', $(that).parent().attr('id') );
+			socket.emit( 'conversation-change', $(that).parent().attr('id') );
 			//Send fail if not deleted
 		}).fail( function( fqXHR, textStatus ) {
 			if ( fqXHR.status == 401 ) {
@@ -190,8 +190,9 @@ $(document).ready( function() {
 			//Send success
 		}).done(function(data) {
 			flashSuccess( 'Conversation Created' );
+			socket.emit('conversation-add', localStorage.getItem( 'username' ));
 			users.forEach(function(user) {
-				socket.emit('refresh-conversations', user);
+				socket.emit('conversation-add', user);
 			});
 			//Send failure
 		} ).fail( function( fqXHR, textStatus ) {
@@ -404,7 +405,6 @@ $(document).ready( function() {
 	 * Socket listener to leave conversation and remove from list
 	 */
 	socket.on( 'refresh-conversations', function() {
-		console.log("me llamo jeffe");
 		$('#conversation-list').empty();
 		for (var i = 0; i < conversationIds.length; i++) {
 			socket.emit('unlisten conversation', conversationIds[i] );

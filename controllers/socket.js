@@ -31,14 +31,20 @@ exports = module.exports = function( io ) {
 			io.sockets.in( conversationId  ).emit( 'refresh', conversationId );
 		} );
 
+		//Destroys socket tied to a specific conversation
+		socket.on( 'conversation-change', ( conversationId ) => {
+			io.sockets.in( 'listen-' + conversationId  ).emit( 'refresh-conversations');
+		});
+
+		//Destroys socket tied to a specific conversation
+		socket.on( 'conversation-add', ( username ) => {
+			io.sockets.in( username  ).emit( 'refresh-conversations' );
+		});
+
 		//Logs users disconnecting from any socket
 		socket.on( 'disconnect', () => {
 			console.log( 'user disconnected' );
 		} )
 
-		//Destroys socket tied to a specific conversation
-		socket.on( 'destroy', ( conversationId ) => {
-			io.sockets.in( 'listen-' + conversationId  ).emit( 'refresh-conversations');
-		});
 	} );
 }
