@@ -122,7 +122,11 @@ $(document).ready( function() {
 				for (var i = 0; i < data.obj.length; i++) {
 					var showx = '';
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
-						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
+						if ( data.obj[i].user == localStorage.getItem( 'userId' ) ) {
+							showx += '<div class="card-body message text-right">' + data.obj[i].text + '</div>';
+						} else {
+							showx += '<div class="card-body message text-white bg-primary">' + data.obj[i].text + '</div>';
+						}
 					if (data.obj[i].image){
 						showx+= '<img src="'+ data.obj[i].image.img +'">';
 					}
@@ -257,6 +261,7 @@ $(document).ready( function() {
 	 * Edit Message Click Listener
 	 */
 	$('body').on('click', '.edit-message', function(e) {
+		console.log( 'jeff' );
 		$('.edit-container').remove();
 		$('.message').removeClass('hidden');
 		$('#edit-message').removeClass('hidden');
@@ -383,12 +388,16 @@ $(document).ready( function() {
 				for (var i = 0; i < data.obj.length; i++) {
 					var showx = '';
 						showx += '<div id="' + data.obj[i]._id + '" class="card">';
-						showx += '<div class="card-body message">' + data.obj[i].text + '</div>';
+						if ( data.obj[i].user == localStorage.getItem( 'userId' ) ) {
+							showx += '<div class="card-body message text-right">' + data.obj[i].text + '</div>';
+						} else {
+							showx += '<div class="card-body message text-white bg-primary">' + data.obj[i].text + '</div>';
+						}
 					if (data.obj[i].image){
 						showx+= '<img src="'+ data.obj[i].image.img +'">';
 					}
 					if ( data.obj[i].user == localStorage.getItem('userId')) {
-						showx += 	'<i class="fas fa-pencil-alt edit-button"></i>';
+						showx += 	'<i class="fas fa-pencil-alt edit-message edit-button"></i>';
 						showx +=	'<button type="button" class="close delete-message" aria-label="Close"> <span aria-hidden="true">&times;</span></button>';
 					}
 					showx += '</div>';
