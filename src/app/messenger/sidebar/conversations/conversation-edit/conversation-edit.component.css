@@ -1,0 +1,17 @@
+.participant, .container {
+  position: relative;
+}
+
+.container .close {
+  font-size: 50px;
+  position: absolute;
+  top: -5px;
+  right: 18px;
+}
+
+.participant .close {
+  font-size: 30px;
+  position: absolute;
+  top: -5px;
+  right: 18px;
+}

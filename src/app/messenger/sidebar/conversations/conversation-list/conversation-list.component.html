@@ -1,0 +1,9 @@
+<ul class="list-group">
+  <li 
+    class="new-conversation"
+    routerLink="/messenger/conversations/new"
+    class="list-group-item btn btn-success">New</li>
+  <app-conversation-item
+    *ngFor="let conversation of conversations"
+    [conversation]="conversation"></app-conversation-item>
+</ul>
