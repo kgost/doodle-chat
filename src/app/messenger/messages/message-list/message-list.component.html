@@ -1,5 +1,5 @@
-<h3 *ngIf="messages.length === 0">Select a Conversation</h3>
-<h3 *ngIf="messages.length !== 0">{{ getCurrentConversation().name }}</h3>
+<h3 *ngIf="!conversation">Select a Conversation</h3>
+<h3 *ngIf="conversation">{{ conversation.name }}</h3>
 <ul class="list-group">
   <app-message-item
     *ngFor="let message of messages"

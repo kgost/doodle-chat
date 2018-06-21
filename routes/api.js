@@ -224,7 +224,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
     } )
   // otherwise just save the message as is
   } else {
-    Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id }, ( err, message ) => {
+    Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id, username: user.username }, ( err, message ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',

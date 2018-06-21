@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Message } from '../message.model';
+import { Conversation } from '../../sidebar/conversations/conversation.model';
 import { MessageService } from '../message.service';
 
 @Component({
@@ -9,6 +10,7 @@ import { MessageService } from '../message.service';
   styleUrls: ['./message-list.component.css']
 })
 export class MessageListComponent implements OnInit {
+  conversation: Conversation;
   messages: Message[];
 
   constructor(
@@ -20,7 +22,11 @@ export class MessageListComponent implements OnInit {
     this.messageService.changeEmitter
       .subscribe( () => {
         this.messages = this.messageService.getMessages();
+        this.conversation = this.messageService.getCurrentConversation();
       } );
   }
 
+  getConversation() {
+    return this.messageService.getCurrentConversation();
+  }
 }

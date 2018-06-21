@@ -5,16 +5,15 @@ import { Message } from './message.model';
 import { Conversation } from '../sidebar/conversations/conversation.model';
 import { SidebarService } from '../sidebar/sidebar.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class MessageService {
   private currentConversation: Conversation;
   messages: Message[] = [];
   changeEmitter = new EventEmitter<void>();
+  editChange = new Subject<Message>();
 
   constructor(
-    sidebarService: SidebarService
+    private sidebarService: SidebarService
   ) { }
 
   getCurrentConversation() {
@@ -32,18 +31,33 @@ export class MessageService {
   }
 
   addMessage( message: Message ) {
-    this.messages.push( message );
-    this.changeEmitter.emit();
+    this.sidebarService.createMessage( this.currentConversation._id, message )
+      .subscribe(
+        ( newMessage: Message ) => {
+          this.messages.push( newMessage );
+          this.changeEmitter.emit();
+        }
+      );
   }
 
   updateMessage( id: string, message: Message ) {
-    this.messages[this.getMessageIndex( id )] = message;
-    this.changeEmitter.emit();
+    this.sidebarService.updateMessage( id, message )
+      .subscribe(
+        ( data: any ) => {
+          this.messages[this.getMessageIndex( id )] = message;
+          this.changeEmitter.emit();
+        }
+      );
   }
 
   removeMessage( id: string ) {
-    this.messages.splice( this.getMessageIndex( id ), 1 );
-    this.changeEmitter.emit();
+    this.sidebarService.removeMessage( id )
+      .subscribe(
+        ( data: any ) => {
+          this.messages.splice( this.getMessageIndex( id ), 1 );
+          this.changeEmitter.emit();
+        }
+      );
   }
 
   private getMessageIndex( id: string ) {

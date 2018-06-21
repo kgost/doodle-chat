@@ -1,1 +1,25 @@
-<li class="list-group-item">{{ message.text }}</li>
+<li 
+  [ngStyle]="{ height: ( owner ? 'initial' : '55px' ) }"
+  style="position: relative; height: 55px;"
+  class="list-group-item">
+  <span
+    *ngIf="!owner"
+    style="position: absolute; bottom: 0;"
+    class="small">{{ message.username }}</span>
+  <span style="padding-bottom: 5px; font-size: 18px;">{{ message.text }}</span>
+  <button 
+    (click)="onDelete()"
+    *ngIf="owner"
+    type="button" 
+    style="color: red;"
+    class="close pull-right" 
+    aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <span 
+    (click)="onEdit()"
+    *ngIf="owner"
+    class="pull-right glyphicon glyphicon-edit" 
+    style="cursor: pointer; padding-top: 2px; margin-right: 10px;"
+    aria-hidden="true"></span>
+</li>

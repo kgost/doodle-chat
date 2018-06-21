@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { Conversation } from '../conversation.model';
 import { ConversationService } from '../conversation.service';
+import { AuthService } from '../../../../auth/auth.service';
 
 @Component({
   selector: 'app-conversation-list',
@@ -13,6 +14,7 @@ export class ConversationListComponent implements OnInit {
 
   constructor(
     private conversationService: ConversationService,
+    private authService: AuthService,
   ) { }
 
   ngOnInit() {
@@ -21,5 +23,9 @@ export class ConversationListComponent implements OnInit {
       .subscribe(
         () => this.conversations = this.conversationService.getConversations()
       );
+  }
+
+  onNew() {
+    this.conversationService.editChange.next( new Conversation( '', this.authService.getCurrentUser(), [] ) );
   }
 }

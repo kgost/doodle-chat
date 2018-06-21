@@ -1,3 +1,27 @@
-<p>
-  message-edit works!
-</p>
+<div class="row">
+  <div class="col-xs-12">
+    <form 
+      #f="ngForm" 
+      (ngSubmit)="onSubmit()">
+      <div
+        style="margin: 0;"
+        class="form-group">
+        <textarea
+          id="text"
+          name="text"
+          ngModel
+          class="form-control" 
+          required></textarea>
+      </div>
+      <button
+        [disabled]="!messageEdit.valid"
+        type="submit"
+        class="btn btn-primary">Submit</button>
+      <button
+        *ngIf="editMode"
+        (click)="onCancel()"
+        type="button"
+        class="btn btn-warning">Cancel</button>
+    </form>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
@@ -13,27 +13,24 @@ import { ConversationService } from '../conversation.service';
   styleUrls: ['./conversation-edit.component.css']
 })
 export class ConversationEditComponent implements OnInit {
+  @Input() conversation: Conversation;
   editForm: FormGroup;
   editMode = false;
   editId: string;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
     private conversationService: ConversationService,
     private authService: AuthService,
   ) { }
 
   ngOnInit() {
-    this.activatedRoute.params.subscribe(
-      ( params: Params ) => {
-        this.editId = params['id'];
-        if ( this.editId !== undefined && this.editId.length > 0 ) {
-          this.editMode = true;
-        }
-        this.initForm();
-      }
-    );
+    this.editId = this.conversation._id;
+
+    if ( this.editId !== undefined && this.editId.length > 0 ) {
+      this.editMode = true;
+    }
+
+    this.initForm();
   }
 
   private initForm() {
@@ -41,15 +38,9 @@ export class ConversationEditComponent implements OnInit {
     const participants = new FormArray([]);
 
     if ( this.editMode ) {
-      const conversation = this.conversationService.getConversation( this.editId );
+      conversationName = this.conversation.name;
 
-      if ( !conversation ) {
-        this.router.navigate( ['/messenger'] );
-      }
-
-      conversationName = conversation.name;
-
-      for ( const participant of conversation.participants ) {
+      for ( const participant of this.conversation.participants ) {
         participants.push( new FormControl( participant.username, Validators.required ) );
       }
     } else {
@@ -73,29 +64,35 @@ export class ConversationEditComponent implements OnInit {
   }
 
   onSubmit() {
-    const users = [];
+    if ( this.editForm.valid ) {
+      const users = [];
 
-    for ( const username of this.editForm.value.participants ) {
-      users.push( new User( username ) );
+      for ( const username of this.editForm.value.participants ) {
+        users.push( new User( username ) );
+      }
+
+      const conversation = new Conversation( this.editForm.value.name, this.authService.getCurrentUser(), users );
+
+      if ( this.editMode ) {
+        conversation._id = this.editId;
+        this.conversationService.updateConversation( this.editId, conversation );
+      } else {
+        this.conversationService.addConversation( conversation );
+      }
+
+      this.editForm.reset();
+      this.conversationService.editChange.next( null );
     }
-
-    const conversation = new Conversation( this.editForm.value.name, this.authService.getCurrentUser(), users );
-
-    if ( this.editMode ) {
-      conversation._id = this.editId;
-      this.conversationService.updateConversation( this.editId, conversation );
-    } else {
-      this.conversationService.addConversation( conversation );
-    }
-
-    this.editForm.reset();
-    this.router.navigate( ['/messenger'] );
   }
 
   onRemoveConversation() {
     if ( this.editMode ) {
       this.conversationService.removeConversation( this.editId );
-      this.router.navigate( ['/messenger'] );
+      this.conversationService.editChange.next( null );
     }
+  }
+
+  onClose() {
+    this.conversationService.editChange.next( null );
   }
 }

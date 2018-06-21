@@ -27,7 +27,7 @@ export class ConversationItemComponent implements OnInit {
   }
 
   onEdit() {
-    this.router.navigate( ['/messenger/conversations', this.conversation._id, 'edit'] );
+    this.conversationService.editChange.next( this.conversation );
   }
 
   onSelectConversation() {

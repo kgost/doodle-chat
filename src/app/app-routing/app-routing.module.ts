@@ -14,10 +14,7 @@ const AppRoutes: Route[] = [
   { component: LandingComponent, path: '', pathMatch: 'full' },
   { component: SignupComponent, path: 'signup' },
   { component: SigninComponent, path: 'signin' },
-  { component: MessengerComponent, path: 'messenger', canActivate: [AuthGuard], children: [
-    { component: ConversationEditComponent, path: 'conversations/new' },
-    { component: ConversationEditComponent, path: 'conversations/:id/edit' },
-  ] },
+  { component: MessengerComponent, path: 'messenger', canActivate: [AuthGuard] },
 ];
 
 @NgModule({

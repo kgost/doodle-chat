@@ -1,4 +1,14 @@
-.participant, .container {
+.container {
+  position: absolute;
+  top: 10%;
+  margin: auto;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  z-index: 2;
+} 
+
+.participant {
   position: relative;
 }
 
@@ -14,4 +24,21 @@
   position: absolute;
   top: -5px;
   right: 18px;
+}
+
+.greyout {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(128,128,128,0.5);
+}
+
+@media only screen and (max-width: 768px) {
+  .container {
+    left: 0;
+    -webkit-transform: none;
+    transform: none;
+  }
 }

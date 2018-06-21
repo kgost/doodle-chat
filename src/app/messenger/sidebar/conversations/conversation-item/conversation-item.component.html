@@ -1,10 +1,11 @@
-<li class="list-group-item">
+<li
+  (click)="onSelectConversation()" 
+   style="cursor: pointer;"
+  class="list-group-item">
   <span
     (click)="onEdit()"
     *ngIf="conversation.owner._id === getCurrentUser()._id"
     style="cursor: pointer;"
     class="pull-right glyphicon glyphicon-option-vertical"></span>
-  <p
-    (click)="onSelectConversation()"
-    style="width: 85%; word-wrap: break-word;">{{ conversation.name }}</p>
+  <p style="width: 85%; word-wrap: break-word;">{{ conversation.name }}</p>
 </li>

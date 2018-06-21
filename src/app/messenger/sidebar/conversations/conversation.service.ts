@@ -1,4 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
+import { Subject } from 'rxjs';
 
 import { AuthService } from '../../../auth/auth.service';
 import { SidebarService } from '../sidebar.service';
@@ -11,6 +12,7 @@ import { Message } from '../../messages/message.model';
 export class ConversationService {
   private currentConversation: Conversation;
   changeEmitter = new EventEmitter<void>();
+  editChange = new Subject<Conversation>();
   user = this.authService.getCurrentUser();
   conversations: Conversation[] = [
     new Conversation( 'feff', this.user,
@@ -40,7 +42,7 @@ export class ConversationService {
       .subscribe(
         ( messages: Message[] ) => {
           this.currentConversation = this.getConversation( id );
-          this.messageService.loadMessages( messages );
+          this.messageService.loadMessages( this.getConversation( id ), messages );
         }
       );
   }

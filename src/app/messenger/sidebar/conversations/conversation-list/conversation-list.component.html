@@ -1,7 +1,7 @@
 <ul class="list-group">
   <li 
     class="new-conversation"
-    routerLink="/messenger/conversations/new"
+    (click)="onNew()"
     class="list-group-item btn btn-success">New</li>
   <app-conversation-item
     *ngFor="let conversation of conversations"
