@@ -2,29 +2,40 @@
   <div class="col-xs-12 col-md-10 col-md-offset-1">
     <h3>Sign Up</h3>
     <form 
-      #f="ngForm" 
+      [formGroup]="signupForm"
       (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="username">Username</label>
         <input
           id="username"
-          name="username"
-          ngModel
+          formControlName="username"
           class="form-control" 
-          type="text"
-          required>
+          type="text">
+        <div
+          *ngIf="signupForm.get('username').invalid && ( signupForm.get('username').touched || signupForm.get('username').dirty )">
+          <div
+            class="small"
+            *ngIf="signupForm.get('username').errors['usernameTaken']">
+            Username Taken
+          </div>
+          <div
+            class="small"
+            *ngIf="signupForm.get('username').errors['required']">
+            Username Is Required
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label for="username">Password</label>
         <input
           id="password"
-          name="password"
-          ngModel
+          formControlName="password"
           class="form-control" 
-          type="password"
-          required>
+          type="password">
+        <div *ngIf="signupForm.get('password').invalid && ( signupForm.get('password').touched || signupForm.get('password').dirty )" class="small">Password Must Be 6 Characters Long</div>
       </div>
       <button
+        [disabled]="signupForm.invalid"
         type="submit"
         class="btn btn-primary">Sign Up</button>
     </form>

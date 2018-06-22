@@ -9,36 +9,6 @@ const express  = require('express'),
   Conversation = require( '../models/conversation' ),
   middleware   = require( '../functions/middleware' )
 
-/**
- * Checks against MongoDB for username uniqueness upon registration
- * @param  {[type]}   username  username sent in req.params
- * @param  {[type]}   req  request object from user to server
- * @param  {[type]}   res  response object to user from server
- * @param  {Function} next next function in express function list
- * @return {[type]}        Returns a status code and corresponding messages.
- */
-router.get('/userUniqueness/:username', (req, res) => {
-  User.findOne( { username: req.params.username}, ( err, user ) => {
-    if (err) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-    //If the username is not in database, notify that it is available. Otherwise respond that it is taken
-    if ( !user || Object.keys(user).length === 0 ) {
-      return res.status (200 ).json({
-        message: 'Username avaliable',
-        obj: true
-      })
-    }
-    res.status( 200 ).json( {
-      message: 'Username in use',
-      obj: false
-    })
-  })
-})
-
 //Conversation Routes
 
 /**
@@ -56,11 +26,18 @@ router.post( '/conversations', middleware.authenticate, ( req, res ) => {
 
   async.map( convo.participants, ( participant, cb ) => {
     User.findOne( { username: participant.username }, '_id username' ).lean().exec( ( err, usr ) => {
-      if ( err || !user._id ) return cb( err )
+      if ( err ) return cb( err )
+      if ( !usr ) return cb( null )
       return cb( null, { _id: usr._id, username: usr.username } )
     } )
   }, ( err, results ) => {
-    convo.participants = results
+    for ( let i = 0; i < results.length; i++ ) {
+      if ( !results[i] ) {
+        results.splice( i, 1 )
+        i--
+      }
+    }
+    convo.participants = results;
 
     //Create the new conversation object
     Conversation.create( convo, ( err, conversation ) => {

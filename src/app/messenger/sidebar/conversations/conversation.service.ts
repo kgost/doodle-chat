@@ -70,7 +70,7 @@ export class ConversationService {
       .subscribe(
         ( newConversation: Conversation ) => {
           for ( let i = 0; i < newConversation.participants.length; i++ ) {
-            this.socketIoService.addConversation( newConversation.participants[i] );
+            this.socketIoService.addConversation( newConversation.participants[i]._id );
           }
           //this.conversations.push( newConversation );
           //this.changeEmitter.emit();
@@ -87,10 +87,10 @@ export class ConversationService {
     this.sidebarService.updateConversation( id, conversation )
       .subscribe(
         ( newConversation: Conversation ) => {
-          this.socketIoService.updateConversation( newConversation );
+          this.socketIoService.updateConversation( newConversation._id );
 
           for ( let i = 0; i < newConversation.participants.length; i++ ) {
-            this.socketIoService.addConversation( newConversation.participants[i] );
+            this.socketIoService.addConversation( newConversation.participants[i]._id );
           }
           //this.conversations[this.getConversationIndex( id )] = newConversation;
           //this.changeEmitter.emit();
@@ -102,7 +102,7 @@ export class ConversationService {
     this.sidebarService.removeConversation( id )
       .subscribe(
         ( data: any ) => {
-          this.socketIoService.updateConversation( this.getConversation( id ) );
+          this.socketIoService.updateConversation( id );
           //this.conversations.splice( this.getConversationIndex( id ), 1 );
           //this.changeEmitter.emit();
         }
@@ -130,12 +130,15 @@ export class ConversationService {
       }
 
       if ( !match ) {
-        this.socketIoService.unListenConversation( this.conversations[i] );
+        if ( this.socketIoService.joinedConversation === this.conversations[i]._id ) {
+          this.socketIoService.leaveConversation( this.conversations[i]._id );
+        }
+        this.socketIoService.unListenConversation( this.conversations[i]._id );
       }
     }
 
     for ( let i = 0; i < conversations.length; i++ ) {
-      this.socketIoService.listenConversation( conversations[i] );
+      this.socketIoService.listenConversation( conversations[i]._id );
     }
   }
 }

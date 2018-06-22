@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     if ( this.authService.getCurrentUser()._id ) {
-      this.socketIoService.signin( this.authService.getCurrentUser() );
+      this.socketIoService.signin( this.authService.getCurrentUser()._id );
     }
   }
 }

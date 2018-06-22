@@ -6,7 +6,9 @@ import { Conversation } from '../messenger/sidebar/conversations/conversation.mo
 
 @Injectable()
 export class SocketIoService {
+  joinedConversation: string;
   conversationChange = new EventEmitter<void>();
+  conversationLeave = new EventEmitter<void>();
   messagesChange = new EventEmitter<void>();
 
   constructor( private socket: Socket ) {
@@ -19,32 +21,38 @@ export class SocketIoService {
     } );
   }
 
-  signin( user: User ) {
-    this.socket.emit( 'signin', user._id );
+  signin( userId: string ) {
+    this.socket.emit( 'signin', userId );
   }
 
-  signout( user: User ) {
-    this.socket.emit( 'signout', user._id );
+  signout( userId: string ) {
+    this.socket.emit( 'signout', userId );
   }
 
-  listenConversation( conversation: Conversation ) {
-    this.socket.emit( 'listen-conversation', conversation._id );
+  listenConversation( conversationId: string ) {
+    this.socket.emit( 'listen-conversation', conversationId );
   }
 
-  unListenConversation( conversation: Conversation ) {
-    this.socket.emit( 'unlisten-conversation', conversation._id );
+  unListenConversation( conversationId: string ) {
+    this.socket.emit( 'unlisten-conversation', conversationId );
   }
 
-  addConversation( user: User ) {
-    this.socket.emit( 'add-conversation', user._id );
+  addConversation( userId: string ) {
+    this.socket.emit( 'add-conversation', userId );
   }
 
-  updateConversation( conversation: Conversation ) {
-    this.socket.emit( 'update-conversation', conversation._id );
+  updateConversation( conversationId: string ) {
+    this.socket.emit( 'update-conversation', conversationId );
   }
 
   joinConversation( conversationId: string ) {
+    this.joinedConversation = conversationId;
     this.socket.emit( 'join-conversation', conversationId );
+  }
+
+  leaveConversation( conversationId: string ) {
+    this.socket.emit( 'leave-conversation', conversationId );
+    this.conversationLeave.emit();
   }
 
   newMessage( conversationId: string ) {

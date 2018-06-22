@@ -48,13 +48,19 @@
                     ria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
+                  <div
+                    *ngIf="editForm.get('participants').get('' + i).pending || ( editForm.get('participants').get('' + i).invalid && ( editForm.get('participants').get('' + i).dirty || editForm.get('participants').get('' + i).touched ) && editForm.get('participants').get('' + i).errors['usernameInvalid'] )"
+                    class="small">Username Invalid</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div class="col-xs-12">
-          <button class="btn btn-primary" type="submit">Submit</button>
+          <button
+            [disabled]="editForm.invalid || editForm.pending"
+            class="btn btn-primary"
+            type="submit">Submit</button>
           <button
             *ngIf="editMode"
             (click)="onRemoveConversation()"

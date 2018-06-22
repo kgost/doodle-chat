@@ -71,4 +71,32 @@ router.post('/signup', (req, res) => {
   })
 } )
 
+/**
+ * Checks against MongoDB for username uniqueness upon registration
+ * @param  {[type]}   username  username sent in req.params
+ * @param  {[type]}   req  request object from user to server
+ * @param  {[type]}   res  response object to user from server
+ * @param  {Function} next next function in express function list
+ * @return {[type]}        Returns a status code and corresponding messages.
+ */
+router.get('/usernameTaken/:username', (req, res) => {
+  User.findOne( { username: req.params.username}, ( err, user ) => {
+    if (err) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+    //If the username is not in database, notify that it is available. Otherwise respond that it is taken
+    if ( !user || Object.keys(user).length === 0 ) {
+      return res.status (200 ).json({
+        obj: false
+      })
+    }
+    res.status( 200 ).json( {
+      obj: true
+    })
+  })
+})
+
 module.exports = router

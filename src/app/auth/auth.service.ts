@@ -1,6 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 import { User } from './user.model';
 import { SocketIoService } from '../shared/socket-io.service';
@@ -39,7 +40,7 @@ export class AuthService implements OnInit {
             localStorage.getItem( 'username' ),
             localStorage.getItem( 'userId' ),
           );
-          this.socketIoService.signin( this.currentUser );
+          this.socketIoService.signin( this.currentUser._id );
           this.router.navigate(['/messenger']);
         },
         ( response: Response ) => {
@@ -61,7 +62,7 @@ export class AuthService implements OnInit {
             localStorage.getItem( 'username' ),
             localStorage.getItem( 'userId' ),
           );
-          this.socketIoService.signin( this.currentUser );
+          this.socketIoService.signin( this.currentUser._id );
           this.router.navigate(['/messenger']);
         },
         ( response: Response ) => {
@@ -69,6 +70,13 @@ export class AuthService implements OnInit {
           console.log( error );
         }
       );
+  }
+
+  usernameTaken( username: string ) {
+    return this.http.get( this.baseUrl + 'usernameTaken/' + username )
+      .pipe( map( ( response: Response )  => {
+        return response.json().obj;
+      } ) );
   }
 
   getToken() {
@@ -84,7 +92,7 @@ export class AuthService implements OnInit {
   }
 
   signout() {
-    this.socketIoService.signout( this.currentUser );
+    this.socketIoService.signout( this.currentUser._id );
     delete this.currentUser;
     localStorage.removeItem( 'token' );
     this.router.navigate( ['/'] );

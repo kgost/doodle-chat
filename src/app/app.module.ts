@@ -55,7 +55,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     HeaderComponent,
     SignupComponent,
     SigninComponent,
-    LandingComponent
+    LandingComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 
 import { User } from '../../../../auth/user.model';
 import { AuthService } from '../../../../auth/auth.service';
@@ -41,10 +42,10 @@ export class ConversationEditComponent implements OnInit {
       conversationName = this.conversation.name;
 
       for ( const participant of this.conversation.participants ) {
-        participants.push( new FormControl( participant.username, Validators.required ) );
+        participants.push( new FormControl( participant.username, Validators.required, this.usernameValid.bind( this ) ) );
       }
     } else {
-      participants.push( new FormControl( null, Validators.required ) );
+      participants.push( new FormControl( null, Validators.required, this.usernameValid.bind( this ) ) );
     }
 
     this.editForm = new FormGroup({
@@ -55,7 +56,7 @@ export class ConversationEditComponent implements OnInit {
 
   onAddParticipant() {
     ( <FormArray> this.editForm.get( 'participants' ) ).push(
-      new FormControl( null, Validators.required )
+      new FormControl( null, Validators.required, this.usernameValid.bind( this ) )
     );
   }
 
@@ -94,5 +95,18 @@ export class ConversationEditComponent implements OnInit {
 
   onClose() {
     this.conversationService.editChange.next( null );
+  }
+
+  private usernameValid( control: FormControl ): Promise<any> | Observable<any> {
+    return new Promise<any>( ( resolve, reject ) => {
+      this.authService.usernameTaken( control.value )
+        .subscribe( ( taken: boolean ) => {
+          if ( !taken ) {
+            resolve( { usernameInvalid: true } );
+          } else {
+            resolve( null );
+          }
+        } );
+    } );
   }
 }
