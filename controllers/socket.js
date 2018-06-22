@@ -4,41 +4,45 @@ exports = module.exports = function( io ) {
     //Log message to confirm connected user
     console.log( 'user connected' )
 
-    socket.on('login', ( userId ) => {
+    socket.on('signin', ( userId ) => {
       socket.join( userId )
     })
 
-    socket.on( 'listen conversation', ( conversationId ) => {
+    socket.on('signout', ( userId ) => {
+      socket.leave( userId )
+    })
+
+    socket.on( 'listen-conversation', ( conversationId ) => {
       socket.join( 'listen-' + conversationId )
     } )
 
-    socket.on( 'unlisten conversation', ( conversationId ) => {
+    socket.on( 'unlisten-conversation', ( conversationId ) => {
       socket.leave( 'listen-' + conversationId )
     } )
 
     //On user joining coversation connects them to the socket for that conversation
-    socket.on( 'enter conversation', ( conversationId ) => {
+    socket.on( 'join-conversation', ( conversationId ) => {
       socket.join( conversationId )
     } )
 
     //Leaves socket for specific conversation when user leaves
-    socket.on( 'leave conversation', ( conversationId ) => {
+    socket.on( 'leave-conversation', ( conversationId ) => {
       socket.leave( conversationId )
     } )
 
     //Refreshes current socket when new messages are sent so new message can be loaded
     socket.on( 'new-message', ( conversationId ) => {
-      io.sockets.in( conversationId  ).emit( 'refresh', conversationId )
+      io.sockets.in( conversationId  ).emit( 'refresh-messages', conversationId )
     } )
 
     //Destroys socket tied to a specific conversation
-    socket.on( 'conversation-change', ( conversationId ) => {
+    socket.on( 'update-conversation', ( conversationId ) => {
       io.sockets.in( 'listen-' + conversationId  ).emit( 'refresh-conversations')
     })
 
     //Destroys socket tied to a specific conversation
-    socket.on( 'conversation-add', ( username ) => {
-      io.sockets.in( username  ).emit( 'refresh-conversations' )
+    socket.on( 'add-conversation', ( userId ) => {
+      io.sockets.in( userId  ).emit( 'refresh-conversations' )
     })
 
     //Logs users disconnecting from any socket

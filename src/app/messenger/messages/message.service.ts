@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 
 import { Message } from './message.model';
 import { Conversation } from '../sidebar/conversations/conversation.model';
+import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 
 @Injectable()
@@ -13,7 +14,8 @@ export class MessageService {
   editChange = new Subject<Message>();
 
   constructor(
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private socketIoService: SocketIoService
   ) { }
 
   getCurrentConversation() {
@@ -34,8 +36,9 @@ export class MessageService {
     this.sidebarService.createMessage( this.currentConversation._id, message )
       .subscribe(
         ( newMessage: Message ) => {
-          this.messages.push( newMessage );
-          this.changeEmitter.emit();
+          this.socketIoService.newMessage( this.currentConversation._id );
+          //this.messages.push( newMessage );
+          //this.changeEmitter.emit();
         }
       );
   }
@@ -44,8 +47,9 @@ export class MessageService {
     this.sidebarService.updateMessage( id, message )
       .subscribe(
         ( data: any ) => {
-          this.messages[this.getMessageIndex( id )] = message;
-          this.changeEmitter.emit();
+          this.socketIoService.newMessage( this.currentConversation._id );
+          //this.messages[this.getMessageIndex( id )] = message;
+          //this.changeEmitter.emit();
         }
       );
   }
@@ -54,8 +58,9 @@ export class MessageService {
     this.sidebarService.removeMessage( id )
       .subscribe(
         ( data: any ) => {
-          this.messages.splice( this.getMessageIndex( id ), 1 );
-          this.changeEmitter.emit();
+          this.socketIoService.newMessage( this.currentConversation._id );
+          //this.messages.splice( this.getMessageIndex( id ), 1 );
+          //this.changeEmitter.emit();
         }
       );
   }

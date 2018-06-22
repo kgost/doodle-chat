@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 import { AppRoutingModule } from './app-routing/app-routing.module';
 
@@ -30,6 +31,9 @@ import { ConversationService } from './messenger/sidebar/conversations/conversat
 import { MessageService } from './messenger/messages/message.service';
 import { AuthService } from './auth/auth.service';
 import { AuthGuard } from './auth/auth-guard.service';
+import { SocketIoService } from './shared/socket-io.service';
+
+const config: SocketIoConfig = { url: '/', options: {} };
 
 @NgModule({
   declarations: [
@@ -58,9 +62,10 @@ import { AuthGuard } from './auth/auth-guard.service';
     HttpModule,
     FormsModule,
     ReactiveFormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SocketIoModule.forRoot( config )
   ],
-  providers: [AuthService, AuthGuard, SidebarService, ConversationService, MessageService],
+  providers: [AuthService, AuthGuard, SidebarService, ConversationService, MessageService, SocketIoService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

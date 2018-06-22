@@ -3,6 +3,7 @@ import { Http, Response } from '@angular/http';
 import { Router } from '@angular/router';
 
 import { User } from './user.model';
+import { SocketIoService } from '../shared/socket-io.service';
 
 @Injectable()
 export class AuthService implements OnInit {
@@ -14,7 +15,8 @@ export class AuthService implements OnInit {
 
   constructor(
     private http: Http,
-    private router: Router
+    private router: Router,
+    private socketIoService: SocketIoService
   ) { }
 
   ngOnInit() {
@@ -33,6 +35,11 @@ export class AuthService implements OnInit {
           localStorage.setItem( 'token', data.token );
           localStorage.setItem( 'userId', data.userId );
           localStorage.setItem( 'username', username );
+          this.currentUser = new User(
+            localStorage.getItem( 'username' ),
+            localStorage.getItem( 'userId' ),
+          );
+          this.socketIoService.signin( this.currentUser );
           this.router.navigate(['/messenger']);
         },
         ( response: Response ) => {
@@ -50,6 +57,11 @@ export class AuthService implements OnInit {
           localStorage.setItem( 'token', data.token );
           localStorage.setItem( 'userId', data.userId );
           localStorage.setItem( 'username', username );
+          this.currentUser = new User(
+            localStorage.getItem( 'username' ),
+            localStorage.getItem( 'userId' ),
+          );
+          this.socketIoService.signin( this.currentUser );
           this.router.navigate(['/messenger']);
         },
         ( response: Response ) => {
@@ -72,6 +84,7 @@ export class AuthService implements OnInit {
   }
 
   signout() {
+    this.socketIoService.signout( this.currentUser );
     delete this.currentUser;
     localStorage.removeItem( 'token' );
     this.router.navigate( ['/'] );
