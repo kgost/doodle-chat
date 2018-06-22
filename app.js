@@ -28,9 +28,9 @@ app.use( express.static(__dirname + '/dist/chat-front') )
 app.use('/api', apiRoutes)
 app.use('/auth', authRoutes)
 
-app.get('/*', (req, res, next) => {
-    // Just send the index.html for other files to support HTML5Mode
-    res.sendFile('index.html', { root: __dirname + '/dist/chat-front' });
+app.get('/*', (req, res) => {
+  // Just send the index.html for other files to support HTML5Mode
+  res.sendFile('index.html', { root: __dirname + '/dist/chat-front' })
 })
 
 //Starts up sockets
