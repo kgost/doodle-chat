@@ -60,19 +60,33 @@ export class MessageService {
     this.changeEmitter.emit();
   }
 
+  loadMessage( message: Message ) {
+    this.messages.push( message );
+    this.changeEmitter.emit();
+  }
+
+  changeMessage( id: string, message: Message ) {
+    if ( message ) {
+      this.messages[this.getMessageIndex( id )] = message;
+    } else {
+      this.messages.splice( this.getMessageIndex( id ), 1 );
+    }
+    this.changeEmitter.emit();
+  }
+
   addMessage( message: Message ) {
     if ( !this.privateMode ) {
       this.sidebarService.createMessage( this.currentConversation._id, message )
         .subscribe(
           ( newMessage: Message ) => {
-            this.socketIoService.newMessage( this.currentConversation._id );
+            this.socketIoService.newMessage( this.currentConversation._id, newMessage._id );
           }
         );
     } else {
       this.sidebarService.createPrivateMessage( this.currentFriendship._id, message )
         .subscribe(
           ( newMessage: Message ) => {
-            this.socketIoService.newPrivateMessage( this.currentFriendship._id );
+            this.socketIoService.newPrivateMessage( this.currentFriendship._id, newMessage._id );
           }
         );
     }
@@ -83,9 +97,9 @@ export class MessageService {
       .subscribe(
         ( data: any ) => {
           if ( this.privateMode ) {
-            this.socketIoService.newPrivateMessage( this.currentFriendship._id );
+            this.socketIoService.changePrivateMessage( this.currentFriendship._id, id );
           } else {
-            this.socketIoService.newMessage( this.currentConversation._id );
+            this.socketIoService.changeMessage( this.currentConversation._id, id );
           }
         }
       );
@@ -96,9 +110,9 @@ export class MessageService {
       .subscribe(
         ( data: any ) => {
           if ( this.privateMode ) {
-            this.socketIoService.newPrivateMessage( this.currentFriendship._id );
+            this.socketIoService.changePrivateMessage( this.currentFriendship._id, id );
           } else {
-            this.socketIoService.newMessage( this.currentConversation._id );
+            this.socketIoService.changeMessage( this.currentConversation._id, id );
           }
         }
       );

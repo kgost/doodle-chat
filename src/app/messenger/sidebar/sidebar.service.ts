@@ -133,9 +133,19 @@ export class SidebarService {
       .pipe( map( this.mapMessages ) );
   }
 
+  getMessage( conversationId: string, messageId: string ) {
+    return this.http.get( this.baseUrl + 'message/' + conversationId + '/' + messageId + '?token=' + this.authService.getToken() )
+      .pipe( map( this.mapMessage ) );
+  }
+
   getPrivateMessages( friendshipId: string ) {
     return this.http.get( this.baseUrl + 'privateMessages/' + friendshipId + '?token=' + this.authService.getToken() )
       .pipe( map( this.mapMessages ) );
+  }
+
+  getPrivateMessage( friendshipId: string, messageId: string ) {
+    return this.http.get( this.baseUrl + 'privateMessage/' + friendshipId + '/' + messageId + '?token=' + this.authService.getToken() )
+      .pipe( map( this.mapMessage ) );
   }
 
   updateMessage( id: string, message: Message ) {

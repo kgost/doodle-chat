@@ -20,13 +20,23 @@ export class MessagesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.socketIoService.messagesAdd
+      .subscribe(
+        ( messageId: string ) => {
+          if ( this.messageService.privateMode ) {
+            this.friendService.loadMessage( messageId );
+          } else {
+            this.conversationService.loadMessage( messageId );
+          }
+        }
+      );
     this.socketIoService.messagesChange
       .subscribe(
-        () => {
+        ( messageId: string ) => {
           if ( this.messageService.privateMode ) {
-            this.friendService.loadMessages( this.friendService.getCurrentFriendship()._id, true );
+            this.friendService.changeMessage( messageId );
           } else {
-            this.conversationService.loadMessages( this.conversationService.getCurrentConversation()._id, true );
+            this.conversationService.changeMessage( messageId );
           }
         }
       );

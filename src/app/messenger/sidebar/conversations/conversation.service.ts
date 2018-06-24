@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { AuthService } from '../../../auth/auth.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
 import { SidebarService } from '../sidebar.service';
+import { NotificationService } from '../notification.service';
 import { MessageService } from '../../messages/message.service';
 import { User } from '../../../auth/user.model';
 import { Conversation } from './conversation.model';
@@ -20,7 +21,15 @@ export class ConversationService {
     private sidebarService: SidebarService,
     private messageService: MessageService,
     private socketIoService: SocketIoService,
-  ) { }
+    private notificationService: NotificationService
+  ) {
+    this.notificationService.conversationEmitter
+      .subscribe(
+        (  ) => {
+          this.changeEmitter.emit();
+        }
+      );
+  }
 
   loadConversations() {
     this.sidebarService.getConversations()
@@ -33,16 +42,31 @@ export class ConversationService {
       );
   }
 
-  loadMessages( id: string, reload = false ) {
+  loadMessages( id: string ) {
     this.sidebarService.getMessages( id )
       .subscribe(
         ( messages: Message[] ) => {
-          if ( !reload ) {
-            this.socketIoService.joinConversation( id );
-          }
-
+          this.socketIoService.joinConversation( id );
           this.currentConversation = this.getConversation( id );
           this.messageService.loadMessages( this.getConversation( id ), messages );
+        }
+      );
+  }
+
+  loadMessage( id: string ) {
+    this.sidebarService.getMessage( this.currentConversation._id, id )
+      .subscribe(
+        ( message: Message ) => {
+          this.messageService.loadMessage( message );
+        }
+      );
+  }
+
+  changeMessage( id: string ) {
+    this.sidebarService.getMessage( this.currentConversation._id, id )
+      .subscribe(
+        ( message: Message ) => {
+          this.messageService.changeMessage( id, message );
         }
       );
   }
@@ -95,6 +119,14 @@ export class ConversationService {
           this.socketIoService.updateConversation( id );
         }
       );
+  }
+
+  checkNotification( id: string ) {
+    return this.notificationService.getConversationStatus( id );
+  }
+
+  removeNotification( id: string ) {
+    this.notificationService.removeConversation( id );
   }
 
   private getConversationIndex( id: string ) {

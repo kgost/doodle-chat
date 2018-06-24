@@ -11,6 +11,7 @@ import { AuthService } from '../../../../auth/auth.service';
 })
 export class ConversationItemComponent implements OnInit {
   @Input() conversation: Conversation;
+  notification = false;
 
   constructor(
     private authService: AuthService,
@@ -18,6 +19,20 @@ export class ConversationItemComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.conversationService.changeEmitter
+      .subscribe(
+        () => {
+          if ( this.conversationService.checkNotification( this.conversation._id ) &&
+            ( !this.conversationService.getCurrentConversation() ||
+              this.conversationService.getCurrentConversation()._id !== this.conversation._id ) ) {
+            this.notification = true;
+          } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
+            this.conversationService.getCurrentConversation() &&
+            this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
+            this.conversationService.removeNotification( this.conversation._id );
+          }
+        }
+      );
   }
 
   getCurrentUser() {
@@ -29,6 +44,11 @@ export class ConversationItemComponent implements OnInit {
   }
 
   onSelectConversation() {
+    console.log( 'feff' );
+    if ( this.notification ) {
+      this.conversationService.removeNotification( this.conversation._id );
+      this.notification = false;
+    }
     this.conversationService.loadMessages( this.conversation._id );
   }
 }

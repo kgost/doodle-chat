@@ -47,12 +47,24 @@ exports = module.exports = function( io ) {
     } )
 
     //Refreshes current socket when new messages are sent so new message can be loaded
-    socket.on( 'new-message', ( conversationId ) => {
-      io.sockets.in( conversationId  ).emit( 'refresh-messages', conversationId )
+    socket.on( 'new-message', ( data ) => {
+      io.sockets.in( data.conversationId  ).emit( 'add-message', data.messageId )
+      io.sockets.in( 'listen-' + data.conversationId ).emit( 'notify-conversation', data.conversationId )
     } )
 
-    socket.on( 'new-private-message', ( friendshipId ) => {
-      io.sockets.in( friendshipId  ).emit( 'refresh-private-messages', friendshipId )
+    socket.on( 'change-message', ( data ) => {
+      io.sockets.in( data.conversationId  ).emit( 'update-message', data.messageId )
+      io.sockets.in( 'listen-' + data.conversationId ).emit( 'notify-conversation', data.conversationId )
+    } )
+
+    socket.on( 'new-private-message', ( data ) => {
+      io.sockets.in( data.friendshipId ).emit( 'add-private-message', data.messageId )
+      io.sockets.in( 'listen-' + data.friendshipId ).emit( 'notify-friendship', data.friendshipId )
+    } )
+
+    socket.on( 'change-private-message', ( data ) => {
+      io.sockets.in( data.friendshipId ).emit( 'update-private-message', data.messageId )
+      io.sockets.in( 'listen-' + data.friendshipId ).emit( 'notify-friendship', data.friendshipId )
     } )
 
     //Destroys socket tied to a specific conversation

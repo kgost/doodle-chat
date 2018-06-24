@@ -21,7 +21,9 @@ export class FriendListComponent implements OnInit {
     this.friendships = this.friendService.getFriendships();
     this.friendService.changeEmitter
       .subscribe(
-        () => this.friendships = this.friendService.getFriendships()
+        () => {
+          this.friendships = this.friendService.getFriendships();
+        }
       );
   }
 

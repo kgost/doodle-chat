@@ -27,6 +27,7 @@ import { SigninComponent } from './auth/signin/signin.component';
 import { LandingComponent } from './landing/landing.component';
 
 import { SidebarService } from './messenger/sidebar/sidebar.service';
+import { NotificationService } from './messenger/sidebar/notification.service';
 import { ConversationService } from './messenger/sidebar/conversations/conversation.service';
 import { FriendService } from './messenger/sidebar/friends/friend.service';
 import { MessageService } from './messenger/messages/message.service';
@@ -73,7 +74,8 @@ const config: SocketIoConfig = { url: '/', options: {} };
     ConversationService,
     FriendService,
     MessageService,
-    SocketIoService
+    SocketIoService,
+    NotificationService
   ],
   bootstrap: [AppComponent]
 })

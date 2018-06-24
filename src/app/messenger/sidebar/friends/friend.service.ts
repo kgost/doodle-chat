@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { AuthService } from '../../../auth/auth.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
 import { SidebarService } from '../sidebar.service';
+import { NotificationService } from '../notification.service';
 import { MessageService } from '../../messages/message.service';
 import { User } from '../../../auth/user.model';
 import { Friendship } from './friendship.model';
@@ -20,7 +21,15 @@ export class FriendService {
     private sidebarService: SidebarService,
     private messageService: MessageService,
     private socketIoService: SocketIoService,
-  ) { }
+    private notificationService: NotificationService,
+  ) {
+    this.notificationService.friendshipEmitter
+      .subscribe(
+        () => {
+          this.changeEmitter.emit();
+        }
+      );
+  }
 
   loadFriendships() {
     this.sidebarService.getFriendships()
@@ -33,16 +42,31 @@ export class FriendService {
       );
   }
 
-  loadMessages( id: string, reload = false ) {
+  loadMessages( id: string ) {
     this.sidebarService.getPrivateMessages( id )
       .subscribe(
         ( messages: Message[] ) => {
-          if ( !reload ) {
-            this.socketIoService.joinFriendship( id );
-          }
-
+          this.socketIoService.joinFriendship( id );
           this.currentFriendship = this.getFriendship( id );
           this.messageService.loadPrivateMessages( this.getFriendship( id ), messages );
+        }
+      );
+  }
+
+  loadMessage( id: string ) {
+    this.sidebarService.getPrivateMessage( this.currentFriendship._id, id )
+      .subscribe(
+        ( message: Message ) => {
+          this.messageService.loadMessage( message );
+        }
+      );
+  }
+
+  changeMessage( id: string ) {
+    this.sidebarService.getPrivateMessage( this.currentFriendship._id, id )
+      .subscribe(
+        ( message: Message ) => {
+          this.messageService.changeMessage( id, message );
         }
       );
   }
@@ -86,6 +110,14 @@ export class FriendService {
           this.socketIoService.updateFriendship( id );
         }
       );
+  }
+
+  checkNotification( id: string ) {
+    return this.notificationService.getFriendshipStatus( id );
+  }
+
+  removeNotification( id: string ) {
+    return this.notificationService.removeFriendship( id );
   }
 
   private getFriendshipIndex( id: string ) {

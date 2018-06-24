@@ -1,6 +1,7 @@
 <li
   (click)="onSelectFriendship()" 
-   style="cursor: pointer; position: relative;"
+  [ngClass]="{ notification: notification }"
+  style="cursor: pointer; position: relative;"
   class="list-group-item">
   <span
     (click)="onRemove()"

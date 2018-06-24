@@ -1,6 +1,7 @@
 <li
   (click)="onSelectConversation()" 
-   style="cursor: pointer;"
+  [ngClass]="{ notification: notification }"
+  style="cursor: pointer;"
   class="list-group-item">
   <span
     (click)="onEdit()"

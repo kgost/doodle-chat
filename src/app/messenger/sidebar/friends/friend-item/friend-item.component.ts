@@ -11,6 +11,7 @@ import { AuthService } from '../../../../auth/auth.service';
 })
 export class FriendItemComponent implements OnInit {
   @Input() friendship: Friendship;
+  notification = false;
 
   constructor(
     private authService: AuthService,
@@ -18,6 +19,19 @@ export class FriendItemComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.friendService.changeEmitter
+      .subscribe(
+        () => {
+          if ( this.friendService.checkNotification( this.friendship._id ) &&
+            ( !this.friendService.getCurrentFriendship() || this.friendService.getCurrentFriendship()._id !== this.friendship._id ) ) {
+            this.notification = true;
+          } else if ( this.friendService.checkNotification( this.friendship._id ) &&
+            this.friendService.getCurrentFriendship() &&
+            this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
+            this.friendService.removeNotification( this.friendship._id );
+          }
+        }
+      );
   }
 
   getFriendName() {
@@ -58,6 +72,10 @@ export class FriendItemComponent implements OnInit {
 
   onSelectFriendship() {
     if ( !this.isPending() && !this.isRequest() ) {
+      if ( this.notification ) {
+        this.friendService.removeNotification( this.friendship._id );
+        this.notification = false;
+      }
       this.friendService.loadMessages( this.friendship._id );
     }
   }

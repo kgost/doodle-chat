@@ -12,23 +12,42 @@ export class SocketIoService {
   friendshipChange = new EventEmitter<void>();
   conversationLeave = new EventEmitter<void>();
   friendshipLeave = new EventEmitter<void>();
-  messagesChange = new EventEmitter<void>();
+  messagesChange = new EventEmitter<string>();
+  messagesAdd = new EventEmitter<string>();
+  notifyConversation = new EventEmitter<string>();
+  notifyFriendship = new EventEmitter<string>();
 
   constructor( private socket: Socket ) {
     this.socket.on( 'refresh-conversations', ( data: any ) => {
       this.conversationChange.emit();
     } );
 
-    this.socket.on( 'refresh-messages', () => {
-      this.messagesChange.emit();
+    this.socket.on( 'add-message', ( messageId ) => {
+      this.messagesAdd.emit( messageId );
+    } );
+
+    this.socket.on( 'update-message', ( messageId: string ) => {
+      this.messagesChange.emit( messageId );
     } );
 
     this.socket.on( 'refresh-friendships', ( data: any ) => {
       this.friendshipChange.emit();
     } );
 
-    this.socket.on( 'refresh-private-messages', () => {
-      this.messagesChange.emit();
+    this.socket.on( 'add-private-message', ( messageId ) => {
+      this.messagesAdd.emit( messageId );
+    } );
+
+    this.socket.on( 'update-private-message', ( messageId: string ) => {
+      this.messagesChange.emit( messageId );
+    } );
+
+    this.socket.on( 'notify-conversation', ( conversationId ) => {
+      this.notifyConversation.emit( conversationId );
+    } );
+
+    this.socket.on( 'notify-friendship', ( friendshipId ) => {
+      this.notifyFriendship.emit( friendshipId );
     } );
   }
 
@@ -99,11 +118,20 @@ export class SocketIoService {
     this.friendshipLeave.emit();
   }
 
-  newMessage( conversationId: string ) {
-    this.socket.emit( 'new-message', conversationId );
+  newMessage( conversationId: string, messageId: string ) {
+    this.socket.emit( 'new-message', { messageId: messageId, conversationId: conversationId } );
   }
 
-  newPrivateMessage( friendshipId: string ) {
-    this.socket.emit( 'new-private-message', friendshipId );
+  changeMessage( conversationId: string, messageId: string ) {
+    this.socket.emit( 'change-message', { messageId: messageId, conversationId: conversationId } );
+  }
+
+  newPrivateMessage( friendshipId: string, messageId: string ) {
+    console.log( 'feff' );
+    this.socket.emit( 'new-private-message', { messageId: messageId, friendshipId: friendshipId } );
+  }
+
+  changePrivateMessage( friendshipId: string, messageId: string ) {
+    this.socket.emit( 'change-private-message', { messageId: messageId, friendshipId: friendshipId } );
   }
 }

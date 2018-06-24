@@ -424,15 +424,6 @@ router.get( '/privateMessages/:friendshipId', middleware.authenticate, middlewar
   })
 })
 
-/**
- * READ route for message:
- *    Finds and returns all messages for a given conversation
- * @param  {[type]}   conversationId conversationID sent in req.params
- * @param  {[type]}   req  request object from user to server
- * @param  {[type]}   res  response object to user from server
- * @param  {Function} next next function in express function list
- * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
- */
 router.get( '/message/:conversationId/:messageId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   //Finds all messages associated with given conversationId
   Message.findById( req.params.messageId ).populate('image').exec( ( err, message ) => {
@@ -448,18 +439,9 @@ router.get( '/message/:conversationId/:messageId', middleware.authenticate, midd
   })
 })
 
-/**
- * READ route for message:
- *    Finds and returns all messages for a given conversation
- * @param  {[type]}   conversationId conversationID sent in req.params
- * @param  {[type]}   req  request object from user to server
- * @param  {[type]}   res  response object to user from server
- * @param  {Function} next next function in express function list
- * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
- */
 router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId ).populate('image').exec( ( err, messages ) => {
+  Message.findById( req.params.messageId ).populate('image').exec( ( err, message ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -468,9 +450,7 @@ router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate,
     }
 
     //Return success code and object with all messages
-    res.status( 200 ).json({
-      obj: messages
-    })
+    res.status( 200 ).json(message)
   })
 })
 
