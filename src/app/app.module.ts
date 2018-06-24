@@ -28,6 +28,7 @@ import { LandingComponent } from './landing/landing.component';
 
 import { SidebarService } from './messenger/sidebar/sidebar.service';
 import { ConversationService } from './messenger/sidebar/conversations/conversation.service';
+import { FriendService } from './messenger/sidebar/friends/friend.service';
 import { MessageService } from './messenger/messages/message.service';
 import { AuthService } from './auth/auth.service';
 import { AuthGuard } from './auth/auth-guard.service';
@@ -65,7 +66,15 @@ const config: SocketIoConfig = { url: '/', options: {} };
     AppRoutingModule,
     SocketIoModule.forRoot( config )
   ],
-  providers: [AuthService, AuthGuard, SidebarService, ConversationService, MessageService, SocketIoService],
+  providers: [
+    AuthService,
+    AuthGuard,
+    SidebarService,
+    ConversationService,
+    FriendService,
+    MessageService,
+    SocketIoService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

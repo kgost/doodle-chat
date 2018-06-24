@@ -5,6 +5,7 @@ const express  = require('express'),
   async        = require( 'async' ),
   mongoose     = require( 'mongoose' ),
   User         = require( '../models/user' ),
+  Friendship   = require( '../models/friendship' ),
   Image        = require( '../models/image' ),
   Conversation = require( '../models/conversation' ),
   middleware   = require( '../functions/middleware' )
@@ -37,7 +38,7 @@ router.post( '/conversations', middleware.authenticate, ( req, res ) => {
         i--
       }
     }
-    convo.participants = results;
+    convo.participants = results
 
     //Create the new conversation object
     Conversation.create( convo, ( err, conversation ) => {
@@ -47,6 +48,7 @@ router.post( '/conversations', middleware.authenticate, ( req, res ) => {
           error: err
         })
       }
+
       //Successful Creation
       res.status( 201 ).json({
         _id: conversation._id,
@@ -162,6 +164,112 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
   })
 })
 
+//Friendship Routes
+router.post( '/friendships', middleware.authenticate, middleware.inSentFriendship, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+  let otherUsername = ''
+
+  for ( let i = 0; i < req.body.users.length; i++ ) {
+    if ( req.body.users[i].id.username != user.username ) {
+      otherUsername = req.body.users[i].id.username
+    }
+  }
+
+  User.findOne( { username: otherUsername }, '_id username', ( err, usr ) =>  {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    if ( !usr || !usr._id ) {
+      return res.status( 400 ).json({
+        title: 'Invalid friendship request',
+        error: { message: 'The Friendship Request Was Invalid' }
+      })
+    }
+
+    Friendship.create( { users: [{ id: user._id, accepted: true }, { id: usr._id, accepted: false }] }, ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 201 ).json({
+        users: [
+          { id: { _id: user._id, username: user.username }, accepted: true },
+          { id: { _id: usr._id, username: usr.username }, accepted: false }
+        ]
+      })
+    } )
+  } )
+} )
+
+router.get( '/friendships', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Friendship.find({ 'users.id': mongoose.Types.ObjectId( user._id ) }).populate( 'users.id' ).exec( ( err, friendships ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    return res.status( 200 ).json({
+      obj: friendships
+    })
+  } )
+} )
+
+router.put( '/friendships/:friendshipId', middleware.authenticate, middleware.inFriendship, middleware.inSentFriendship, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Friendship.findById( req.params.friendshipId, ( err, friendship ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    for ( let i = 0; i < friendship.users.length; i++ ) {
+      if ( friendship.users[i].id == user._id ) {
+        friendship.users[i].accepted = true
+      }
+    }
+
+    friendship.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+      
+      res.status( 201 ).json( friendship )
+    } )
+  } )
+} )
+
+router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
+  Friendship.findByIdAndRemove( req.params.friendshipId, ( err ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    res.status( 200 ).json({
+      message: 'Friendship Ended' 
+    })
+  } )
+} )
+
 //Message Routes
 
 /**
@@ -214,6 +322,55 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
   }
 } )
 
+/**
+ * CREATE route for messages:
+ *    Creates message and saves to MongoDB
+ * @param  {[type]}   conversationId conversationID sent in req.params
+ * @param  {[type]}   req  request object from user to server
+ * @param  {[type]}   res  response object to user from server
+ * @param  {Function} next next function in express function list
+ * @return {[type]}        Returns a status code and corresponding message.
+ */
+router.post( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+  // Save new message with corresponding conversationId
+  // if the message had an image, create that image
+  if ( req.body.image ) {
+    Image.create( { img: req.body.image }, ( err, image ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      // create the message with the image field populated as the image _id
+      Message.create( { text: req.body.text, friendship_id: req.params.friendshipId, user: user._id, image: image._id }, ( err, message ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        // respond with success message
+        res.status( 201 ).json(message)
+      } )
+    } )
+  // otherwise just save the message as is
+  } else {
+    Message.create( { text: req.body.text, friendship_id: req.params.friendshipId, user: user._id, username: user.username }, ( err, message ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+      // respond with success message
+      res.status( 201 ).json(message)
+    } )
+  }
+} )
 
 /**
  * READ route for message:
@@ -233,6 +390,83 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
         error: err
       })
     }
+
+    //Return success code and object with all messages
+    res.status( 200 ).json({
+      obj: messages
+    })
+  })
+})
+
+/**
+ * READ route for message:
+ *    Finds and returns all messages for a given conversation
+ * @param  {[type]}   conversationId conversationID sent in req.params
+ * @param  {[type]}   req  request object from user to server
+ * @param  {[type]}   res  response object to user from server
+ * @param  {Function} next next function in express function list
+ * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
+ */
+router.get( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
+  //Finds all messages associated with given conversationId
+  Message.find( { friendship_id: req.params.friendshipId } ).sort( '+createdAt' ).populate('image').exec( ( err, messages ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    //Return success code and object with all messages
+    res.status( 200 ).json({
+      obj: messages
+    })
+  })
+})
+
+/**
+ * READ route for message:
+ *    Finds and returns all messages for a given conversation
+ * @param  {[type]}   conversationId conversationID sent in req.params
+ * @param  {[type]}   req  request object from user to server
+ * @param  {[type]}   res  response object to user from server
+ * @param  {Function} next next function in express function list
+ * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
+ */
+router.get( '/message/:conversationId/:messageId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
+  //Finds all messages associated with given conversationId
+  Message.findById( req.params.messageId ).populate('image').exec( ( err, message ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    //Return success code and object with all messages
+    res.status( 200 ).json(message)
+  })
+})
+
+/**
+ * READ route for message:
+ *    Finds and returns all messages for a given conversation
+ * @param  {[type]}   conversationId conversationID sent in req.params
+ * @param  {[type]}   req  request object from user to server
+ * @param  {[type]}   res  response object to user from server
+ * @param  {Function} next next function in express function list
+ * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
+ */
+router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
+  //Finds all messages associated with given conversationId
+  Message.findById( req.params.messageId ).populate('image').exec( ( err, messages ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
     //Return success code and object with all messages
     res.status( 200 ).json({
       obj: messages

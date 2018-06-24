@@ -8,7 +8,8 @@ const messageSchema = new mongoose.Schema({
   text: String,
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' , required:true },
   username: { type: String, required: true },
-  conversation_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation', required: true},
+  conversation_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation'},
+  friendship_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Friendship'},
   image: { type: mongoose.Schema.Types.ObjectId, ref: 'Image'}
 }, { timestamps: true } )
 

@@ -10,7 +10,7 @@ import { MessageService } from '../message.service';
   styleUrls: ['./message-list.component.css']
 })
 export class MessageListComponent implements OnInit {
-  conversation: Conversation;
+  title: string;
   messages: Message[];
 
   constructor(
@@ -19,14 +19,11 @@ export class MessageListComponent implements OnInit {
 
   ngOnInit() {
     this.messages = this.messageService.getMessages();
+    this.title = this.messageService.getTitle();
     this.messageService.changeEmitter
       .subscribe( () => {
         this.messages = this.messageService.getMessages();
-        this.conversation = this.messageService.getCurrentConversation();
+        this.title = this.messageService.getTitle();
       } );
-  }
-
-  getConversation() {
-    return this.messageService.getCurrentConversation();
   }
 }

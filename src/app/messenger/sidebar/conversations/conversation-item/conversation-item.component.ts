@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { ConversationService } from '../conversation.service';
 import { Conversation } from '../conversation.model';
@@ -16,7 +15,6 @@ export class ConversationItemComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private conversationService: ConversationService,
-    private router: Router
   ) { }
 
   ngOnInit() {

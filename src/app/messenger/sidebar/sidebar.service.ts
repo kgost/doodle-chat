@@ -4,6 +4,7 @@ import { Http, Response } from '@angular/http';
 import { AuthService } from '../../auth/auth.service';
 import { User } from '../../auth/user.model';
 import { Conversation } from './conversations/conversation.model';
+import { Friendship } from './friends/friendship.model';
 import { map } from 'rxjs/operators';
 import { Message } from '../messages/message.model';
 
@@ -64,6 +65,57 @@ export class SidebarService {
   }
 
   /**
+   *  FRIENDSHIPS
+   */
+  createFriendship( friendship: Friendship ) {
+    return this.http.post( this.baseUrl + 'friendships?token=' + this.authService.getToken(), friendship )
+      .pipe( map( this.mapFriendship ) );
+  }
+
+  getFriendships() {
+    return this.http.get( this.baseUrl + 'friendships?token=' + this.authService.getToken() )
+      .pipe( map( this.mapFriendships ) );
+  }
+
+  updateFriendship( id: string, friendship: Friendship ) {
+    return this.http.put( this.baseUrl + 'friendships/' + id + '?token=' + this.authService.getToken(), friendship )
+      .pipe( map( this.mapFriendship ) );
+  }
+
+  removeFriendship( id: string ) {
+    return this.http.delete( this.baseUrl + 'friendships/' + id + '?token=' + this.authService.getToken() )
+      .pipe( map( ( response: Response ) => {
+        return response.json();
+      } ) );
+  }
+
+  private mapFriendship( response: Response ) {
+    const friendship = response.json();
+
+    friendship.users.map( ( user: any ) => {
+      user.id = <User> user.id;
+      return user;
+    } );
+
+    return <Friendship> friendship;
+  }
+
+  private mapFriendships( response: Response ) {
+    const friendships = response.json().obj;
+
+    friendships.map( ( friendship ) => {
+      friendship.users.map( ( user: any ) => {
+        user.id = <User> user.id;
+        return user;
+      } );
+
+      return <Friendship> friendship;
+    } );
+
+    return friendships;
+  }
+
+  /**
    *  MESSAGES
    */
   createMessage( conversationId: string, message: Message ) {
@@ -71,8 +123,18 @@ export class SidebarService {
       .pipe( map( this.mapMessage ) );
   }
 
+  createPrivateMessage( friendshipId: string, message: Message ) {
+    return this.http.post( this.baseUrl + 'privateMessages/' + friendshipId + '?token=' + this.authService.getToken(), message )
+      .pipe( map( this.mapMessage ) );
+  }
+
   getMessages( conversationId: string ) {
     return this.http.get( this.baseUrl + 'messages/' + conversationId + '?token=' + this.authService.getToken() )
+      .pipe( map( this.mapMessages ) );
+  }
+
+  getPrivateMessages( friendshipId: string ) {
+    return this.http.get( this.baseUrl + 'privateMessages/' + friendshipId + '?token=' + this.authService.getToken() )
       .pipe( map( this.mapMessages ) );
   }
 

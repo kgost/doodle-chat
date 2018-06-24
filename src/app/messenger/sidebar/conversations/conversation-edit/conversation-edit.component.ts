@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { ActivatedRoute, Router, Params } from '@angular/router';
+import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 

@@ -14,16 +14,9 @@ export class ConversationService {
   private currentConversation: Conversation;
   changeEmitter = new EventEmitter<void>();
   editChange = new Subject<Conversation>();
-  user = this.authService.getCurrentUser();
-  conversations: Conversation[] = [
-    new Conversation( 'feff', this.user,
-      [this.authService.getCurrentUser(), new User( 'jeff', 'asdf' )], 'asdf' ),
-    new Conversation( 'feff', new User( 'jeff', 'asdf' ),
-      [this.authService.getCurrentUser(), new User( 'jeff', 'asdf' )], 'fdsa' ),
-  ];
+  conversations: Conversation[] = [];
 
   constructor(
-    private authService: AuthService,
     private sidebarService: SidebarService,
     private messageService: MessageService,
     private socketIoService: SocketIoService,
@@ -47,6 +40,7 @@ export class ConversationService {
           if ( !reload ) {
             this.socketIoService.joinConversation( id );
           }
+
           this.currentConversation = this.getConversation( id );
           this.messageService.loadMessages( this.getConversation( id ), messages );
         }
@@ -72,8 +66,6 @@ export class ConversationService {
           for ( let i = 0; i < newConversation.participants.length; i++ ) {
             this.socketIoService.addConversation( newConversation.participants[i]._id );
           }
-          //this.conversations.push( newConversation );
-          //this.changeEmitter.emit();
         }
       );
   }
@@ -92,8 +84,6 @@ export class ConversationService {
           for ( let i = 0; i < newConversation.participants.length; i++ ) {
             this.socketIoService.addConversation( newConversation.participants[i]._id );
           }
-          //this.conversations[this.getConversationIndex( id )] = newConversation;
-          //this.changeEmitter.emit();
         }
       );
   }
@@ -103,8 +93,6 @@ export class ConversationService {
       .subscribe(
         ( data: any ) => {
           this.socketIoService.updateConversation( id );
-          //this.conversations.splice( this.getConversationIndex( id ), 1 );
-          //this.changeEmitter.emit();
         }
       );
   }
@@ -132,6 +120,7 @@ export class ConversationService {
       if ( !match ) {
         if ( this.socketIoService.joinedConversation === this.conversations[i]._id ) {
           this.socketIoService.leaveConversation( this.conversations[i]._id );
+          this.messageService.reset();
         }
         this.socketIoService.unListenConversation( this.conversations[i]._id );
       }

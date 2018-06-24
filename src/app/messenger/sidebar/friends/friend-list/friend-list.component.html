@@ -1,3 +1,8 @@
-<p>
-  friend-list works!
-</p>
+<ul class="list-group">
+  <li 
+    (click)="onNew()"
+    class="list-group-item btn btn-success">Add</li>
+  <app-friend-item
+    *ngFor="let friendship of friendships"
+    [friendship]="friendship"></app-friend-item>
+</ul>

@@ -2,8 +2,8 @@ const jwt      = require( 'jsonwebtoken' ),
   mongoose     = require( 'mongoose' ),
   User         = require( '../models/user' ),
   Conversation = require( '../models/conversation' ),
+  Friendship = require( '../models/friendship' ),
   Message      = require( '../models/message' )
-
 
 const actions = {
 
@@ -91,6 +91,62 @@ const actions = {
 
       return next()
     } )
+  },
+
+  /**
+  * Check if the user is in the conversation being accessed, return error if they are not
+  * @param  {String}   req.params.friendshipId    id of the friendship being accessed
+  * @param  {Object}   req                        request object from user to server
+  * @param  {Object}   res                        response object to user from server
+  * @param  {Function} next                       next function in express function list
+  * @return {Object}                              Returns res with an error code 401 or next if the user is in the conversation
+  */
+  inFriendship: ( req, res, next ) => {
+    // if no id was sent under params or the id was null then respond with the error
+    if ( !req.params.friendshipId || req.params.friendshipId == 'null' ) {
+      return res.status(400).json({
+        title: 'No friendship provided.',
+        error: {message: 'Invalid friendship id sent to server.'}
+      })
+    }
+
+    // find the conversation with the provided id
+    Friendship.findById( req.params.friendshipId, ( err, friendship ) => {
+      // if no conversation was found respond with the invalid resource error
+      if ( !friendship._id ) {
+        return res.status(404).json({
+          title: 'No friendship provided.',
+          error: {message: 'Invalid friendship id sent to server.'}
+        })
+      }
+
+      // it is assumed the user is authenticated, decode their token
+      const decoded = jwt.decode(req.query.token)
+
+      // if the user is not in the participants list, respond with a 401 error
+      if ( friendship.users[0].id != decoded.user._id && friendship.users[1].id != decoded.user._id ) {
+        return res.status( 401 ).json({
+          title: 'Unauthorized User.',
+          error: {message: 'You are not in this friendship.'}
+        })
+      }
+
+      return next()
+    } )
+  },
+
+  inSentFriendship: ( req, res, next ) => {
+    const decoded = jwt.decode(req.query.token)
+
+    if ( !req.body || !req.body.users || !req.body.users[0] || !req.body.users[1] ||
+         ( req.body.users[0].id.username != decoded.user.username && req.body.users[1].id.username != decoded.user.username ) ) {
+      return res.status( 401 ).json({
+        title: 'Unauthorized User.',
+        error: {message: 'You are not in this friendship.'}
+      })
+    }
+
+    return next()
   },
 
   /**

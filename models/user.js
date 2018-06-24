@@ -1,16 +1,17 @@
 //Model File for Users
-var mongoose = require( 'mongoose' );
+const mongoose = require( 'mongoose' )
 
 // Define Schema for User, must have username and password, username must be unique
-var userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: {type:String, unique:true, required:true},
-  password: {type:String, required:true}
-}, { timestamps: true } );
+  password: {type:String, required:true},
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Friendship' }]
+}, { timestamps: true } )
 
 userSchema.path('password').validate(function(password) {
-    if (password.length < 6) return false;
+  if (password.length < 6) return false
 
-    return true;
-});
+  return true
+})
 
-module.exports = mongoose.model( 'User' , userSchema );
+module.exports = mongoose.model( 'User' , userSchema )

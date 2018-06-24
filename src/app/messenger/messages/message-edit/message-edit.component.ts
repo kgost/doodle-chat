@@ -35,11 +35,21 @@ export class MessageEditComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if ( this.messageEdit.valid ) {
-      const message = new Message(
-        this.authService.getCurrentUser()._id,
-        this.messageService.getCurrentConversation()._id,
-        this.messageEdit.value.text
-      );
+      let message;
+      if ( this.messageService.privateMode ) {
+        message = new Message(
+          this.authService.getCurrentUser()._id,
+          this.messageEdit.value.text,
+          undefined,
+          this.messageService.getCurrentFriendship()._id,
+        );
+      } else {
+        message = new Message(
+          this.authService.getCurrentUser()._id,
+          this.messageEdit.value.text,
+          this.messageService.getCurrentConversation()._id,
+        );
+      }
 
       if ( this.editMode ) {
         message._id = this.editId;
