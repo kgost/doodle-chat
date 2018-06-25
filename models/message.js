@@ -10,7 +10,7 @@ const messageSchema = new mongoose.Schema({
   username: { type: String, required: true },
   conversation_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation'},
   friendship_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Friendship'},
-  image: { type: mongoose.Schema.Types.ObjectId, ref: 'Image'}
+  media: { mime: String, data: String }
 }, { timestamps: true } )
 
 module.exports = mongoose.model( 'Message' , messageSchema )

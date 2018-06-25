@@ -11,6 +11,7 @@ import { FriendService } from '../sidebar/friends/friend.service';
   styleUrls: ['./messages.component.css']
 })
 export class MessagesComponent implements OnInit {
+  active = false;
 
   constructor(
     private socketIoService: SocketIoService,
@@ -20,6 +21,16 @@ export class MessagesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.messageService.changeEmitter
+      .subscribe(
+        () => {
+          if ( this.messageService.getTitle() ) {
+            this.active = true;
+          } else {
+            this.active = false;
+          }
+        }
+      );
     this.socketIoService.messagesAdd
       .subscribe(
         ( messageId: string ) => {

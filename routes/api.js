@@ -284,42 +284,27 @@ router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware
 router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
   // Save new message with corresponding conversationId
-  // if the message had an image, create that image
-  if ( req.body.image ) {
-    Image.create( { img: req.body.image }, ( err, image ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      // create the message with the image field populated as the image _id
-      Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id, image: image._id }, ( err, message ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        // respond with success message
-        res.status( 201 ).json(message)
-      } )
-    } )
-  // otherwise just save the message as is
-  } else {
-    Message.create( { text: req.body.text, conversation_id: req.params.conversationId, user: user._id, username: user.username }, ( err, message ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-      // respond with success message
-      res.status( 201 ).json(message)
-    } )
+  let message = {
+    text: req.body.text,
+    conversation_id: req.params.conversationId,
+    user: user._id,
+    username: user.username
   }
+
+  if ( req.body.media ) {
+    message.media = req.body.media
+  }
+
+  Message.create( message, ( err, message ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+    // respond with success message
+    res.status( 201 ).json(message)
+  } )
 } )
 
 /**
@@ -334,42 +319,27 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 router.post( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
   // Save new message with corresponding conversationId
-  // if the message had an image, create that image
-  if ( req.body.image ) {
-    Image.create( { img: req.body.image }, ( err, image ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      // create the message with the image field populated as the image _id
-      Message.create( { text: req.body.text, friendship_id: req.params.friendshipId, user: user._id, image: image._id }, ( err, message ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        // respond with success message
-        res.status( 201 ).json(message)
-      } )
-    } )
-  // otherwise just save the message as is
-  } else {
-    Message.create( { text: req.body.text, friendship_id: req.params.friendshipId, user: user._id, username: user.username }, ( err, message ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-      // respond with success message
-      res.status( 201 ).json(message)
-    } )
+  let message = {
+    text: req.body.text,
+    friendship_id: req.params.friendshipId,
+    user: user._id,
+    username: user.username
   }
+
+  if ( req.body.media ) {
+    message.media = req.body.media
+  }
+
+  Message.create( message, ( err, message ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+    // respond with success message
+    res.status( 201 ).json(message)
+  } )
 } )
 
 /**
@@ -383,7 +353,7 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
  */
 router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.find( { conversation_id: req.params.conversationId } ).sort( '+createdAt' ).populate('image').exec( ( err, messages ) => {
+  Message.find( { conversation_id: req.params.conversationId } ).sort( '+createdAt' ).exec( ( err, messages ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -409,7 +379,7 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
  */
 router.get( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.find( { friendship_id: req.params.friendshipId } ).sort( '+createdAt' ).populate('image').exec( ( err, messages ) => {
+  Message.find( { friendship_id: req.params.friendshipId } ).sort( '+createdAt' ).exec( ( err, messages ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -426,7 +396,7 @@ router.get( '/privateMessages/:friendshipId', middleware.authenticate, middlewar
 
 router.get( '/message/:conversationId/:messageId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId ).populate('image').exec( ( err, message ) => {
+  Message.findById( req.params.messageId, ( err, message ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -441,7 +411,7 @@ router.get( '/message/:conversationId/:messageId', middleware.authenticate, midd
 
 router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId ).populate('image').exec( ( err, message ) => {
+  Message.findById( req.params.messageId, ( err, message ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',

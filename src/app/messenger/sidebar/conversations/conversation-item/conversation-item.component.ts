@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
+import { SidebarService } from '../../sidebar.service';
 import { ConversationService } from '../conversation.service';
 import { Conversation } from '../conversation.model';
 import { AuthService } from '../../../../auth/auth.service';
@@ -12,10 +13,12 @@ import { AuthService } from '../../../../auth/auth.service';
 export class ConversationItemComponent implements OnInit {
   @Input() conversation: Conversation;
   notification = false;
+  active = false;
 
   constructor(
     private authService: AuthService,
     private conversationService: ConversationService,
+    private sidebarService: SidebarService,
   ) { }
 
   ngOnInit() {
@@ -33,6 +36,12 @@ export class ConversationItemComponent implements OnInit {
           }
         }
       );
+    this.sidebarService.deactivate
+      .subscribe(
+        () => {
+          this.active = false;
+        }
+      );
   }
 
   getCurrentUser() {
@@ -44,11 +53,12 @@ export class ConversationItemComponent implements OnInit {
   }
 
   onSelectConversation() {
-    console.log( 'feff' );
     if ( this.notification ) {
       this.conversationService.removeNotification( this.conversation._id );
       this.notification = false;
     }
     this.conversationService.loadMessages( this.conversation._id );
+    this.sidebarService.deactivate.emit();
+    this.active = true;
   }
 }

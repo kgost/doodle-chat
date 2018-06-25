@@ -127,7 +127,6 @@ export class SocketIoService {
   }
 
   newPrivateMessage( friendshipId: string, messageId: string ) {
-    console.log( 'feff' );
     this.socket.emit( 'new-private-message', { messageId: messageId, friendshipId: friendshipId } );
   }
 

@@ -1,5 +1,9 @@
-<h3 *ngIf="!title">Select a Conversation</h3>
-<h3 *ngIf="title">{{ title }}</h3>
+<h3
+  class="text-center"
+  *ngIf="!title">Select a Conversation</h3>
+<h3
+  class="text-center"
+  *ngIf="title">{{ title }}</h3>
 <ul class="list-group">
   <app-message-item
     *ngFor="let message of messages"

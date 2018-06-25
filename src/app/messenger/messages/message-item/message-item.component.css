@@ -1,0 +1,11 @@
+li {
+  position: relative;
+  max-width: 50%;
+}
+
+li.stranger {
+  color: white;
+  background-color: #449d44;
+  min-height: 55px;
+  padding-bottom: 0;
+}

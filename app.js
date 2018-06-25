@@ -19,7 +19,7 @@ mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.
 app.set( 'view engine', 'ejs' )
 app.set('port', ( process.env.PORT || 3000 ) )
 //Setting up bodyParser
-app.use( bodyParser.json() )
+app.use( bodyParser.json({ limit: '50mb' }) )
 app.use( bodyParser.urlencoded( { extended: true } ) )
 //Pathing to our static files, css/js etc...
 app.use( express.static(__dirname + '/dist/chat-front') )

@@ -1,5 +1,5 @@
-<div class="row">
-  <div class="col-xs-12">
+<div class="clearfix">
+  <div class="col-xs-12" style="padding: 0;">
     <form 
       #f="ngForm" 
       (ngSubmit)="onSubmit()">
@@ -16,12 +16,23 @@
       <button
         [disabled]="!messageEdit.valid"
         type="submit"
-        class="btn btn-primary">Submit</button>
+        class="btn btn-primary pull-right">Submit</button>
+      <button class="btn btn-default pull-right" (click)="fileInput.click()">
+        <input
+          class="hidden"
+          type="file"
+          accept="image/*,video/webm"
+          #fileInput
+          (change)="onMediaUpload($event)">
+        <span
+          style="font-size: 16px;"
+          class="glyphicon glyphicon-picture"></span>
+      </button>
       <button
         *ngIf="editMode"
         (click)="onCancel()"
         type="button"
-        class="btn btn-warning">Cancel</button>
+        class="btn btn-warning pull-right">Cancel</button>
     </form>
   </div>
 </div>

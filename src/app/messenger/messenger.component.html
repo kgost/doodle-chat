@@ -1,11 +1,23 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-xs-12 col-sm-3 col-md-2">
-      <app-sidebar></app-sidebar>
-    </div>
-    <div
-      style="padding: 0;"
-      class="col-xs-12 col-sm-9 col-md-10">
+<div style="height: 100%; position: relative;">
+  <span
+    (click)="toggleMessages()"
+    *ngIf="showMessages"
+    class="glyphicon glyphicon-plus"></span>
+  <span
+    (click)="toggleMessages()"
+    *ngIf="!showMessages"
+    class="glyphicon glyphicon-minus"></span>
+  <div
+    style="height: 100%;"
+    [ngClass]="{ toggled: showMessages }"
+    class="col-xs-12 col-sm-3 col-md-2">
+    <app-sidebar></app-sidebar>
+  </div>
+  <div
+    style="height: 100%; padding: 0;"
+    [ngClass]="{ toggled: !showMessages }"
+    class="col-xs-12 col-sm-9 col-md-10">
+    <div class="box">
       <app-messages></app-messages>
     </div>
   </div>

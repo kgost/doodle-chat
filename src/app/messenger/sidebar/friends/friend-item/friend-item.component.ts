@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
+import { SidebarService } from '../../sidebar.service';
 import { FriendService } from '../friend.service';
 import { Friendship } from '../friendship.model';
 import { AuthService } from '../../../../auth/auth.service';
@@ -12,10 +13,12 @@ import { AuthService } from '../../../../auth/auth.service';
 export class FriendItemComponent implements OnInit {
   @Input() friendship: Friendship;
   notification = false;
+  active = false;
 
   constructor(
     private authService: AuthService,
-    private friendService: FriendService
+    private friendService: FriendService,
+    private sidebarService: SidebarService,
   ) { }
 
   ngOnInit() {
@@ -30,6 +33,12 @@ export class FriendItemComponent implements OnInit {
             this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
             this.friendService.removeNotification( this.friendship._id );
           }
+        }
+      );
+    this.sidebarService.deactivate
+      .subscribe(
+        () => {
+          this.active = false;
         }
       );
   }
@@ -77,6 +86,8 @@ export class FriendItemComponent implements OnInit {
         this.notification = false;
       }
       this.friendService.loadMessages( this.friendship._id );
+      this.sidebarService.deactivate.emit();
+      this.active = true;
     }
   }
 }

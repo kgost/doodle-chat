@@ -1,3 +1,7 @@
 .notification {
   border: 1px solid red;
 }
+
+li.activated {
+  border: 1px solid #449d44;
+}

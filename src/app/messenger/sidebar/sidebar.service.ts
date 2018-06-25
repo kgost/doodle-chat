@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { Http, Response } from '@angular/http';
 
 import { AuthService } from '../../auth/auth.service';
@@ -11,6 +11,7 @@ import { Message } from '../messages/message.model';
 @Injectable()
 export class SidebarService {
   baseUrl = '/api/';
+  deactivate = new EventEmitter<void>();
 
   constructor(
     private http: Http,

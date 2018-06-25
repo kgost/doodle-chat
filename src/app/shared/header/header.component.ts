@@ -8,6 +8,7 @@ import { AuthService } from '../../auth/auth.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
+  showNav = false;
 
   constructor(private authService: AuthService) { }
 
@@ -21,4 +22,9 @@ export class HeaderComponent implements OnInit {
   onSignout() {
     this.authService.signout();
   }
+
+  toggleNav() {
+    this.showNav = !this.showNav;
+  }
+
 }

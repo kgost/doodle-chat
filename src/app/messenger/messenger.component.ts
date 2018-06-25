@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 
 import { Conversation } from './sidebar/conversations/conversation.model';
 import { Friendship } from './sidebar/friends/friendship.model';
+import { SidebarService } from './sidebar/sidebar.service';
 import { ConversationService } from './sidebar/conversations/conversation.service';
 import { FriendService } from './sidebar/friends/friend.service';
 
@@ -16,10 +17,12 @@ export class MessengerComponent implements OnInit, OnDestroy {
   subscriptionFriendship: Subscription;
   conversation: Conversation;
   friendship: Friendship;
+  showMessages = false;
 
   constructor(
+    private sidebarService: SidebarService,
     private conversationService: ConversationService,
-    private friendService: FriendService
+    private friendService: FriendService,
   ) { }
 
   ngOnInit() {
@@ -29,10 +32,16 @@ export class MessengerComponent implements OnInit, OnDestroy {
           this.conversation = conversation;
         }
       );
-    this.subscriptionConversation = this.friendService.editChange
+    this.subscriptionFriendship = this.friendService.editChange
       .subscribe(
         ( friendship: Friendship ) => {
           this.friendship = friendship;
+        }
+      );
+    this.sidebarService.deactivate
+      .subscribe(
+        () => {
+          this.showMessages = true;
         }
       );
   }
@@ -40,5 +49,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscriptionConversation.unsubscribe();
     this.subscriptionFriendship.unsubscribe();
+  }
+
+  toggleMessages() {
+    this.showMessages = !this.showMessages;
   }
 }

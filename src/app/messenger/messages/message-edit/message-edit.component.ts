@@ -68,6 +68,16 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     this.messageEdit.reset();
   }
 
+  onMediaUpload( event ) {
+    const file = event.srcElement.files[0];
+    const reader = new FileReader();
+    reader.onloadend = (  ) => {
+      const message = new Message( this.authService.getCurrentUser()._id, '', '', '', { mime: file.type, data: reader.result } );
+      this.messageService.addMessage( message );
+    };
+    reader.readAsDataURL( file );
+  }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }

@@ -1,25 +1,44 @@
-<li 
-  [ngStyle]="{ height: ( owner ? 'initial' : '55px' ) }"
-  style="position: relative; height: 55px;"
-  class="list-group-item">
-  <span
-    *ngIf="!owner"
-    style="position: absolute; bottom: 0;"
-    class="small">{{ message.username }}</span>
-  <span style="padding-bottom: 5px; font-size: 18px;">{{ message.text }}</span>
-  <button 
-    (click)="onDelete()"
-    *ngIf="owner"
-    type="button" 
-    style="color: red;"
-    class="close pull-right" 
-    aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-  <span 
-    (click)="onEdit()"
-    *ngIf="owner"
-    class="pull-right glyphicon glyphicon-edit" 
-    style="cursor: pointer; padding-top: 2px; margin-right: 10px;"
-    aria-hidden="true"></span>
-</li>
+<div class="clearfix">
+  <li 
+    [ngStyle]="{ padding: message.media ? '0' : '' }"
+    [ngClass]="{ stranger: !owner, 'pull-left': !owner, 'pull-right': owner }"
+    class="list-group-item">
+    <span
+      *ngIf="message.text !== ''"
+      [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
+      style="font-size: 18px;">{{ message.text }}</span>
+    <img
+      *ngIf="message.media && message.media.mime.indexOf('image') !== -1"
+      [src]="message.media.data"
+      class="img-responsive"
+      alt="">
+    <video
+      *ngIf="message.media && message.media.mime.indexOf('video') !== -1"
+      class="img-responsive"
+      controls>
+      <source
+        [src]="message.media.data"
+        [type]="message.media.mime">
+    </video>
+    <div style="margin-top: -3px;" *ngIf="!owner">
+      <span
+        class="pull-left"
+        class="small">{{ message.username }}</span>
+    </div>
+    <button 
+      (click)="onDelete()"
+      *ngIf="owner"
+      type="button" 
+      style="color: red;"
+      class="close pull-right" 
+      aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <span 
+      (click)="onEdit()"
+      *ngIf="owner && !message.media"
+      class="pull-right glyphicon glyphicon-edit" 
+      style="cursor: pointer; padding-top: 2px; margin-right: 10px;"
+      aria-hidden="true"></span>
+  </li>
+</div>
