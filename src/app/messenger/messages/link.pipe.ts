@@ -7,6 +7,9 @@ import linkifyHtml from 'linkifyjs/html';
 export class LinkPipe implements PipeTransform {
 
   transform( value: any ): any {
+    if ( !value || value === '' ) {
+      return '';
+    }
     return linkifyHtml( value );
   }
 
