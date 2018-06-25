@@ -52,6 +52,10 @@ export class ConversationItemComponent implements OnInit {
     this.conversationService.editChange.next( this.conversation );
   }
 
+  onLeave() {
+    this.conversationService.leaveConversation( this.conversation._id );
+  }
+
   onSelectConversation() {
     if ( this.notification ) {
       this.conversationService.removeNotification( this.conversation._id );

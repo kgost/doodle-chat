@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { Buffer } from 'buffer';
 
+import { Media } from '../media/media.model';
 import { Message } from '../message.model';
 import { MessageService } from '../message.service';
 import { AuthService } from '../../../auth/auth.service';
@@ -71,11 +73,16 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   onMediaUpload( event ) {
     const file = event.srcElement.files[0];
     const reader = new FileReader();
-    reader.onloadend = (  ) => {
-      const message = new Message( this.authService.getCurrentUser()._id, '', '', '', { mime: file.type, data: reader.result } );
+
+    reader.onloadend = () => {
+      const message = new Message(
+        this.authService.getCurrentUser()._id,
+        '', '', '',
+        new Media( file.type, new Buffer( reader.result ) ) );
       this.messageService.addMessage( message );
     };
-    reader.readAsDataURL( file );
+
+    reader.readAsArrayBuffer( file );
   }
 
   ngOnDestroy() {

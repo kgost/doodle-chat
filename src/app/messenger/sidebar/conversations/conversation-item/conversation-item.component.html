@@ -4,6 +4,11 @@
   style="cursor: pointer;"
   class="list-group-item">
   <span
+    (click)="onLeave()"
+    *ngIf="conversation.owner._id !== getCurrentUser()._id"
+    style="cursor: pointer;"
+    class="pull-right glyphicon glyphicon-remove"></span>
+  <span
     (click)="onEdit()"
     *ngIf="conversation.owner._id === getCurrentUser()._id"
     style="cursor: pointer;"

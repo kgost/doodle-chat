@@ -7,19 +7,9 @@
       *ngIf="message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
       style="font-size: 18px;">{{ message.text }}</span>
-    <img
-      *ngIf="message.media && message.media.mime.indexOf('image') !== -1"
-      [src]="message.media.data"
-      class="img-responsive"
-      alt="">
-    <video
-      *ngIf="message.media && message.media.mime.indexOf('video') !== -1"
-      class="img-responsive"
-      controls>
-      <source
-        [src]="message.media.data"
-        [type]="message.media.mime">
-    </video>
+    <app-media
+      *ngIf="message.media"
+      [media]="message.media"></app-media>
     <div style="margin-top: -3px;" *ngIf="!owner">
       <span
         class="pull-left"

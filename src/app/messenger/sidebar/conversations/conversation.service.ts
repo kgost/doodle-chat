@@ -121,6 +121,15 @@ export class ConversationService {
       );
   }
 
+  leaveConversation( id: string ) {
+    this.sidebarService.leaveConversation( id )
+      .subscribe(
+        ( data: any ) => {
+          this.socketIoService.updateConversation( id );
+        }
+      );
+  }
+
   checkNotification( id: string ) {
     return this.notificationService.getConversationStatus( id );
   }

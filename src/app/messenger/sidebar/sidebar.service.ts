@@ -7,6 +7,7 @@ import { Conversation } from './conversations/conversation.model';
 import { Friendship } from './friends/friendship.model';
 import { map } from 'rxjs/operators';
 import { Message } from '../messages/message.model';
+import { Media } from '../messages/media/media.model';
 
 @Injectable()
 export class SidebarService {
@@ -50,6 +51,13 @@ export class SidebarService {
 
   removeConversation( id: string ) {
     return this.http.delete( this.baseUrl + 'conversations/' + id + '?token=' + this.authService.getToken() )
+      .pipe( map( ( response: Response ) => {
+        return response.json();
+      } ) );
+  }
+
+  leaveConversation( id: string ) {
+    return this.http.get( this.baseUrl + 'conversations/' + id + '/leave?token=' + this.authService.getToken() )
       .pipe( map( ( response: Response ) => {
         return response.json();
       } ) );
@@ -162,13 +170,22 @@ export class SidebarService {
   }
 
   private mapMessage( response: Response ) {
-    return <Message>response.json();
+    const data = response.json();
+    if ( data ) {
+      if ( data.media ) {
+        data.media = new Media( data.media.mime, null, data.media.id );
+      }
+    }
+    return <Message>data;
   }
 
   private mapMessages( response: Response ) {
     const messages = response.json().obj;
 
     messages.map( ( message: any ) => {
+      if ( message.media ) {
+        message.media = new Media( message.media.mime, null, message.media.id );
+      }
       return <Message>message;
     } );
 

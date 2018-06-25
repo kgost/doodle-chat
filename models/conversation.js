@@ -1,5 +1,4 @@
 //Model File for Conversations
-
 var mongoose = require( 'mongoose' )
 
 // define conversation Schema, must have a name, owner and participants

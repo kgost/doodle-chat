@@ -34,6 +34,7 @@ import { MessageService } from './messenger/messages/message.service';
 import { AuthService } from './auth/auth.service';
 import { AuthGuard } from './auth/auth-guard.service';
 import { SocketIoService } from './shared/socket-io.service';
+import { MediaComponent } from './messenger/messages/media/media.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -58,6 +59,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     SignupComponent,
     SigninComponent,
     LandingComponent,
+    MediaComponent,
   ],
   imports: [
     BrowserModule,

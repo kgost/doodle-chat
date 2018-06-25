@@ -1,12 +1,13 @@
 const express  = require('express'),
   router       = express.Router(),
   jwt          = require( 'jsonwebtoken' ),
-  Message      = require( '../models/message' ),
   async        = require( 'async' ),
   mongoose     = require( 'mongoose' ),
+  streamifier  = require( 'streamifier' ),
+  Message      = require( '../models/message' ),
+  Media        = require( '../models/media' ),
   User         = require( '../models/user' ),
   Friendship   = require( '../models/friendship' ),
-  Image        = require( '../models/image' ),
   Conversation = require( '../models/conversation' ),
   middleware   = require( '../functions/middleware' )
 
@@ -130,6 +131,37 @@ router.put('/conversations/:id', middleware.authenticate, middleware.isConversat
   } )
 })
 
+router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user //Pull user from the JWT
+
+  Conversation.findById( req.params.id, ( err, conversation ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    for ( let i = 0; i < conversation.participants.length; i++ ) {
+      if ( conversation.participants[i] == user._id ) {
+        conversation.participants.splice( i, 1 )
+        break
+      }
+    }
+
+    conversation.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 200 ).json({ message: 'Left Converrsation' })
+    } )
+  } )
+} )
+
 /**
  * Destroy route for conversations:
  *    Deletes conversation and all associated messages in MongoDB
@@ -148,8 +180,9 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
         error: err
       })
     }
+
     //Removes all messages that reference the conversation
-    Message.remove( { conversation_id: req.params.id }, ( err ) => {
+    Message.find( { conversation_id: req.params.id }, ( err, messages ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -157,9 +190,24 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
         })
       }
 
-      res.status( 200 ).json({
-        message: 'Conversation deleted'
-      })
+      async.map( messages, ( message, cb ) => {
+        if ( message.media ) {
+          Media.findByIdAndRemove( message.media.id, ( err ) => {
+            message.remove( ( err ) => {
+              cb( err )
+            } )
+          } )
+        } else {
+          message.remove( ( err ) => {
+            cb( err )
+          } )
+        }
+      }, ( err ) => {
+
+        res.status( 200 ).json({
+          message: 'Conversation deleted'
+        })
+      } )
     } )
   })
 })
@@ -264,9 +312,34 @@ router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware
       })
     }
 
-    res.status( 200 ).json({
-      message: 'Friendship Ended' 
-    })
+    //Removes all messages that reference the conversation
+    Message.find( { friendship_id: req.params.friendshipId }, ( err, messages ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      async.map( messages, ( message, cb ) => {
+        if ( message.media ) {
+          Media.findByIdAndRemove( message.media.id, ( err ) => {
+            message.remove( ( err ) => {
+              cb( err )
+            } )
+          } )
+        } else {
+          message.remove( ( err ) => {
+            cb( err )
+          } )
+        }
+      }, ( err ) => {
+
+        res.status( 200 ).json({
+          message: 'Conversation deleted'
+        })
+      } )
+    } )
   } )
 } )
 
@@ -292,19 +365,39 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
   }
 
   if ( req.body.media ) {
-    message.media = req.body.media
-  }
+    Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
 
-  Message.create( message, ( err, message ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-    // respond with success message
-    res.status( 201 ).json(message)
-  } )
+      message.media = { mime: req.body.media.mime, id: media._id }
+
+      Message.create( message, ( err, message ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+        // respond with success message
+        res.status( 201 ).json(message)
+      } )
+    })
+  } else {
+    Message.create( message, ( err, message ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+      // respond with success message
+      res.status( 201 ).json(message)
+    } )
+  }
 } )
 
 /**
@@ -327,19 +420,39 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
   }
 
   if ( req.body.media ) {
-    message.media = req.body.media
-  }
+    Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
 
-  Message.create( message, ( err, message ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-    // respond with success message
-    res.status( 201 ).json(message)
-  } )
+      message.media = { mime: req.body.media.mime, id: media._id }
+
+      Message.create( message, ( err, message ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+        // respond with success message
+        res.status( 201 ).json(message)
+      } )
+    })
+  } else {
+    Message.create( message, ( err, message ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+      // respond with success message
+      res.status( 201 ).json(message)
+    } )
+  }
 } )
 
 /**
@@ -460,18 +573,79 @@ router.put( '/messages/:id', middleware.authenticate, middleware.isMessageOwner,
  */
 router.delete('/messages/:id', middleware.authenticate, middleware.isMessageOwner, (req, res) => {
   //Finds conversation with given id and removes form the database
-  Message.findByIdAndRemove(req.params.id, req.body, (err) => {
+  Message.findByIdAndRemove(req.params.id, req.body, (err, message) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
         error: err
       })
     }
-    res.status( 200 ).json({
-      message: 'Message deleted'
-    })
+
+    if ( message.media ) {
+      Media.findByIdAndRemove( message.media.id, ( err ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        res.status( 200 ).json({
+          message: 'Message deleted'
+        })
+      } )
+    } else {
+      res.status( 200 ).json({
+        message: 'Message deleted'
+      })
+    }
   } )
 })
+
+router.get( '/media/:id', ( req, res ) => {
+  Media.findById( req.params.id, ( err, file ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    if ( file.mime.indexOf( 'video' ) !== -1 ) {
+      const fileSize = file.data.length
+      const range = req.headers.range
+
+      if ( range ) {
+        const parts = range.replace(/bytes=/, '').split('-')
+        const start = parseInt( parts[0], 10 )
+        const end = parts[1] ? parseInt( parts[1], 10 ) : fileSize - 1
+        const chunksize = ( end - start ) + 1
+        const chunk = file.data.slice( start, end + 1 )
+        const stream = streamifier.createReadStream( chunk )
+        const head = {
+          'Content-Range': `bytes ${ start }-${ end }/${ fileSize }`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunksize,
+          'Content-Type': file.mime
+        }
+
+        res.writeHead( 206, head )
+        stream.pipe( res )
+      } else {
+        const head = {
+          'Content-Length': fileSize,
+          'Content-Type': file.mime
+        }
+
+        res.writeHead( 200, head )
+        streamifier.createReadStream( file.data ).pipe( res )
+      }
+    } else {
+      res.contentType( file.mime )
+      res.end( file.data, 'binary' )
+    }
+  } )
+} )
 
 function pruneUsers( conversation ) {
   for ( let i = 0; i < conversation.participants.length; i++ ) {
