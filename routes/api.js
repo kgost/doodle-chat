@@ -41,6 +41,8 @@ router.post( '/conversations', middleware.authenticate, ( req, res ) => {
     }
     convo.participants = results
 
+    convo.name = req.sanitize( convo.name )
+
     //Create the new conversation object
     Conversation.create( convo, ( err, conversation ) => {
       if ( err ) {
@@ -112,6 +114,8 @@ router.put('/conversations/:id', middleware.authenticate, middleware.isConversat
   }, ( err, results ) => {
     convo.participants = results
 
+    convo.name = req.sanitize( convo.name )
+
     //Create the new conversation object
     Conversation.findByIdAndUpdate( req.params.id, convo, ( err ) => {
       if ( err ) {
@@ -133,6 +137,8 @@ router.put('/conversations/:id', middleware.authenticate, middleware.isConversat
 
 router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) => {
   const user = jwt.decode(req.query.token).user //Pull user from the JWT
+
+  conversation.name = req.sanitize( conversation.name )
 
   Conversation.findById( req.params.id, ( err, conversation ) => {
     if ( err ) {
@@ -358,7 +364,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
   const user = jwt.decode(req.query.token).user
   // Save new message with corresponding conversationId
   let message = {
-    text: req.body.text,
+    text: req.sanitize( req.body.text ),
     conversation_id: req.params.conversationId,
     user: user._id,
     username: user.username
@@ -413,7 +419,7 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
   const user = jwt.decode(req.query.token).user
   // Save new message with corresponding conversationId
   let message = {
-    text: req.body.text,
+    text: req.sanitize( req.body.text ),
     friendship_id: req.params.friendshipId,
     user: user._id,
     username: user.username
@@ -547,6 +553,7 @@ router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate,
  * @return {[type]}        Returns a status code along with an object containing the messages.
  */
 router.put( '/messages/:id', middleware.authenticate, middleware.isMessageOwner, ( req, res ) => {
+  req.body.text = req.sanitize( req.body.text )
   //Finds all messages associated with given id
   Message.findByIdAndUpdate( req.params.id, req.body ).exec( ( err ) => {
     if ( err ) {

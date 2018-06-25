@@ -6,7 +6,8 @@
     <span
       *ngIf="message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
-      style="font-size: 18px;">{{ message.text }}</span>
+      [innerHtml]="message.text | link"
+      style="font-size: 18px;"></span>
     <app-media
       *ngIf="message.media"
       [media]="message.media"></app-media>

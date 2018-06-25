@@ -4,6 +4,7 @@ const express          = require( 'express' ),
   mongoose         = require( 'mongoose' ),
   io               = require( 'socket.io' ).listen( http ),
   bodyParser       = require( 'body-parser' ),
+  expressSanitizer = require( 'express-sanitizer' ),
   socketController = require( './controllers/socket' ),
   apiRoutes        = require('./routes/api'),
   authRoutes       = require('./routes/auth')
@@ -21,6 +22,8 @@ app.set('port', ( process.env.PORT || 3000 ) )
 //Setting up bodyParser
 app.use( bodyParser.json({ limit: '50mb' }) )
 app.use( bodyParser.urlencoded( { extended: true } ) )
+
+app.use( expressSanitizer() )
 //Pathing to our static files, css/js etc...
 app.use( express.static(__dirname + '/dist/chat-front') )
 
