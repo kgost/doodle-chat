@@ -73,7 +73,7 @@ export class AuthService implements OnInit {
   }
 
   usernameTaken( username: string ) {
-    return this.http.get( this.baseUrl + 'usernameTaken/' + username )
+    return this.http.get( this.baseUrl + 'usernameTaken/' + encodeURIComponent( username ) )
       .pipe( map( ( response: Response )  => {
         return response.json().obj;
       } ) );

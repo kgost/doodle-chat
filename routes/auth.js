@@ -80,7 +80,7 @@ router.post('/signup', (req, res) => {
  * @return {[type]}        Returns a status code and corresponding messages.
  */
 router.get('/usernameTaken/:username', (req, res) => {
-  User.findOne( { username: req.params.username}, ( err, user ) => {
+  User.findOne( { username: decodeURIComponent( req.params.username ) }, ( err, user ) => {
     if (err) {
       return res.status( 500 ).json({
         title: 'An error occured',
