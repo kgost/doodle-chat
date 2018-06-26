@@ -15,6 +15,9 @@ export class MessageService {
   private currentFriendName: string;
   messages: Message[] = [];
   changeEmitter = new EventEmitter<void>();
+  containerEmitter = new EventEmitter<void>();
+  loadEmitter = new EventEmitter<void>();
+  reloadEmitter = new EventEmitter<void>();
   editChange = new Subject<Message>();
   privateMode = false;
 
@@ -44,6 +47,7 @@ export class MessageService {
     delete this.currentFriendName;
     this.messages = messages;
     this.privateMode = false;
+    this.reloadEmitter.emit();
     this.changeEmitter.emit();
   }
 
@@ -57,6 +61,7 @@ export class MessageService {
     delete this.currentConversation;
     this.messages = messages;
     this.privateMode = true;
+    this.reloadEmitter.emit();
     this.changeEmitter.emit();
   }
 

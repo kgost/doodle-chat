@@ -3,10 +3,12 @@
   style="background-color: white;"
   *ngIf="media.mime.indexOf( 'image' ) !== -1"
   [src]="'/api/media/' + media._id"
+  (load)="loadEmit()"
   alt="">
 <video
   class="img-responsive"
   *ngIf="media.mime.indexOf( 'video' ) !== -1"
+  (loadeddata)="loadEmit()"
   controls>
   <source [src]="'/api/media/' + media._id" [type]="media.mime">
 </video>

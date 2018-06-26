@@ -1,19 +1,27 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
 
-import { AuthService } from '../../../auth/auth.service';
-import { SidebarService } from '../../sidebar/sidebar.service';
 import { Media } from './media.model';
+import { MessageService } from '../message.service';
 
 @Component({
   selector: 'app-media',
   templateUrl: './media.component.html',
   styleUrls: ['./media.component.css']
 })
-export class MediaComponent implements OnInit {
+export class MediaComponent implements OnInit, AfterViewInit {
   @Input() media: Media;
 
-  constructor() { }
+  constructor(
+    private messageService: MessageService
+  ) { }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit() {
+  }
+
+  loadEmit() {
+    this.messageService.loadEmitter.emit();
   }
 }

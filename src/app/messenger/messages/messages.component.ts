@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { SocketIoService } from '../../shared/socket-io.service';
 import { MessageService } from './message.service';
@@ -11,6 +11,7 @@ import { FriendService } from '../sidebar/friends/friend.service';
   styleUrls: ['./messages.component.css']
 })
 export class MessagesComponent implements OnInit {
+  @ViewChild('container') private container: ElementRef;
   active = false;
 
   constructor(
@@ -21,6 +22,10 @@ export class MessagesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.messageService.containerEmitter
+      .subscribe(
+        () => this.scrollBottom()
+      );
     this.messageService.changeEmitter
       .subscribe(
         () => {
@@ -53,4 +58,9 @@ export class MessagesComponent implements OnInit {
       );
   }
 
+  private scrollBottom() {
+    try {
+      this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
+    } catch (err) { }
+  }
 }

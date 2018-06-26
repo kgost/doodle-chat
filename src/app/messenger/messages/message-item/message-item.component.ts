@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
 
 import { Message } from '../message.model';
 import { MessageService } from '../message.service';
@@ -9,7 +9,7 @@ import { AuthService } from '../../../auth/auth.service';
   templateUrl: './message-item.component.html',
   styleUrls: ['./message-item.component.css']
 })
-export class MessageItemComponent implements OnInit {
+export class MessageItemComponent implements OnInit, AfterViewInit {
   @Input()message: Message;
   owner = false;
 
@@ -28,5 +28,9 @@ export class MessageItemComponent implements OnInit {
 
   onDelete() {
     this.messageService.removeMessage( this.message._id );
+  }
+
+  ngAfterViewInit() {
+    this.messageService.loadEmitter.emit();
   }
 }

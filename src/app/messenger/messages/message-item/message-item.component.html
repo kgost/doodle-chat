@@ -1,10 +1,10 @@
 <div class="clearfix">
   <li 
     [ngStyle]="{ padding: message.media ? '0' : '' }"
-    [ngClass]="{ stranger: !owner, 'pull-left': !owner, 'pull-right': owner }"
+    [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
     class="list-group-item">
     <span
-      *ngIf="message.text !== ''"
+      *ngIf="message.text !== undefined && message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
       [innerHtml]="message.text | link"
       style="font-size: 18px;"></span>
@@ -20,7 +20,7 @@
       (click)="onDelete()"
       *ngIf="owner"
       type="button" 
-      style="color: red;"
+      style="color: black;"
       class="close pull-right" 
       aria-label="Close">
       <span aria-hidden="true">&times;</span>
@@ -29,7 +29,7 @@
       (click)="onEdit()"
       *ngIf="owner && !message.media"
       class="pull-right glyphicon glyphicon-edit" 
-      style="cursor: pointer; padding-top: 2px; margin-right: 10px;"
+      style="cursor: pointer; padding-top: 2px; margin-right: 10px; color: black;"
       aria-hidden="true"></span>
   </li>
 </div>
