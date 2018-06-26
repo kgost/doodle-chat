@@ -191,4 +191,25 @@ export class SidebarService {
 
     return messages;
   }
+
+  getNotifications() {
+    return this.http.get( this.baseUrl + 'notifications?token=' + this.authService.getToken() )
+      .pipe( map( ( response: Response ) => {
+        return response.json();
+      } ) );
+  }
+
+  removeConversationNotification( id: string ) {
+    return this.http.delete( this.baseUrl + 'notifications/conversation/' + id + '?token=' + this.authService.getToken() )
+      .pipe( map( ( response: Response ) => {
+        return response.json();
+      } ) );
+  }
+
+  removeFriendshipNotification( id: string ) {
+    return this.http.delete( this.baseUrl + 'notifications/friendship/' + id + '?token=' + this.authService.getToken() )
+      .pipe( map( ( response: Response ) => {
+        return response.json();
+      } ) );
+  }
 }

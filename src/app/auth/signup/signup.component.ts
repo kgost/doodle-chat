@@ -22,8 +22,6 @@ export class SignupComponent implements OnInit {
       'username': new FormControl( null, Validators.required, this.usernameTaken.bind( this ) ),
       'password': new FormControl( null, [Validators.required, Validators.minLength( 6 )] ),
     });
-    console.log( this.signupForm.get( 'username' ) );
-    console.log( this.signupForm.get( 'password' ) );
   }
 
   onSubmit() {

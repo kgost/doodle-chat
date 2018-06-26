@@ -1,6 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 
 import { SocketIoService } from '../../shared/socket-io.service';
+import { SidebarService } from './sidebar.service';
 
 @Injectable()
 export class NotificationService {
@@ -11,6 +12,7 @@ export class NotificationService {
 
   constructor(
     private socketIoService: SocketIoService,
+    private sidebarService: SidebarService,
   ) {
     this.socketIoService.notifyConversation
       .subscribe(
@@ -23,6 +25,19 @@ export class NotificationService {
       .subscribe(
         ( friendshipId: string ) => {
           this.friendshipNotifications.push( friendshipId );
+          this.friendshipEmitter.emit();
+        }
+      );
+  }
+
+  loadNotifications() {
+    this.sidebarService.getNotifications()
+      .subscribe(
+        ( notifications: any ) => {
+          console.log( notifications );
+          this.conversationNotifications = notifications.conversations;
+          this.friendshipNotifications = notifications.friendships;
+          this.conversationEmitter.emit();
           this.friendshipEmitter.emit();
         }
       );
@@ -45,13 +60,23 @@ export class NotificationService {
   }
 
   removeConversation( id: string ) {
-    this.conversationNotifications.splice( this.getConversationIndex( id ), 1 );
-    this.conversationEmitter.emit();
+    this.sidebarService.removeConversationNotification( id )
+      .subscribe(
+        () => {
+          this.conversationNotifications.splice( this.getConversationIndex( id ), 1 );
+          this.conversationEmitter.emit();
+        }
+      );
   }
 
   removeFriendship( id: string ) {
-    this.friendshipNotifications.splice( this.getFriendshipIndex( id ), 1 );
-    this.friendshipEmitter.emit();
+    this.sidebarService.removeFriendshipNotification( id )
+      .subscribe(
+        () => {
+          this.friendshipNotifications.splice( this.getFriendshipIndex( id ), 1 );
+          this.friendshipEmitter.emit();
+        }
+      );
   }
 
   private getConversationIndex( id: string ) {

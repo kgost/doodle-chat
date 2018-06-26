@@ -7,6 +7,7 @@ const express  = require('express'),
   Message      = require( '../models/message' ),
   Media        = require( '../models/media' ),
   User         = require( '../models/user' ),
+  Notifier     = require( '../models/notifier' ),
   Friendship   = require( '../models/friendship' ),
   Conversation = require( '../models/conversation' ),
   middleware   = require( '../functions/middleware' )
@@ -138,8 +139,6 @@ router.put('/conversations/:id', middleware.authenticate, middleware.isConversat
 router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) => {
   const user = jwt.decode(req.query.token).user //Pull user from the JWT
 
-  conversation.name = req.sanitize( conversation.name )
-
   Conversation.findById( req.params.id, ( err, conversation ) => {
     if ( err ) {
       return res.status( 500 ).json({
@@ -154,6 +153,8 @@ router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) =>
         break
       }
     }
+
+    conversation.name = req.sanitize( conversation.name )
 
     conversation.save( ( err ) => {
       if ( err ) {
@@ -388,8 +389,20 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
             error: err
           })
         }
-        // respond with success message
-        res.status( 201 ).json(message)
+
+        Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
+          conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) } },
+        { '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) } }, ( err ) => {
+          if ( err ) {
+            return res.status( 500 ).json({
+              title: 'An error occured',
+              error: err
+            })
+          }
+
+          // respond with success message
+          res.status( 201 ).json(message)
+        } )
       } )
     })
   } else {
@@ -400,8 +413,20 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
           error: err
         })
       }
-      // respond with success message
-      res.status( 201 ).json(message)
+
+      Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
+        conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) } },
+      { '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) } }, ( err ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        // respond with success message
+        res.status( 201 ).json(message)
+      } )
     } )
   }
 } )
@@ -443,8 +468,21 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
             error: err
           })
         }
-        // respond with success message
-        res.status( 201 ).json(message)
+
+        Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
+          friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } },
+        { '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, oldNotifier ) => {
+          if ( err ) {
+            console.log( oldNotifier );
+            return res.status( 500 ).json({
+              title: 'An error occured',
+              error: err
+            })
+          }
+
+          // respond with success message
+          res.status( 201 ).json(message)
+        } )
       } )
     })
   } else {
@@ -455,8 +493,21 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
           error: err
         })
       }
-      // respond with success message
-      res.status( 201 ).json(message)
+
+      Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
+        friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } },
+      { '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, oldNotifier ) => {
+        console.log( oldNotifier );
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        // respond with success message
+        res.status( 201 ).json(message)
+      } )
     } )
   }
 } )
@@ -651,6 +702,83 @@ router.get( '/media/:id', ( req, res ) => {
       res.contentType( file.mime )
       res.end( file.data, 'binary' )
     }
+  } )
+} )
+
+router.get( '/notifications', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) }, ( err, notifier ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    res.status( 200 ).json( notifier )
+  } )
+} )
+
+router.delete( '/notifications/conversation/:id', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) }, ( err, notifier ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    for ( let i = 0; i < notifier.conversations.length; i++ ) {
+      if ( notifier.conversations == req.params.id ) {
+        notifier.conversations.splice( i, 1 )
+        break
+      }
+    }
+
+    notifier.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 200 ).json({ message: 'Notification Removed' })
+    } )
+  } )
+} )
+
+router.delete( '/notifications/friendship/:id', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) }, ( err, notifier ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    for ( let i = 0; i < notifier.friendships.length; i++ ) {
+      if ( notifier.friendships == req.params.id ) {
+        notifier.friendships.splice( i, 1 )
+        break
+      }
+    }
+
+    notifier.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 200 ).json({ message: 'Notification Removed' })
+    } )
   } )
 } )
 

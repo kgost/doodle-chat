@@ -2,7 +2,8 @@ const express       = require('express'),
   router        = express.Router(),
   jwt         = require( 'jsonwebtoken' ),
   bcrypt        = require( 'bcryptjs' ),
-  User        = require( '../models/user' )
+  User        = require( '../models/user' ),
+  Notifier        = require( '../models/notifier' )
 
 
 /**
@@ -57,17 +58,27 @@ router.post('/signup', (req, res) => {
   //Save to database, if error return invalid username
   user.save( ( err, user ) => {
     if ( err ) {
-      return res.status( 500 ).json({
+      return res.status( 400 ).json({
         title: 'An error occured',
         error: { message: 'Username taken.' }
       })
     }
-    //Return success and send JWT
-    res.status( 200 ).json( {
-      message: 'Successfully Signed In',
-      token: jwt.sign( { user: user }, 'my nama jeff', {expiresIn : 7200}),
-      userId: user._id
-    })
+
+    Notifier.create( { user: user._id, conversations: [], friendships: [] }, ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      //Return success and send JWT
+      res.status( 200 ).json( {
+        message: 'Successfully Signed In',
+        token: jwt.sign( { user: user }, 'my nama jeff', {expiresIn : 7200}),
+        userId: user._id
+      })
+    } )
   })
 } )
 
