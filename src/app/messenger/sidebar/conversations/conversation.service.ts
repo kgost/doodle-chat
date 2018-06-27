@@ -138,6 +138,10 @@ export class ConversationService {
     this.notificationService.removeConversation( id );
   }
 
+  reset() {
+    delete this.currentConversation;
+  }
+
   private getConversationIndex( id: string ) {
     for ( let i = 0; i < this.conversations.length; i++ ) {
       if ( this.conversations[i]._id === id ) {

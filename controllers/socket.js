@@ -12,6 +12,13 @@ exports = module.exports = function( io ) {
       socket.leave( userId )
     })
 
+    socket.on( 'leave-all', ()=> {
+      console.log( socket.rooms )
+      Object.values( socket.rooms ).forEach( ( room ) => {
+        socket.leave( room )
+      } )
+    } )
+
     socket.on( 'listen-conversation', ( conversationId ) => {
       socket.join( 'listen-' + conversationId )
     } )
@@ -54,7 +61,7 @@ exports = module.exports = function( io ) {
 
     socket.on( 'change-message', ( data ) => {
       io.sockets.in( data.conversationId  ).emit( 'update-message', data.messageId )
-      io.sockets.in( 'listen-' + data.conversationId ).emit( 'notify-conversation', data.conversationId )
+      //io.sockets.in( 'listen-' + data.conversationId ).emit( 'notify-conversation', data.conversationId )
     } )
 
     socket.on( 'new-private-message', ( data ) => {
@@ -64,7 +71,7 @@ exports = module.exports = function( io ) {
 
     socket.on( 'change-private-message', ( data ) => {
       io.sockets.in( data.friendshipId ).emit( 'update-private-message', data.messageId )
-      io.sockets.in( 'listen-' + data.friendshipId ).emit( 'notify-friendship', data.friendshipId )
+      //io.sockets.in( 'listen-' + data.friendshipId ).emit( 'notify-friendship', data.friendshipId )
     } )
 
     //Destroys socket tied to a specific conversation

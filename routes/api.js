@@ -382,7 +382,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 
       message.media = { mime: req.body.media.mime, id: media._id }
 
-      Message.create( message, ( err, message ) => {
+      Message.create( message, ( err, msg ) => {
         if ( err ) {
           return res.status( 500 ).json({
             title: 'An error occured',
@@ -390,23 +390,13 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
           })
         }
 
-        Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
-          conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) } },
-        { '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) } }, ( err ) => {
-          if ( err ) {
-            return res.status( 500 ).json({
-              title: 'An error occured',
-              error: err
-            })
-          }
+        message._id = msg._id
 
-          // respond with success message
-          res.status( 201 ).json(message)
-        } )
+        notifyConversation( req, res, user._id, message )
       } )
     })
   } else {
-    Message.create( message, ( err, message ) => {
+    Message.create( message, ( err, msg ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -414,19 +404,9 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
         })
       }
 
-      Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
-        conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) } },
-      { '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) } }, ( err ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
+      message._id = msg._id
 
-        // respond with success message
-        res.status( 201 ).json(message)
-      } )
+      notifyConversation( req, res, user._id, message )
     } )
   }
 } )
@@ -461,7 +441,7 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
 
       message.media = { mime: req.body.media.mime, id: media._id }
 
-      Message.create( message, ( err, message ) => {
+      Message.create( message, ( err, msg ) => {
         if ( err ) {
           return res.status( 500 ).json({
             title: 'An error occured',
@@ -469,24 +449,13 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
           })
         }
 
-        Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
-          friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } },
-        { '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, oldNotifier ) => {
-          if ( err ) {
-            console.log( oldNotifier );
-            return res.status( 500 ).json({
-              title: 'An error occured',
-              error: err
-            })
-          }
+        message._id = msg._id
 
-          // respond with success message
-          res.status( 201 ).json(message)
-        } )
+        notifyFriendship( req, res, user._id, message )
       } )
     })
   } else {
-    Message.create( message, ( err, message ) => {
+    Message.create( message, ( err, msg ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -494,20 +463,9 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
         })
       }
 
-      Notifier.update( { user: mongoose.Types.ObjectId( user._id ),
-        friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } },
-      { '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, oldNotifier ) => {
-        console.log( oldNotifier );
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
+      message._id = msg._id
 
-        // respond with success message
-        res.status( 201 ).json(message)
-      } )
+      notifyFriendship( req, res, user._id, message )
     } )
   }
 } )
@@ -781,6 +739,56 @@ router.delete( '/notifications/friendship/:id', middleware.authenticate, ( req, 
     } )
   } )
 } )
+
+function notifyConversation( req, res, userId, message ) {
+  Conversation.findById( req.params.conversationId, 'participants', ( err, conversation ) => {
+    const users = conversation.participants.map( ( user ) => {
+      if ( user.id != userId ) {
+        return mongoose.Types.ObjectId( user.id )
+      }
+    } )
+
+    Notifier.update( { user: { '$in': users },
+      conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) } },
+    { '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) } }, { multi: true }, ( err ) => {
+    //Notifier.find( { user: { '$in': users }, friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, notifier ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      // respond with success message
+      res.status( 201 ).json( message )
+    } )
+  } )
+}
+
+function notifyFriendship( req, res, userId, message ) {
+  Friendship.findById( req.params.friendshipId, 'users', ( err, friendship ) => {
+    const users = friendship.users.map( ( user ) => {
+      if ( user.id != userId ) {
+        return mongoose.Types.ObjectId( user.id )
+      }
+    } )
+
+    Notifier.update( { user: { '$in': users },
+      friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } },
+    { '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, { multi: true }, ( err ) => {
+    //Notifier.find( { user: { '$in': users }, friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, notifier ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      // respond with success message
+      res.status( 201 ).json( message )
+    } )
+  } )
+}
 
 function pruneUsers( conversation ) {
   for ( let i = 0; i < conversation.participants.length; i++ ) {

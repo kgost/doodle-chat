@@ -120,6 +120,10 @@ export class FriendService {
     return this.notificationService.removeFriendship( id );
   }
 
+  reset() {
+    delete this.currentFriendship;
+  }
+
   private getFriendshipIndex( id: string ) {
     for ( let i = 0; i < this.friendships.length; i++ ) {
       if ( this.friendships[i]._id === id ) {

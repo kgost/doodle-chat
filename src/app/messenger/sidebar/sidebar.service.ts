@@ -192,6 +192,9 @@ export class SidebarService {
     return messages;
   }
 
+  /**
+   *  NOTIFICATIONS
+   */
   getNotifications() {
     return this.http.get( this.baseUrl + 'notifications?token=' + this.authService.getToken() )
       .pipe( map( ( response: Response ) => {

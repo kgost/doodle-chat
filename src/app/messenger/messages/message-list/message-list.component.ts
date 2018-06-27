@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewChecked, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { Message } from '../message.model';
 import { Conversation } from '../../sidebar/conversations/conversation.model';
@@ -9,8 +10,9 @@ import { MessageService } from '../message.service';
   templateUrl: './message-list.component.html',
   styleUrls: ['./message-list.component.css']
 })
-export class MessageListComponent implements OnInit, AfterViewChecked {
+export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('list') list: ElementRef;
+  subscriptions: Subscription[] = [];
   title: string;
   messages: Message[];
   oldLength: number;
@@ -25,7 +27,7 @@ export class MessageListComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.messages = this.messageService.getMessages();
     this.title = this.messageService.getTitle();
-    this.messageService.changeEmitter
+    this.subscriptions.push( this.messageService.changeEmitter
       .subscribe( () => {
         this.messages = this.messageService.getMessages();
 
@@ -39,8 +41,9 @@ export class MessageListComponent implements OnInit, AfterViewChecked {
         }
 
         this.title = this.messageService.getTitle();
-      } );
-    this.messageService.loadEmitter
+      } ) );
+
+    this.subscriptions.push( this.messageService.loadEmitter
       .subscribe(
         () => {
           if ( this.initial ) {
@@ -49,13 +52,14 @@ export class MessageListComponent implements OnInit, AfterViewChecked {
             this.messageService.containerEmitter.emit();
           }
         }
-      );
-    this.messageService.reloadEmitter
+      ) );
+
+    this.subscriptions.push( this.messageService.reloadEmitter
       .subscribe(
         () => {
           this.initial = true;
         }
-      );
+      ) );
   }
 
   ngAfterViewChecked() {
@@ -63,5 +67,11 @@ export class MessageListComponent implements OnInit, AfterViewChecked {
       this.initial = false;
       this.messageService.containerEmitter.emit();
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
   }
 }

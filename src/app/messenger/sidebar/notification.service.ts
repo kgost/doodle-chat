@@ -34,7 +34,6 @@ export class NotificationService {
     this.sidebarService.getNotifications()
       .subscribe(
         ( notifications: any ) => {
-          console.log( notifications );
           this.conversationNotifications = notifications.conversations;
           this.friendshipNotifications = notifications.friendships;
           this.conversationEmitter.emit();

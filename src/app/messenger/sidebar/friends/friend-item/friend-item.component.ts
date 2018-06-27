@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { SidebarService } from '../../sidebar.service';
 import { FriendService } from '../friend.service';
@@ -10,8 +11,9 @@ import { AuthService } from '../../../../auth/auth.service';
   templateUrl: './friend-item.component.html',
   styleUrls: ['./friend-item.component.css']
 })
-export class FriendItemComponent implements OnInit {
+export class FriendItemComponent implements OnInit, OnDestroy {
   @Input() friendship: Friendship;
+  subscriptions: Subscription[] = [];
   notification = false;
   active = false;
 
@@ -22,7 +24,16 @@ export class FriendItemComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.friendService.changeEmitter
+    if ( this.friendService.checkNotification( this.friendship._id ) &&
+      ( !this.friendService.getCurrentFriendship() || this.friendService.getCurrentFriendship()._id !== this.friendship._id ) ) {
+      this.notification = true;
+    } else if ( this.friendService.checkNotification( this.friendship._id ) &&
+      this.friendService.getCurrentFriendship() &&
+      this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
+      this.friendService.removeNotification( this.friendship._id );
+    }
+
+    this.subscriptions.push( this.friendService.changeEmitter
       .subscribe(
         () => {
           if ( this.friendService.checkNotification( this.friendship._id ) &&
@@ -34,13 +45,14 @@ export class FriendItemComponent implements OnInit {
             this.friendService.removeNotification( this.friendship._id );
           }
         }
-      );
-    this.sidebarService.deactivate
+      ) );
+
+    this.subscriptions.push( this.sidebarService.deactivate
       .subscribe(
         () => {
           this.active = false;
         }
-      );
+      ) );
   }
 
   getFriendName() {
@@ -89,5 +101,13 @@ export class FriendItemComponent implements OnInit {
       this.sidebarService.deactivate.emit();
       this.active = true;
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
+
+    this.friendService.reset();
   }
 }

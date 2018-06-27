@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { SidebarService } from '../../sidebar.service';
 import { ConversationService } from '../conversation.service';
@@ -10,8 +11,9 @@ import { AuthService } from '../../../../auth/auth.service';
   templateUrl: './conversation-item.component.html',
   styleUrls: ['./conversation-item.component.css']
 })
-export class ConversationItemComponent implements OnInit {
+export class ConversationItemComponent implements OnInit, OnDestroy {
   @Input() conversation: Conversation;
+  subscriptions: Subscription[] = [];
   notification = false;
   active = false;
 
@@ -22,7 +24,7 @@ export class ConversationItemComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.conversationService.changeEmitter
+    this.subscriptions.push( this.conversationService.changeEmitter
       .subscribe(
         () => {
           if ( this.conversationService.checkNotification( this.conversation._id ) &&
@@ -35,13 +37,14 @@ export class ConversationItemComponent implements OnInit {
             this.conversationService.removeNotification( this.conversation._id );
           }
         }
-      );
-    this.sidebarService.deactivate
+      ) );
+
+    this.subscriptions.push( this.sidebarService.deactivate
       .subscribe(
         () => {
           this.active = false;
         }
-      );
+      ) );
   }
 
   getCurrentUser() {
@@ -64,5 +67,13 @@ export class ConversationItemComponent implements OnInit {
     this.conversationService.loadMessages( this.conversation._id );
     this.sidebarService.deactivate.emit();
     this.active = true;
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
+
+    this.conversationService.reset();
   }
 }

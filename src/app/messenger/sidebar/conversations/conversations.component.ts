@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { ConversationService } from './conversation.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
@@ -8,7 +9,8 @@ import { SocketIoService } from '../../../shared/socket-io.service';
   templateUrl: './conversations.component.html',
   styleUrls: ['./conversations.component.css']
 })
-export class ConversationsComponent implements OnInit {
+export class ConversationsComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = [];
 
   constructor(
     private conversationService: ConversationService,
@@ -17,10 +19,15 @@ export class ConversationsComponent implements OnInit {
 
   ngOnInit() {
     this.conversationService.loadConversations();
-    this.socketIoService.conversationChange
+    this.subscriptions.push( this.socketIoService.conversationChange
       .subscribe( () => {
         this.conversationService.loadConversations();
-      } );
+      } ) );
   }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
+  }
 }
