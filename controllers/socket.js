@@ -92,6 +92,10 @@ exports = module.exports = function( io ) {
       io.sockets.in( userId  ).emit( 'refresh-friendships' )
     })
 
+    socket.on( 'nonce-user', ( userId, nonce, message ) => {
+      io.sockets.in( userId ).emit( 'add-nonce-message', { nonce: nonce, message: message } )
+    } )
+
     //Logs users disconnecting from any socket
     socket.on( 'disconnect', () => {
       console.log( 'user disconnected' )

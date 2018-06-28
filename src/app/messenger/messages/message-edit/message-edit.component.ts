@@ -2,6 +2,8 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Buffer } from 'buffer';
+import * as CryptoJS from 'crypto-js';
+import * as sanitizer from 'sanitizer';
 
 import { Media } from '../media/media.model';
 import { Message } from '../message.model';
@@ -17,6 +19,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   @ViewChild('f') messageEdit: NgForm;
   editMode = false;
   editId: string;
+  key = '';
   subscription: Subscription;
 
   constructor(
@@ -28,7 +31,9 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     this.subscription = this.messageService.editChange
       .subscribe(
         ( message: Message ) => {
-          this.messageEdit.setValue({ 'text': message.text });
+          this.messageEdit.setValue({
+            'text': this.decrypt( message.text )
+          });
           this.editMode = true;
           this.editId = message._id;
         }
@@ -41,14 +46,14 @@ export class MessageEditComponent implements OnInit, OnDestroy {
       if ( this.messageService.privateMode ) {
         message = new Message(
           this.authService.getCurrentUser()._id,
-          this.messageEdit.value.text,
+          this.encrypt( sanitizer.sanitize( this.messageEdit.value.text ) ),
           undefined,
           this.messageService.getCurrentFriendship()._id,
         );
       } else {
         message = new Message(
           this.authService.getCurrentUser()._id,
-          this.messageEdit.value.text,
+          this.encrypt( sanitizer.sanitize( this.messageEdit.value.text ) ),
           this.messageService.getCurrentConversation()._id,
         );
       }
@@ -83,6 +88,19 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     };
 
     reader.readAsArrayBuffer( file );
+  }
+
+  encrypt( text: string ) {
+    return CryptoJS.AES.encrypt( text, this.key ).toString();
+  }
+
+  decrypt( text: string ) {
+    const bytes = CryptoJS.AES.decrypt( text, this.key );
+    return bytes.toString( CryptoJS.enc.Utf8 );
+  }
+
+  onDecrypt() {
+    this.messageService.setKey( this.key );
   }
 
   ngOnDestroy() {

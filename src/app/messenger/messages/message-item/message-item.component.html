@@ -6,7 +6,7 @@
     <span
       *ngIf="message.text !== undefined && message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
-      [innerHtml]="message.text | link"
+      [innerHtml]="message.text | dcrypt: key | link"
       style="font-size: 18px;"></span>
     <app-media
       *ngIf="message.media"

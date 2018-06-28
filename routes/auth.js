@@ -26,8 +26,7 @@ router.post('/signin', (req, res) => {
     //If no such user exists or passwords do not match, return an error
     if ( !user || !bcrypt.compareSync( req.body.password, user.password ) ) {
       return res.status( 401 ).json({
-        title: 'Login failed',
-        error: { message: 'Invalid login credentials' }
+        userMessage: 'Invalid Login Credentials'
       })
     }
     //Sign the JWT and return success

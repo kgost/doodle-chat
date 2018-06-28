@@ -33,6 +33,15 @@
         (click)="onCancel()"
         type="button"
         class="btn btn-warning pull-right">Cancel</button>
+      <input
+        placeholder="Secret Key"
+        class="pull-left"
+        [(ngModel)]="key"
+        [ngModelOptions]="{ standalone: true }"
+        style="width: 300px; display: inline;"
+        class="form-control"
+        type="password">
+      <button (click)="onDecrypt()" type="button" class="btn btn-warning pull-left">Decrypt</button>
     </form>
   </div>
 </div>

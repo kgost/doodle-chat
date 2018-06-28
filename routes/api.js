@@ -365,7 +365,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
   const user = jwt.decode(req.query.token).user
   // Save new message with corresponding conversationId
   let message = {
-    text: req.sanitize( req.body.text ),
+    text: req.body.text,
     conversation_id: req.params.conversationId,
     user: user._id,
     username: user.username
@@ -424,7 +424,7 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
   const user = jwt.decode(req.query.token).user
   // Save new message with corresponding conversationId
   let message = {
-    text: req.sanitize( req.body.text ),
+    text: req.body.text,
     friendship_id: req.params.friendshipId,
     user: user._id,
     username: user.username
@@ -562,7 +562,7 @@ router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate,
  * @return {[type]}        Returns a status code along with an object containing the messages.
  */
 router.put( '/messages/:id', middleware.authenticate, middleware.isMessageOwner, ( req, res ) => {
-  req.body.text = req.sanitize( req.body.text )
+  req.body.text = req.body.text
   //Finds all messages associated with given id
   Message.findByIdAndUpdate( req.params.id, req.body ).exec( ( err ) => {
     if ( err ) {

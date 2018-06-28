@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Input } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { Message } from '../message.model';
 import { MessageService } from '../message.service';
@@ -9,9 +10,11 @@ import { AuthService } from '../../../auth/auth.service';
   templateUrl: './message-item.component.html',
   styleUrls: ['./message-item.component.css']
 })
-export class MessageItemComponent implements OnInit, AfterViewInit {
+export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input()message: Message;
+  subscriptions: Subscription[] = [];
   owner = false;
+  key = '';
 
   constructor(
     private messageService: MessageService,
@@ -20,6 +23,11 @@ export class MessageItemComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.owner = this.authService.getCurrentUser()._id === this.message.user;
+    this.key = this.messageService.getKey();
+    this.subscriptions.push( this.messageService.keyEmitter
+      .subscribe(
+        () => this.key = this.messageService.getKey()
+      ));
   }
 
   onEdit() {
@@ -32,5 +40,11 @@ export class MessageItemComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.messageService.loadEmitter.emit();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
   }
 }

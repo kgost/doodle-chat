@@ -26,6 +26,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.conversationService.reset();
+
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );

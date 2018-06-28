@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { User } from './user.model';
 import { SocketIoService } from '../shared/socket-io.service';
+import { AlertService } from '../alert.service';
 
 @Injectable()
 export class AuthService implements OnInit {
@@ -17,7 +18,8 @@ export class AuthService implements OnInit {
   constructor(
     private http: Http,
     private router: Router,
-    private socketIoService: SocketIoService
+    private socketIoService: SocketIoService,
+    private alertService: AlertService,
   ) { }
 
   ngOnInit() {
@@ -41,6 +43,7 @@ export class AuthService implements OnInit {
             localStorage.getItem( 'userId' ),
           );
           this.socketIoService.signin( this.currentUser._id );
+          this.alertService.alertSubject.next( { message: 'Successfully Signed Up!', mode: 'success' } );
           this.router.navigate(['/messenger']);
         },
         ( response: Response ) => {
@@ -67,7 +70,7 @@ export class AuthService implements OnInit {
         },
         ( response: Response ) => {
           const error = response.json();
-          console.log( error );
+          this.alertService.alertSubject.next( { message: error.userMessage, mode: 'danger' } );
         }
       );
   }

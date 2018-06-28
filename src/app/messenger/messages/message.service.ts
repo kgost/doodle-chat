@@ -18,8 +18,10 @@ export class MessageService {
   containerEmitter = new EventEmitter<void>();
   loadEmitter = new EventEmitter<void>();
   reloadEmitter = new EventEmitter<void>();
+  keyEmitter = new EventEmitter<void>();
   editChange = new Subject<Message>();
   privateMode = false;
+  key = '';
 
   constructor(
     private authService: AuthService,
@@ -129,6 +131,15 @@ export class MessageService {
 
   getCurrentFriendship() {
     return this.currentFriendship;
+  }
+
+  getKey() {
+    return this.key;
+  }
+
+  setKey( key: string ) {
+    this.key = key;
+    this.keyEmitter.emit();
   }
 
   reset() {

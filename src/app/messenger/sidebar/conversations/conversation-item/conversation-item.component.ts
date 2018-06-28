@@ -73,7 +73,5 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
-
-    this.conversationService.reset();
   }
 }

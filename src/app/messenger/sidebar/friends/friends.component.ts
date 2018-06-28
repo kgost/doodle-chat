@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { FriendService } from './friend.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
@@ -8,7 +9,8 @@ import { SocketIoService } from '../../../shared/socket-io.service';
   templateUrl: './friends.component.html',
   styleUrls: ['./friends.component.css']
 })
-export class FriendsComponent implements OnInit {
+export class FriendsComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = [];
 
   constructor(
     private friendService: FriendService,
@@ -17,10 +19,17 @@ export class FriendsComponent implements OnInit {
 
   ngOnInit() {
     this.friendService.loadFriendships();
-    this.socketIoService.friendshipChange
+    this.subscriptions.push( this.socketIoService.friendshipChange
       .subscribe( () => {
         this.friendService.loadFriendships();
-      } );
+      } ) );
   }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
+
+    this.friendService.reset();
+  }
 }

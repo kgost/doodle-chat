@@ -36,6 +36,8 @@ import { AuthGuard } from './auth/auth-guard.service';
 import { SocketIoService } from './shared/socket-io.service';
 import { MediaComponent } from './messenger/messages/media/media.component';
 import { LinkPipe } from './messenger/messages/link.pipe';
+import { AlertComponent } from './alert/alert.component';
+import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -62,6 +64,8 @@ const config: SocketIoConfig = { url: '/', options: {} };
     LandingComponent,
     MediaComponent,
     LinkPipe,
+    AlertComponent,
+    DcryptPipe,
   ],
   imports: [
     BrowserModule,

@@ -107,7 +107,5 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
-
-    this.friendService.reset();
   }
 }
