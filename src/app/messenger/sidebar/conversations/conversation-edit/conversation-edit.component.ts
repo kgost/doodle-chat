@@ -34,6 +34,7 @@ export class ConversationEditComponent implements OnInit {
   }
 
   private initForm() {
+    console.log( this.conversation );
     let conversationName = '';
     const participants = new FormArray([]);
 
@@ -41,7 +42,7 @@ export class ConversationEditComponent implements OnInit {
       conversationName = this.conversation.name;
 
       for ( const participant of this.conversation.participants ) {
-        participants.push( new FormControl( participant.username, Validators.required, this.usernameValid.bind( this ) ) );
+        participants.push( new FormControl( participant.id.username, Validators.required, this.usernameValid.bind( this ) ) );
       }
     } else {
       participants.push( new FormControl( null, Validators.required, this.usernameValid.bind( this ) ) );
@@ -65,10 +66,23 @@ export class ConversationEditComponent implements OnInit {
 
   onSubmit() {
     if ( this.editForm.valid ) {
-      const users = [];
+      const users: { id: User, accessKey?: string }[] = [];
 
       for ( const username of this.editForm.value.participants ) {
-        users.push( new User( username ) );
+        users.push( { id: new User( username ) } );
+      }
+
+      let self = false;
+
+      for ( let i = 0; i < users.length; i++ ) {
+        if ( users[i].id.username === this.authService.getCurrentUser().username ) {
+          self = true;
+          break;
+        }
+      }
+
+      if ( !self ) {
+        users.push( { id: this.authService.getCurrentUser() } );
       }
 
       const conversation = new Conversation( this.editForm.value.name, this.authService.getCurrentUser(), users );

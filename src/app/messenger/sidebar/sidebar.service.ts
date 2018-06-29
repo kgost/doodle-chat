@@ -64,13 +64,7 @@ export class SidebarService {
   }
 
   private mapConversation( response: Response ) {
-    const data = response.json();
-
-    data.participants.map( ( participant: any ) => {
-      return <User>participant;
-    } );
-
-    return <Conversation>data;
+    return <Conversation>response.json();
   }
 
   /**
@@ -101,7 +95,7 @@ export class SidebarService {
   private mapFriendship( response: Response ) {
     const friendship = response.json();
 
-    friendship.users.map( ( user: any ) => {
+    friendship.users = friendship.users.map( ( user: any ) => {
       user.id = <User> user.id;
       return user;
     } );
@@ -110,10 +104,10 @@ export class SidebarService {
   }
 
   private mapFriendships( response: Response ) {
-    const friendships = response.json().obj;
+    let friendships = response.json().obj;
 
-    friendships.map( ( friendship ) => {
-      friendship.users.map( ( user: any ) => {
+    friendships = friendships.map( ( friendship ) => {
+      friendship.users = friendship.users.map( ( user: any ) => {
         user.id = <User> user.id;
         return user;
       } );
@@ -213,6 +207,19 @@ export class SidebarService {
     return this.http.delete( this.baseUrl + 'notifications/friendship/' + id + '?token=' + this.authService.getToken() )
       .pipe( map( ( response: Response ) => {
         return response.json();
+      } ) );
+  }
+
+  /**
+   *  CRYPTO
+   */
+  getPublicKeys( participants: { id: User, accessKey?: string }[] ) {
+    const usernames = participants.map( ( participant ) => {
+      return participant.id.username;
+    } );
+    return this.http.post( this.baseUrl + 'publicKeys?token=' + this.authService.getToken(), usernames )
+      .pipe( map( ( response: Response ) => {
+        return response.json().obj;
       } ) );
   }
 }

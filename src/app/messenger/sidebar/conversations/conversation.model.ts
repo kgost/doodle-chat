@@ -4,7 +4,7 @@ export class Conversation {
   constructor(
     public name: string,
     public owner: User,
-    public participants: User[],
+    public participants: { id: User, accessKey?: string }[],
     public _id?: string,
   ) {}
 }

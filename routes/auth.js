@@ -32,7 +32,7 @@ router.post('/signin', (req, res) => {
     //Sign the JWT and return success
     const token = jwt.sign( { user: user }, 'my nama jeff', { expiresIn: 7200 } )  //TODO: change 'my nama jeff' to a environment variable
     res.status( 200 ).json( {
-      message: 'Successfully Signed Up',
+      message: 'Successfully Signed In',
       token: token,
       userId: user._id
     } )
@@ -52,7 +52,8 @@ router.post('/signup', (req, res) => {
   //New user object
   const user = new User({
     username: req.body.username,
-    password: bcrypt.hashSync( req.body.password, 10 )
+    password: bcrypt.hashSync( req.body.password, 10 ),
+    publicKey: req.body.publicKey
   })
   //Save to database, if error return invalid username
   user.save( ( err, user ) => {

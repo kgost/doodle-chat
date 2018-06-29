@@ -20,6 +20,7 @@ export class ConversationService {
   constructor(
     private sidebarService: SidebarService,
     private messageService: MessageService,
+    private authService: AuthService,
     private socketIoService: SocketIoService,
     private notificationService: NotificationService
   ) {
@@ -84,12 +85,23 @@ export class ConversationService {
   }
 
   addConversation( conversation: Conversation ) {
-    this.sidebarService.createConversation( conversation )
+    this.sidebarService.getPublicKeys( conversation.participants )
       .subscribe(
-        ( newConversation: Conversation ) => {
-          for ( let i = 0; i < newConversation.participants.length; i++ ) {
-            this.socketIoService.addConversation( newConversation.participants[i]._id );
-          }
+        ( users: User[] ) => {
+          const accessKeys = this.authService.generateAccessKeys( users );
+          conversation.participants = conversation.participants.map(
+            ( participant ) => {
+              return { id: participant.id, accessKey: accessKeys[participant.id.username] };
+            }
+          );
+          this.sidebarService.createConversation( conversation )
+            .subscribe(
+              ( newConversation: Conversation ) => {
+                for ( let i = 0; i < newConversation.participants.length; i++ ) {
+                  this.socketIoService.addConversation( newConversation.participants[i].id._id );
+                }
+              }
+            );
         }
       );
   }
@@ -106,7 +118,7 @@ export class ConversationService {
           this.socketIoService.updateConversation( newConversation._id );
 
           for ( let i = 0; i < newConversation.participants.length; i++ ) {
-            this.socketIoService.addConversation( newConversation.participants[i]._id );
+            this.socketIoService.addConversation( newConversation.participants[i].id._id );
           }
         }
       );

@@ -24,14 +24,13 @@ const express  = require('express'),
  */
 router.post( '/conversations', middleware.authenticate, ( req, res ) => {
   const user = jwt.decode(req.query.token).user //Pull user from the JWT
-  req.body.participants.push(user)   //Add owner to participants list
   const convo = pruneUsers( req.body )
 
   async.map( convo.participants, ( participant, cb ) => {
-    User.findOne( { username: participant.username }, '_id username' ).lean().exec( ( err, usr ) => {
+    User.findOne( { username: participant.id.username }, '_id username' ).lean().exec( ( err, usr ) => {
       if ( err ) return cb( err )
       if ( !usr ) return cb( null )
-      return cb( null, { _id: usr._id, username: usr.username } )
+      return cb( null, { id: { _id: usr._id, username: usr.username }, accessKey: participant.accessKey } )
     } )
   }, ( err, results ) => {
     for ( let i = 0; i < results.length; i++ ) {
@@ -64,7 +63,6 @@ router.post( '/conversations', middleware.authenticate, ( req, res ) => {
   } )
 } )
 
-
 /**
  * READ route for conversations:
  *    Finds and returns all conversations that a user is in
@@ -77,7 +75,7 @@ router.get( '/conversations', middleware.authenticate, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
   //Find all conversations this user is a part of
-  Conversation.find({ participants: mongoose.Types.ObjectId( user._id ) }, '_id name participants owner' ).populate('participants', 'username').populate( 'owner', 'username' ).exec( ( err, conversations ) => {
+  Conversation.find({ 'participants.id': mongoose.Types.ObjectId( user._id ) }, '_id name participants owner' ).populate('participants.id', 'username').populate( 'owner', 'username' ).exec( ( err, conversations ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -740,6 +738,19 @@ router.delete( '/notifications/friendship/:id', middleware.authenticate, ( req, 
   } )
 } )
 
+router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
+  User.find( { username: { '$in': req.body } }, 'username publicKey', ( err, users ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    res.status( 200 ).json({ obj: users })
+  } )
+} )
+
 function notifyConversation( req, res, userId, message ) {
   Conversation.findById( req.params.conversationId, 'participants', ( err, conversation ) => {
     const users = conversation.participants.map( ( user ) => {
@@ -793,7 +804,7 @@ function notifyFriendship( req, res, userId, message ) {
 function pruneUsers( conversation ) {
   for ( let i = 0; i < conversation.participants.length; i++ ) {
     for ( let j = i + 1; j < conversation.participants.length; j++ ) {
-      if ( conversation.participants[i].username === conversation.participants[j].username ) {
+      if ( conversation.participants[i].id.username === conversation.participants[j].id.username ) {
         conversation.participants.splice( i, 1 )
         i--
         break

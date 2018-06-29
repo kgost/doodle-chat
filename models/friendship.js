@@ -5,6 +5,7 @@ var mongoose = require( 'mongoose' )
 var firendshipSchema = new mongoose.Schema({
   users: [{
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    accessKey: String,
     accepted: Boolean
   }]
 }, { timestamps: true } )

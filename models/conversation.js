@@ -5,7 +5,7 @@ var mongoose = require( 'mongoose' )
 var conversationSchema = new mongoose.Schema({
   name: {type:String, required: true},
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  participants: [{ id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, accessKey: String }],
 }, { timestamps: true } )
 
 // validate participants

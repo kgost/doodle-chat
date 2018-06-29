@@ -7,6 +7,7 @@ import { SidebarService } from './sidebar/sidebar.service';
 import { ConversationService } from './sidebar/conversations/conversation.service';
 import { FriendService } from './sidebar/friends/friend.service';
 import { AuthService } from '../auth/auth.service';
+import { AlertService } from '../alert.service';
 import { SocketIoService } from '../shared/socket-io.service';
 
 @Component({
@@ -25,6 +26,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private conversationService: ConversationService,
     private friendService: FriendService,
     private authService: AuthService,
+    private alertService: AlertService,
     private socketIoService: SocketIoService
   ) { }
 
@@ -49,7 +51,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
         }
       ) );
 
-      this.socketIoService.signin( this.authService.getCurrentUser()._id );
+    this.socketIoService.signin( this.authService.getCurrentUser()._id );
   }
 
   ngOnDestroy() {

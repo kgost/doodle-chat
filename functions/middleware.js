@@ -1,5 +1,4 @@
 const jwt      = require( 'jsonwebtoken' ),
-  mongoose     = require( 'mongoose' ),
   User         = require( '../models/user' ),
   Conversation = require( '../models/conversation' ),
   Friendship = require( '../models/friendship' ),
@@ -82,7 +81,17 @@ const actions = {
       const decoded = jwt.decode(req.query.token)
 
       // if the user is not in the participants list, respond with a 401 error
-      if ( conversation.participants.indexOf( mongoose.Types.ObjectId( decoded.user._id ) ) == -1 ) {
+
+      let found = false
+
+      for ( let i = 0; i < conversation.participants.length; i++ ) {
+        if ( conversation.participants[i].id == decoded.user._id ) {
+          found = true
+          break
+        }
+      }
+
+      if ( !found ) {
         return res.status( 401 ).json({
           title: 'Unauthorized User.',
           error: {message: 'You are not in this conversation.'}
