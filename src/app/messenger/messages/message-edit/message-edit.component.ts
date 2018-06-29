@@ -19,7 +19,6 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   @ViewChild('f') messageEdit: NgForm;
   editMode = false;
   editId: string;
-  key = '';
   subscription: Subscription;
 
   constructor(
@@ -32,7 +31,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
       .subscribe(
         ( message: Message ) => {
           this.messageEdit.setValue({
-            'text': this.decrypt( message.text )
+            'text': this.authService.decryptAes( message.text, this.messageService.getKey() )
           });
           this.editMode = true;
           this.editId = message._id;
@@ -46,14 +45,14 @@ export class MessageEditComponent implements OnInit, OnDestroy {
       if ( this.messageService.privateMode ) {
         message = new Message(
           this.authService.getCurrentUser()._id,
-          this.encrypt( sanitizer.sanitize( this.messageEdit.value.text ) ),
+          this.authService.encryptAes( this.messageEdit.value.text, this.messageService.getKey() ),
           undefined,
           this.messageService.getCurrentFriendship()._id,
         );
       } else {
         message = new Message(
           this.authService.getCurrentUser()._id,
-          this.encrypt( sanitizer.sanitize( this.messageEdit.value.text ) ),
+          this.authService.encryptAes( this.messageEdit.value.text, this.messageService.getKey() ),
           this.messageService.getCurrentConversation()._id,
         );
       }
@@ -88,19 +87,6 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     };
 
     reader.readAsArrayBuffer( file );
-  }
-
-  encrypt( text: string ) {
-    return CryptoJS.AES.encrypt( text, this.key ).toString();
-  }
-
-  decrypt( text: string ) {
-    const bytes = CryptoJS.AES.decrypt( text, this.key );
-    return bytes.toString( CryptoJS.enc.Utf8 );
-  }
-
-  onDecrypt() {
-    this.messageService.setKey( this.key );
   }
 
   ngOnDestroy() {

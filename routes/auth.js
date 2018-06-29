@@ -34,7 +34,9 @@ router.post('/signin', (req, res) => {
     res.status( 200 ).json( {
       message: 'Successfully Signed In',
       token: token,
-      userId: user._id
+      userId: user._id,
+      publicKey: user.publicKey,
+      privateKey: user.privateKey
     } )
   })
 } )
@@ -53,7 +55,8 @@ router.post('/signup', (req, res) => {
   const user = new User({
     username: req.body.username,
     password: bcrypt.hashSync( req.body.password, 10 ),
-    publicKey: req.body.publicKey
+    publicKey: req.body.publicKey,
+    privateKey: req.body.privateKey
   })
   //Save to database, if error return invalid username
   user.save( ( err, user ) => {

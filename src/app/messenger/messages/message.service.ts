@@ -44,6 +44,7 @@ export class MessageService {
   }
 
   loadMessages( conversation: Conversation, messages: Message[] ) {
+    this.key = this.authService.decryptAccessKey( this.getAccessKey( conversation, this.authService.getCurrentUser()._id ) );
     this.currentConversation = conversation;
     delete this.currentFriendship;
     delete this.currentFriendName;
@@ -154,6 +155,14 @@ export class MessageService {
     for ( let i = 0; i < this.messages.length; i++ ) {
       if ( this.messages[i]._id === id ) {
         return i;
+      }
+    }
+  }
+
+  private getAccessKey( conversation: Conversation, userId: string ) {
+    for ( let i = 0; i < conversation.participants.length; i++ ) {
+      if ( conversation.participants[i].id._id === userId ) {
+        return conversation.participants[i].accessKey;
       }
     }
   }

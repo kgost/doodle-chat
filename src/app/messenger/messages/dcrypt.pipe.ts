@@ -1,14 +1,17 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import * as CryptoJS from 'crypto-js';
+
+import { AuthService } from '../../auth/auth.service';
 
 @Pipe({
   name: 'dcrypt'
 })
 export class DcryptPipe implements PipeTransform {
+  constructor(
+    private authService: AuthService
+  ) {}
 
   transform(value: string, key: string): string {
-    const bytes = CryptoJS.AES.decrypt( value, key );
-    return bytes.toString( CryptoJS.enc.Utf8 );
+    return this.authService.decryptAes( value, key );
   }
 
 }

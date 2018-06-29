@@ -24,13 +24,14 @@ export class AuthService {
     private socketIoService: SocketIoService,
     private alertService: AlertService,
   ) {
-    forge.options.usePureJavaScript = true;
   }
 
   signup( username: string, password: string ) {
-    this.keyGen( password ).then(
+    this.keyGen().then(
       () => {
-        this.http.post( this.baseUrl + 'signup', { username: username, password: password, publicKey: this.getPublicKeyString() } )
+        this.http.post( this.baseUrl + 'signup',
+          { username: username, password: password, publicKey: this.getPublicKeyString(),
+            privateKey: this.encryptAes( this.getPrivateKeyString(), this.getKeyFromString( password ) ) } )
           .subscribe(
             ( response: Response ) => {
               const data = response.json();
@@ -67,11 +68,9 @@ export class AuthService {
             localStorage.getItem( 'userId' ),
           );
           this.socketIoService.signin( this.currentUser._id );
-          this.keyGen( password ).then(
-            () => {
-              this.router.navigate(['/messenger']);
-            }
-          );
+          this.publicKey = this.getPublicKeyFromString( data.publicKey );
+          this.privateKey = this.getPrivateKeyFromString( this.decryptAes( data.privateKey, this.getKeyFromString( password ) ) );
+          this.router.navigate(['/messenger']);
         },
         ( response: Response ) => {
           const error = response.json();
@@ -114,22 +113,21 @@ export class AuthService {
     return forge.asn1.toDer( forge.pki.publicKeyToAsn1( this.publicKey ) ).data;
   }
 
+  private getPrivateKeyString() {
+    return forge.asn1.toDer( forge.pki.privateKeyToAsn1( this.privateKey ) ).data;
+  }
+
   decryptAccessKey( key: string ) {
     return this.privateKey.decrypt( key );
   }
 
   generateAccessKeys( users: User[] ) {
     const accessKeys = {};
-    const key = 'feff';
-    console.log( key );
+    const key = forge.random.getBytesSync( 16 );
 
     for ( let i = 0; i < users.length; i++ ) {
       const publicKey = this.getPublicKeyFromString( users[i].publicKey );
       accessKeys[users[i].username] = publicKey.encrypt( key );
-      if ( users[i].username === this.currentUser.username ) {
-        console.log( this.privateKey.decrypt( this.publicKey.encrypt( key ) ) );
-        console.log( this.publicKey.encrypt( key ) );
-      }
     }
 
     return accessKeys;
@@ -139,22 +137,33 @@ export class AuthService {
     return this.privateKey && this.publicKey;
   }
 
-  private keyGen( password: string ): Promise<void> {
-    const prng = {
-      str: password,
-      getBytesSync: ( length ) => {
-        const b = forge.util.createBuffer();
+  encryptAes( input: string, key: string ) {
+    const cipher = forge.cipher.createCipher( 'AES-ECB', key );
+    cipher.start();
+    cipher.update( forge.util.createBuffer( input ) );
 
-        while ( b.length() < length ) {
-          b.putBytes( prng.str );
-        }
+    if ( cipher.finish() ) {
+      return cipher.output.data;
+    }
 
-        const result = b.getBytes( length );
-        return b.getBytes( length );
-      }
-    };
+    return '';
+  }
+
+  decryptAes( input: string, key: string ) {
+    const decipher = forge.cipher.createDecipher( 'AES-ECB', key );
+    decipher.start();
+    decipher.update( forge.util.createBuffer( input ) );
+
+    if ( decipher.finish() ) {
+      return decipher.output.data;
+    }
+
+    return '';
+  }
+
+  private keyGen(): Promise<void> {
     return new Promise<void>( ( resolve, reject ) => {
-      const keypair = forge.pki.rsa.generateKeyPair( { bits: 2048, prng: prng } );
+      const keypair = forge.pki.rsa.generateKeyPair( { bits: 2048 } );
       this.privateKey = keypair.privateKey;
       this.publicKey = keypair.publicKey;
       resolve();
@@ -163,5 +172,27 @@ export class AuthService {
 
   private getPublicKeyFromString( publicString: string ) {
     return forge.pki.publicKeyFromAsn1( forge.asn1.fromDer( publicString ) );
+  }
+
+  private getPrivateKeyFromString( privateString: string ) {
+    return forge.pki.privateKeyFromAsn1( forge.asn1.fromDer( privateString ) );
+  }
+
+  private getKeyFromString( input: string ) {
+    let key = '';
+
+    while ( key.length < 16 ) {
+      key += input;
+    }
+
+    return key.substr( 0, 16 );
+  }
+
+  private encryptRsa( input: string ) {
+    return this.publicKey.encrypt( input );
+  }
+
+  private decryptRsa( input: string ) {
+    return this.privateKey.decrypt( input );
   }
 }

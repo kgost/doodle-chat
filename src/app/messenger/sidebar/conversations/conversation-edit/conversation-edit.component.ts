@@ -34,7 +34,6 @@ export class ConversationEditComponent implements OnInit {
   }
 
   private initForm() {
-    console.log( this.conversation );
     let conversationName = '';
     const participants = new FormArray([]);
 
