@@ -33,6 +33,24 @@
         (click)="onCancel()"
         type="button"
         class="btn btn-warning pull-right">Cancel</button>
+      <button
+        *ngIf="!showEmojis"
+        [innerHtml]="emojis[0] | emojify"
+        (click)="onShowEmojis()"
+        type="button"
+        style="padding: 0;"
+        class="btn btn-default pull-right"></button>
+      <div
+        *ngIf="showEmojis"
+        class="pull-right">
+        <button
+          *ngFor="let emoji of emojis; let i = index"
+          [innerHtml]="emoji | emojify"
+          (click)="onSelectEmoji(i)"
+          type="button"
+          style="padding: 0;"
+          class="btn btn-default pull-right"></button>
+      </div>
     </form>
   </div>
 </div>

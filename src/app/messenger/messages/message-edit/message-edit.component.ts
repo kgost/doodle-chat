@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Buffer } from 'buffer';
-import * as CryptoJS from 'crypto-js';
 import * as sanitizer from 'sanitizer';
 
 import { Media } from '../media/media.model';
@@ -20,6 +19,8 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   editMode = false;
   editId: string;
   subscription: Subscription;
+  showEmojis = false;
+  emojis = ['🤔', '😂', '😍', '😤', '🇮🇱'];
 
   constructor(
     private messageService: MessageService,
@@ -31,7 +32,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
       .subscribe(
         ( message: Message ) => {
           this.messageEdit.setValue({
-            'text': this.authService.decryptAes( message.text, this.messageService.getKey() )
+            'text': decodeURIComponent(escape(this.authService.decryptAes( message.text, this.messageService.getKey() )))
           });
           this.editMode = true;
           this.editId = message._id;
@@ -42,17 +43,18 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   onSubmit() {
     if ( this.messageEdit.valid ) {
       let message;
+      const encodeing = unescape( encodeURIComponent( this.messageEdit.value.text ) );
       if ( this.messageService.privateMode ) {
         message = new Message(
           this.authService.getCurrentUser()._id,
-          this.authService.encryptAes( this.messageEdit.value.text, this.messageService.getKey() ),
+          this.authService.encryptAes( encodeing, this.messageService.getKey() ),
           undefined,
           this.messageService.getCurrentFriendship()._id,
         );
       } else {
         message = new Message(
           this.authService.getCurrentUser()._id,
-          this.authService.encryptAes( this.messageEdit.value.text, this.messageService.getKey() ),
+          this.authService.encryptAes( encodeing, this.messageService.getKey() ),
           this.messageService.getCurrentConversation()._id,
         );
       }
@@ -87,6 +89,15 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     };
 
     reader.readAsArrayBuffer( file );
+  }
+
+  onShowEmojis() {
+    this.showEmojis = true;
+  }
+
+  onSelectEmoji( index: number ) {
+    const text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
+    this.messageEdit.setValue({ 'text': text + this.emojis[index] });
   }
 
   ngOnDestroy() {

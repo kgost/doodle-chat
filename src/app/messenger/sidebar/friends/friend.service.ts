@@ -18,6 +18,7 @@ export class FriendService {
   friendships: Friendship[] = [];
 
   constructor(
+    private authService: AuthService,
     private sidebarService: SidebarService,
     private messageService: MessageService,
     private socketIoService: SocketIoService,
@@ -84,12 +85,23 @@ export class FriendService {
   }
 
   addFriendship( friendship: Friendship ) {
-    this.sidebarService.createFriendship( friendship )
+    this.sidebarService.getPublicKeys( friendship.users )
       .subscribe(
-        ( newFriendship: Friendship ) => {
-          for ( let i = 0; i < newFriendship.users.length; i++ ) {
-            this.socketIoService.addFriendship( newFriendship.users[i].id._id );
-          }
+        ( users: User[] ) => {
+          const accessKeys = this.authService.generateAccessKeys( users );
+          friendship.users = friendship.users.map(
+            ( user ) => {
+              return { id: user.id, accessKey: accessKeys[user.id.username], accepted: user.accepted };
+            }
+          );
+          this.sidebarService.createFriendship( friendship )
+            .subscribe(
+              ( newFriendship: Friendship ) => {
+                for ( let i = 0; i < newFriendship.users.length; i++ ) {
+                  this.socketIoService.addFriendship( newFriendship.users[i].id._id );
+                }
+              }
+            );
         }
       );
   }

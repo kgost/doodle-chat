@@ -1,12 +1,13 @@
 <div class="clearfix">
   <li 
+    style="position: relative;"
     [ngStyle]="{ padding: message.media ? '0' : '' }"
     [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
     class="list-group-item">
     <span
       *ngIf="message.text !== undefined && message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
-      [innerHtml]="message.text | dcrypt: key | link"
+      [innerHtml]="message.text | dcrypt: key | decode8 | emojify | link"
       style="font-size: 18px;"></span>
     <app-media
       *ngIf="message.media"
@@ -20,16 +21,16 @@
       (click)="onDelete()"
       *ngIf="owner"
       type="button" 
-      style="color: black;"
-      class="close pull-right" 
+      style="color: black; position: absolute; top: -3px; right: 5px; font-size: 24px;"
+      class="close" 
       aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
     <span 
       (click)="onEdit()"
       *ngIf="owner && !message.media"
-      class="pull-right glyphicon glyphicon-edit" 
-      style="cursor: pointer; padding-top: 2px; margin-right: 10px; color: black;"
+      class="glyphicon glyphicon-edit" 
+      style="cursor: pointer; color: black; position: absolute; bottom: 2px; top: auto; right: 5px; font-size: 16px;"
       aria-hidden="true"></span>
   </li>
 </div>

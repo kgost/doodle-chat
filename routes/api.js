@@ -102,13 +102,13 @@ router.get( '/conversations', middleware.authenticate, ( req, res ) => {
  */
 router.put('/conversations/:id', middleware.authenticate, middleware.isConversationOwner, (req, res) => {
   const user = jwt.decode(req.query.token).user //Pull user from the JWT
-  req.body.participants.push(user)   //Add owner to participants list
   const convo = pruneUsers( req.body )
 
   async.map( convo.participants, ( participant, cb ) => {
-    User.findOne( { username: participant.username }, '_id username' ).lean().exec( ( err, usr ) => {
+    User.findOne( { username: participant.id.username }, '_id username' ).lean().exec( ( err, usr ) => {
       if ( err || !user._id ) return cb( err )
-      return cb( null, { _id: usr._id, username: usr.username } )
+      if ( !usr ) return cb( null )
+      return cb( null, { id: { _id: usr._id, username: usr.username }, accessKey: participant.accessKey } )
     } )
   }, ( err, results ) => {
     convo.participants = results
@@ -146,13 +146,11 @@ router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) =>
     }
 
     for ( let i = 0; i < conversation.participants.length; i++ ) {
-      if ( conversation.participants[i] == user._id ) {
+      if ( conversation.participants[i].id == user._id ) {
         conversation.participants.splice( i, 1 )
         break
       }
     }
-
-    conversation.name = req.sanitize( conversation.name )
 
     conversation.save( ( err ) => {
       if ( err ) {
@@ -220,11 +218,16 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
 //Friendship Routes
 router.post( '/friendships', middleware.authenticate, middleware.inSentFriendship, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
+  let key1 = ''
+  let key2 = ''
   let otherUsername = ''
 
   for ( let i = 0; i < req.body.users.length; i++ ) {
     if ( req.body.users[i].id.username != user.username ) {
       otherUsername = req.body.users[i].id.username
+      key2 = req.body.users[i].accessKey
+    } else {
+      key1 = req.body.users[i].accessKey
     }
   }
 
@@ -243,7 +246,7 @@ router.post( '/friendships', middleware.authenticate, middleware.inSentFriendshi
       })
     }
 
-    Friendship.create( { users: [{ id: user._id, accepted: true }, { id: usr._id, accepted: false }] }, ( err ) => {
+    Friendship.create( { users: [{ id: user._id, accessKey: key1, accepted: true }, { id: usr._id, accessKey: key2, accepted: false }] }, ( err ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -264,7 +267,7 @@ router.post( '/friendships', middleware.authenticate, middleware.inSentFriendshi
 router.get( '/friendships', middleware.authenticate, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
-  Friendship.find({ 'users.id': mongoose.Types.ObjectId( user._id ) }).populate( 'users.id' ).exec( ( err, friendships ) => {
+  Friendship.find({ 'users.id': mongoose.Types.ObjectId( user._id ) }).populate( 'users.id', 'username' ).exec( ( err, friendships ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',

@@ -4,6 +4,7 @@ import { Subject } from 'rxjs/Subject';
 import { Message } from './message.model';
 import { Conversation } from '../sidebar/conversations/conversation.model';
 import { Friendship } from '../sidebar/friends/friendship.model';
+import { User } from '../../auth/user.model';
 import { AuthService } from '../../auth/auth.service';
 import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from '../sidebar/sidebar.service';
@@ -44,7 +45,7 @@ export class MessageService {
   }
 
   loadMessages( conversation: Conversation, messages: Message[] ) {
-    this.key = this.authService.decryptAccessKey( this.getAccessKey( conversation, this.authService.getCurrentUser()._id ) );
+    this.key = this.authService.decryptAccessKey( this.getConversationAccessKey( conversation, this.authService.getCurrentUser()._id ) );
     this.currentConversation = conversation;
     delete this.currentFriendship;
     delete this.currentFriendName;
@@ -60,6 +61,7 @@ export class MessageService {
         this.currentFriendName = friendship.users[i].id.username;
       }
     }
+    this.key = this.authService.decryptAccessKey( this.getFriendshipAccessKey( friendship, this.authService.getCurrentUser()._id ) );
     this.currentFriendship = friendship;
     delete this.currentConversation;
     this.messages = messages;
@@ -159,10 +161,18 @@ export class MessageService {
     }
   }
 
-  private getAccessKey( conversation: Conversation, userId: string ) {
+  private getConversationAccessKey( conversation: Conversation, userId: string ) {
     for ( let i = 0; i < conversation.participants.length; i++ ) {
       if ( conversation.participants[i].id._id === userId ) {
         return conversation.participants[i].accessKey;
+      }
+    }
+  }
+
+  private getFriendshipAccessKey( friendship: Friendship, userId: string ) {
+    for ( let i = 0; i < friendship.users.length; i++ ) {
+      if ( friendship.users[i].id._id === userId ) {
+        return friendship.users[i].accessKey;
       }
     }
   }

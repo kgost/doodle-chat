@@ -34,3 +34,14 @@ body {
 app-messenger, app-messages, app-message-list {
   height: 100%;
 }
+
+.emoji {
+  width: 32px;
+}
+
+app-message-item .emoji {
+  height: 1.5em;
+  width: 1.5em;
+  margin: 0 .05em 0 .1em;
+  vertical-align: -0.4em;
+}

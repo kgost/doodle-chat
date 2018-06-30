@@ -27,6 +27,9 @@ export class AlertComponent implements OnInit, OnDestroy {
           this.danger = data.mode === 'danger';
           this.warning = data.mode === 'warning';
           this.success = data.mode === 'success';
+          setTimeout( () => {
+            this.message = '';
+          }, 3000 );
         }
       ) );
   }

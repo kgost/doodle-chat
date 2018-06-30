@@ -121,9 +121,14 @@ export class AuthService {
     return this.privateKey.decrypt( key );
   }
 
-  generateAccessKeys( users: User[] ) {
+  generateAccessKeys( users: User[], encryptedKey: string = '' ) {
     const accessKeys = {};
-    const key = forge.random.getBytesSync( 16 );
+    let key = '';
+    if ( encryptedKey === '' ) {
+      key = forge.random.getBytesSync( 16 );
+    } else {
+      key = this.decryptAccessKey( encryptedKey );
+    }
 
     for ( let i = 0; i < users.length; i++ ) {
       const publicKey = this.getPublicKeyFromString( users[i].publicKey );

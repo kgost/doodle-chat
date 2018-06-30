@@ -111,15 +111,26 @@ export class ConversationService {
     this.changeEmitter.emit();
   }
 
-  updateConversation( id: string, conversation: Conversation ) {
-    this.sidebarService.updateConversation( id, conversation )
+  updateConversation( id: string, key: string, conversation: Conversation ) {
+    this.sidebarService.getPublicKeys( conversation.participants )
       .subscribe(
-        ( newConversation: Conversation ) => {
-          this.socketIoService.updateConversation( newConversation._id );
+        ( users: User[] ) => {
+          const accessKeys = this.authService.generateAccessKeys( users, key );
+          conversation.participants = conversation.participants.map(
+            ( participant ) => {
+              return { id: participant.id, accessKey: accessKeys[participant.id.username] };
+            }
+          );
+          this.sidebarService.updateConversation( id, conversation )
+            .subscribe(
+              ( newConversation: Conversation ) => {
+                this.socketIoService.updateConversation( newConversation._id );
 
-          for ( let i = 0; i < newConversation.participants.length; i++ ) {
-            this.socketIoService.addConversation( newConversation.participants[i].id._id );
-          }
+                for ( let i = 0; i < newConversation.participants.length; i++ ) {
+                  this.socketIoService.addConversation( newConversation.participants[i].id._id );
+                }
+              }
+            );
         }
       );
   }

@@ -38,6 +38,8 @@ import { MediaComponent } from './messenger/messages/media/media.component';
 import { LinkPipe } from './messenger/messages/link.pipe';
 import { AlertComponent } from './alert/alert.component';
 import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
+import { EmojifyPipe } from './messenger/messages/emojify.pipe';
+import { Decode8Pipe } from './messenger/messages/decode8.pipe';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -66,6 +68,8 @@ const config: SocketIoConfig = { url: '/', options: {} };
     LinkPipe,
     AlertComponent,
     DcryptPipe,
+    EmojifyPipe,
+    Decode8Pipe,
   ],
   imports: [
     BrowserModule,
@@ -83,6 +87,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     FriendService,
     MessageService,
     SocketIoService,
+    Decode8Pipe,
     NotificationService
   ],
   bootstrap: [AppComponent]

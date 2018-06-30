@@ -39,7 +39,9 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.messageService.loadEmitter.emit();
+    if ( !this.message.media ) {
+      this.messageService.loadEmitter.emit();
+    }
   }
 
   ngOnDestroy() {

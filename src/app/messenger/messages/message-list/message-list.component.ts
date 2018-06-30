@@ -33,11 +33,6 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
 
         if ( this.initial ) {
           this.loaded -= this.messages.length;
-          this.messages.forEach( ( message ) => {
-            if ( message.media ) {
-              this.loaded--;
-            }
-          } );
         }
 
         this.title = this.messageService.getTitle();

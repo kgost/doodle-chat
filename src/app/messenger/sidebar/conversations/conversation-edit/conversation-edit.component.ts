@@ -17,6 +17,7 @@ export class ConversationEditComponent implements OnInit {
   editForm: FormGroup;
   editMode = false;
   editId: string;
+  editKey: string;
 
   constructor(
     private conversationService: ConversationService,
@@ -28,6 +29,7 @@ export class ConversationEditComponent implements OnInit {
 
     if ( this.editId !== undefined && this.editId.length > 0 ) {
       this.editMode = true;
+      this.editKey = this.getAccessKey( this.authService.getCurrentUser()._id );
     }
 
     this.initForm();
@@ -88,7 +90,7 @@ export class ConversationEditComponent implements OnInit {
 
       if ( this.editMode ) {
         conversation._id = this.editId;
-        this.conversationService.updateConversation( this.editId, conversation );
+        this.conversationService.updateConversation( this.editId, this.editKey, conversation );
       } else {
         this.conversationService.addConversation( conversation );
       }
@@ -107,6 +109,14 @@ export class ConversationEditComponent implements OnInit {
 
   onClose() {
     this.conversationService.editChange.next( null );
+  }
+
+  private getAccessKey( userId: string ) {
+    for ( let i = 0; i < this.conversation.participants.length; i++ ) {
+      if ( this.conversation.participants[i].id._id === userId ) {
+        return this.conversation.participants[i].accessKey;
+      }
+    }
   }
 
   private usernameValid( control: FormControl ): Promise<any> | Observable<any> {
