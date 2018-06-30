@@ -1,6 +1,7 @@
 #ignore node modules
 node_modules/*
 Procfile
+package-lock.json
 
 #ignore angular stuff
 dist/*
