@@ -216,7 +216,7 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
 })
 
 //Friendship Routes
-router.post( '/friendships', middleware.authenticate, middleware.inSentFriendship, ( req, res ) => {
+router.post( '/friendships', middleware.authenticate, middleware.validSentFriendship, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
   let key1 = ''
   let key2 = ''
@@ -281,7 +281,7 @@ router.get( '/friendships', middleware.authenticate, ( req, res ) => {
   } )
 } )
 
-router.put( '/friendships/:friendshipId', middleware.authenticate, middleware.inFriendship, middleware.inSentFriendship, ( req, res ) => {
+router.put( '/friendships/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
   Friendship.findById( req.params.friendshipId, ( err, friendship ) => {

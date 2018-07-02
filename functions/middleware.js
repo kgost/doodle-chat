@@ -1,4 +1,5 @@
 const jwt      = require( 'jsonwebtoken' ),
+  mongoose     = require( 'mongoose' ),
   User         = require( '../models/user' ),
   Conversation = require( '../models/conversation' ),
   Friendship = require( '../models/friendship' ),
@@ -144,18 +145,50 @@ const actions = {
     } )
   },
 
-  inSentFriendship: ( req, res, next ) => {
+  validSentFriendship: ( req, res, next ) => {
     const decoded = jwt.decode(req.query.token)
 
     if ( !req.body || !req.body.users || !req.body.users[0] || !req.body.users[1] ||
          ( req.body.users[0].id.username != decoded.user.username && req.body.users[1].id.username != decoded.user.username ) ) {
       return res.status( 401 ).json({
-        title: 'Unauthorized User.',
-        error: {message: 'You are not in this friendship.'}
+        userMessage: 'You are not in this friendship'
       })
     }
 
-    return next()
+    if ( req.body.users[0].id.username === req.body.users[1].id.username ) {
+      return res.status( 400 ).json({
+        userMessage: 'You Cannot Be Friends With Yourself, That\'s Just Sad'
+      })
+    }
+
+    User.find( { username: { '$in': [req.body.users[0].id.username, req.body.users[1].id.username] } }, '_id', ( err, users ) => {
+      if ( !users || users.length < 2 ) {
+        return res.status( 400 ).json({
+          userMessage: 'Invalid Friendship Sent To Server'
+        })
+      }
+
+      const ids = users.map( ( user ) => {
+        return user._id
+      } )
+
+      Friendship.find( { 'users.id': ids }, 'users', ( err, friendships ) => {
+        for ( let i = 0; i < friendships.length; i++ ) {
+          const friendshipIds = friendships[i].users.map( ( user ) => {
+            return user.id.toString()
+          } )
+
+          if ( friendshipIds.indexOf( ids[0].toString() ) !== -1 &&
+            friendshipIds.indexOf( ids[1].toString() ) !== -1 ) {
+            return res.status( 400 ).json({
+              userMessage: 'Friendship Already Exists'
+            })
+          }
+        }
+
+        return next()
+      } )
+    } )
   },
 
   /**

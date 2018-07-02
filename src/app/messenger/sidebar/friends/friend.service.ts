@@ -1,7 +1,9 @@
 import { Injectable, EventEmitter } from '@angular/core';
+import { Response } from '@angular/http';
 import { Subject } from 'rxjs';
 
 import { AuthService } from '../../../auth/auth.service';
+import { AlertService } from '../../../alert.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
 import { SidebarService } from '../sidebar.service';
 import { NotificationService } from '../notification.service';
@@ -19,6 +21,7 @@ export class FriendService {
 
   constructor(
     private authService: AuthService,
+    private alertService: AlertService,
     private sidebarService: SidebarService,
     private messageService: MessageService,
     private socketIoService: SocketIoService,
@@ -100,6 +103,10 @@ export class FriendService {
                 for ( let i = 0; i < newFriendship.users.length; i++ ) {
                   this.socketIoService.addFriendship( newFriendship.users[i].id._id );
                 }
+              },
+              ( response: Response ) => {
+                const error = response.json();
+                this.alertService.alertSubject.next( { message: error.userMessage, mode: 'danger' } );
               }
             );
         }

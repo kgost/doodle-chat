@@ -98,6 +98,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   onSelectEmoji( index: number ) {
     const text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
     this.messageEdit.setValue({ 'text': text + this.emojis[index] });
+    this.showEmojis = false;
   }
 
   ngOnDestroy() {
