@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Buffer } from 'buffer';
-import * as sanitizer from 'sanitizer';
 
 import { Media } from '../media/media.model';
 import { Message } from '../message.model';
@@ -20,7 +19,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   editId: string;
   subscription: Subscription;
   showEmojis = false;
-  emojis = ['🤔', '😂', '😍', '😤', '🇮🇱'];
+  emojis = ['🤔', '😂', '😍', '😤', '😢', '🇮🇱'];
 
   constructor(
     private messageService: MessageService,

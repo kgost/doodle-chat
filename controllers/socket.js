@@ -13,7 +13,6 @@ exports = module.exports = function( io ) {
     })
 
     socket.on( 'leave-all', ()=> {
-      console.log( socket.rooms )
       Object.values( socket.rooms ).forEach( ( room ) => {
         socket.leave( room )
       } )

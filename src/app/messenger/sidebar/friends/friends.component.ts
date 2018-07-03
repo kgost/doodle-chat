@@ -23,6 +23,10 @@ export class FriendsComponent implements OnInit, OnDestroy {
       .subscribe( () => {
         this.friendService.loadFriendships();
       } ) );
+    this.subscriptions.push( this.socketIoService.reconnectEmitter
+      .subscribe( () => {
+        this.friendService.loadFriendships();
+      } ) );
   }
 
   ngOnDestroy() {

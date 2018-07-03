@@ -3,6 +3,7 @@ import { Socket } from 'ngx-socket-io';
 
 import { User } from '../auth/user.model';
 import { Conversation } from '../messenger/sidebar/conversations/conversation.model';
+import { AlertService } from '../alert.service';
 
 @Injectable()
 export class SocketIoService {
@@ -16,8 +17,25 @@ export class SocketIoService {
   messagesAdd = new EventEmitter<string>();
   notifyConversation = new EventEmitter<string>();
   notifyFriendship = new EventEmitter<string>();
+  reconnectEmitter = new EventEmitter<void>();
+  reconnect = false;
 
-  constructor( private socket: Socket ) {
+  constructor( private socket: Socket, private alertService: AlertService ) {
+    this.socket.on( 'connect', ( data: any ) => {
+      if ( this.reconnect ) {
+        this.alertService.alertSubject.next(
+          { message: 'You Have Reconnected To The Server!', mode: 'success' } );
+      }
+      this.reconnect = false;
+      this.reconnectEmitter.emit();
+    } );
+
+    this.socket.on( 'disconnect', ( data: any ) => {
+      this.alertService.alertSubject.next(
+        { message: 'You Have Disconnected From The Server, Attempting To Reconnect...', mode: 'danger' } );
+      this.reconnect = true;
+    } );
+
     this.socket.on( 'refresh-conversations', ( data: any ) => {
       this.conversationChange.emit();
     } );

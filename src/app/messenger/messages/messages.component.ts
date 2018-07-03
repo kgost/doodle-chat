@@ -59,6 +59,16 @@ export class MessagesComponent implements OnInit, OnDestroy {
           }
         }
       ) );
+    this.subscriptions.push( this.socketIoService.reconnectEmitter
+      .subscribe(
+        () => {
+          if ( this.messageService.privateMode ) {
+            this.friendService.loadMessages( this.messageService.getCurrentFriendship()._id );
+          } else {
+            this.conversationService.loadMessages( this.messageService.getCurrentConversation()._id );
+          }
+        }
+      ) );
   }
 
   ngOnDestroy() {

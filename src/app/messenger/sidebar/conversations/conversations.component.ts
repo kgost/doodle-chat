@@ -23,6 +23,10 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       .subscribe( () => {
         this.conversationService.loadConversations();
       } ) );
+    this.subscriptions.push( this.socketIoService.reconnectEmitter
+      .subscribe( () => {
+        this.conversationService.loadConversations();
+      } ) );
   }
 
   ngOnDestroy() {

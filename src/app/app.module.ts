@@ -40,6 +40,7 @@ import { AlertComponent } from './alert/alert.component';
 import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
 import { EmojifyPipe } from './messenger/messages/emojify.pipe';
 import { Decode8Pipe } from './messenger/messages/decode8.pipe';
+import { NormalizePipe } from './messenger/messages/normalize.pipe';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -70,6 +71,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     DcryptPipe,
     EmojifyPipe,
     Decode8Pipe,
+    NormalizePipe,
   ],
   imports: [
     BrowserModule,
