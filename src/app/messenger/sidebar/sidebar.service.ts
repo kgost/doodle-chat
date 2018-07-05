@@ -136,6 +136,11 @@ export class SidebarService {
       .pipe( map( this.mapMessages ) );
   }
 
+  getPreviousMessages( conversationId: string, messageId: string ) {
+    return this.http.get( this.baseUrl + 'messages/' + conversationId + '?id=' + messageId + '&token=' + this.authService.getToken() )
+      .pipe( map( this.mapMessages ) );
+  }
+
   getMessage( conversationId: string, messageId: string ) {
     return this.http.get( this.baseUrl + 'message/' + conversationId + '/' + messageId + '?token=' + this.authService.getToken() )
       .pipe( map( this.mapMessage ) );
@@ -143,6 +148,11 @@ export class SidebarService {
 
   getPrivateMessages( friendshipId: string ) {
     return this.http.get( this.baseUrl + 'privateMessages/' + friendshipId + '?token=' + this.authService.getToken() )
+      .pipe( map( this.mapMessages ) );
+  }
+
+  getPreviousPrivateMessages( friendshipId: string, messageId: string ) {
+    return this.http.get( this.baseUrl + 'privateMessages/' + friendshipId + '?id=' + messageId + '&token=' + this.authService.getToken() )
       .pipe( map( this.mapMessages ) );
   }
 

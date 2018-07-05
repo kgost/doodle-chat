@@ -19,9 +19,9 @@ export class MediaComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.messageService.loadEmitter.emit();
   }
 
   loadEmit() {
-    this.messageService.loadEmitter.emit();
   }
 }

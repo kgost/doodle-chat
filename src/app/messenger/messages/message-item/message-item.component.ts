@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Message } from '../message.model';
@@ -12,6 +12,7 @@ import { AuthService } from '../../../auth/auth.service';
 })
 export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input()message: Message;
+  @ViewChild('clearfix') clearfix: ElementRef;
   subscriptions: Subscription[] = [];
   owner = false;
   key = '';

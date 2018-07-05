@@ -89,8 +89,6 @@ router.get( '/conversations', middleware.authenticate, ( req, res ) => {
   })
 })
 
-
-
 /**
  * UPDATE route for conversations:
  *    Replaces conversation in MongoDB with new data in req
@@ -482,7 +480,13 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
  */
 router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.find( { conversation_id: req.params.conversationId } ).sort( '+createdAt' ).exec( ( err, messages ) => {
+  let query = { conversation_id: req.params.conversationId }
+
+  if ( req.query.id ) {
+    query['_id'] = { '$lt': req.query.id }
+  }
+
+  Message.find( query ).sort( '-createdAt' ).limit( 20 ).exec( ( err, messages ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -490,9 +494,15 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
       })
     }
 
+    const result = []
+
+    for ( let i = messages.length - 1; i >= 0; i-- ) {
+      result.push( messages[i] )
+    }
+
     //Return success code and object with all messages
     res.status( 200 ).json({
-      obj: messages
+      obj: result
     })
   })
 })
@@ -508,7 +518,13 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
  */
 router.get( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.find( { friendship_id: req.params.friendshipId } ).sort( '+createdAt' ).exec( ( err, messages ) => {
+  let query = { friendship_id: req.params.friendshipId }
+
+  if ( req.query.id ) {
+    query['_id'] = { '$lt': req.query.id }
+  }
+
+  Message.find( query ).sort( '-createdAt' ).limit( 20 ).exec( ( err, messages ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -516,9 +532,15 @@ router.get( '/privateMessages/:friendshipId', middleware.authenticate, middlewar
       })
     }
 
+    const result = []
+
+    for ( let i = messages.length - 1; i >= 0; i-- ) {
+      result.push( messages[i] )
+    }
+
     //Return success code and object with all messages
     res.status( 200 ).json({
-      obj: messages
+      obj: result
     })
   })
 })

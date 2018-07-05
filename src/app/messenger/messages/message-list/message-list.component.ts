@@ -15,10 +15,9 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
   subscriptions: Subscription[] = [];
   title: string;
   messages: Message[];
-  oldLength: number;
   initial = true;
   loaded = 0;
-  loadGoal = 0;
+  paginate = false;
 
   constructor(
     private messageService: MessageService,
@@ -29,21 +28,28 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
     this.title = this.messageService.getTitle();
     this.subscriptions.push( this.messageService.changeEmitter
       .subscribe( () => {
-        this.messages = this.messageService.getMessages();
+        const messages = this.messageService.getMessages();
 
-        if ( this.initial ) {
-          this.loaded -= this.messages.length;
+        if ( this.messages.length > 0 && messages[0]._id !== this.messages[0]._id ) {
+          this.paginate = true;
+        } else {
+          this.paginate = false;
         }
 
+        if ( this.initial || this.paginate ) {
+          this.loaded -= messages.length - this.messages.length;
+        }
+
+        this.messages = messages;
         this.title = this.messageService.getTitle();
       } ) );
 
     this.subscriptions.push( this.messageService.loadEmitter
       .subscribe(
         () => {
-          if ( this.initial ) {
+          if ( this.initial || this.paginate ) {
             this.loaded++;
-          } else {
+          } else if ( !this.paginate ) {
             this.messageService.containerEmitter.emit();
           }
         }
@@ -53,6 +59,7 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
       .subscribe(
         () => {
           this.initial = true;
+          this.loaded = 0 - this.messages.length;
         }
       ) );
   }
@@ -61,6 +68,11 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
     if ( this.loaded === 0 && this.initial ) {
       this.initial = false;
       this.messageService.containerEmitter.emit();
+    }
+
+    if ( this.loaded === 0 && this.paginate ) {
+      this.paginate = false;
+      this.messageService.paginateEmitter.emit();
     }
   }
 

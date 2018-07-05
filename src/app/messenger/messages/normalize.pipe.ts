@@ -13,7 +13,6 @@ export class NormalizePipe implements PipeTransform {
     let result = '';
 
     while ( value.length > 0 ) {
-      console.log( value );
       const firstImage = value.match( /<img[^>]*>/gm ) ? value.match( /<img[^>]*>/gm )[0] : null;
       const firstLink = value.match( /<a.*\/a>/gm ) ? value.match( /<a.*\/a>/gm )[0] : null;
       let imageIndex = firstImage ? value.indexOf( firstImage ) : -1;

@@ -9,5 +9,6 @@ export class Message {
     public media?: Media,
     public _id?: string,
     public username?: string,
+    public scrollTop?: number
   ) {}
 }

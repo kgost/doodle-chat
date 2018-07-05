@@ -17,12 +17,14 @@ export class MessageService {
   messages: Message[] = [];
   changeEmitter = new EventEmitter<void>();
   containerEmitter = new EventEmitter<void>();
+  paginateEmitter = new EventEmitter<void>();
   loadEmitter = new EventEmitter<void>();
   reloadEmitter = new EventEmitter<void>();
   keyEmitter = new EventEmitter<void>();
   editChange = new Subject<Message>();
   privateMode = false;
   key = '';
+  loadMore = false;
 
   constructor(
     private authService: AuthService,
@@ -44,6 +46,34 @@ export class MessageService {
     return this.messages.slice();
   }
 
+  loadPreviousMessages() {
+    if ( this.loadMore ) {
+      if ( this.privateMode ) {
+        this.sidebarService.getPreviousPrivateMessages( this.currentFriendship._id, this.messages[0]._id )
+          .subscribe(
+            ( messages: Message[] ) => {
+              if ( messages.length < 20 ) {
+                this.loadMore = false;
+              }
+              this.messages = messages.concat( this.messages );
+              this.changeEmitter.emit();
+            }
+          );
+      } else {
+        this.sidebarService.getPreviousMessages( this.currentConversation._id, this.messages[0]._id )
+          .subscribe(
+            ( messages: Message[] ) => {
+              if ( messages.length < 20 ) {
+                this.loadMore = false;
+              }
+              this.messages = messages.concat( this.messages );
+              this.changeEmitter.emit();
+            }
+          );
+      }
+    }
+  }
+
   loadMessages( conversation: Conversation, messages: Message[] ) {
     this.key = this.authService.decryptAccessKey( this.getConversationAccessKey( conversation, this.authService.getCurrentUser()._id ) );
     this.currentConversation = conversation;
@@ -51,6 +81,11 @@ export class MessageService {
     delete this.currentFriendName;
     this.messages = messages;
     this.privateMode = false;
+
+    if ( messages.length === 20 ) {
+      this.loadMore = true;
+    }
+
     this.reloadEmitter.emit();
     this.changeEmitter.emit();
   }
@@ -66,6 +101,11 @@ export class MessageService {
     delete this.currentConversation;
     this.messages = messages;
     this.privateMode = true;
+
+    if ( messages.length === 20 ) {
+      this.loadMore = true;
+    }
+
     this.reloadEmitter.emit();
     this.changeEmitter.emit();
   }

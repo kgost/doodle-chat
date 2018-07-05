@@ -15,6 +15,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   @ViewChild('container') private container: ElementRef;
   subscriptions: Subscription[] = [];
   active = false;
+  scrollTop: number;
 
   constructor(
     private socketIoService: SocketIoService,
@@ -26,7 +27,20 @@ export class MessagesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.subscriptions.push( this.messageService.containerEmitter
       .subscribe(
-        () => this.scrollBottom()
+        () => {
+          this.scrollBottom();
+          this.scrollTop = this.container.nativeElement.scrollHeight;
+        }
+      ) );
+
+    this.subscriptions.push( this.messageService.paginateEmitter
+      .subscribe(
+        () => {
+          if ( this.container.nativeElement.scrollHeight - this.scrollTop > 0 ) {
+            this.scrollBottom( this.container.nativeElement.scrollHeight - this.scrollTop );
+            this.scrollTop = this.container.nativeElement.scrollHeight;
+          }
+        }
       ) );
 
     this.subscriptions.push( this.messageService.changeEmitter
@@ -39,6 +53,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
           }
         }
       ) );
+
     this.subscriptions.push( this.socketIoService.messagesAdd
       .subscribe(
         ( messageId: string ) => {
@@ -49,6 +64,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
           }
         }
       ) );
+
     this.subscriptions.push( this.socketIoService.messagesChange
       .subscribe(
         ( messageId: string ) => {
@@ -59,6 +75,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
           }
         }
       ) );
+
     this.subscriptions.push( this.socketIoService.reconnectEmitter
       .subscribe(
         () => {
@@ -79,9 +96,15 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.messageService.reset();
   }
 
-  private scrollBottom() {
+  onContainerScroll() {
+    if ( this.container.nativeElement.scrollTop === 0 ) {
+      this.messageService.loadPreviousMessages();
+    }
+  }
+
+  private scrollBottom( height: number = this.container.nativeElement.scrollHeight ) {
     try {
-      this.container.nativeElement.scrollTop = this.container.nativeElement.scrollHeight;
+      this.container.nativeElement.scrollTop = height;
     } catch (err) { }
   }
 }
