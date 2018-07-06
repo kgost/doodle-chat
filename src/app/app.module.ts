@@ -4,6 +4,10 @@ import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
+import { BROWSER_FAVICONS_CONFIG } from './favicons';
+import { BrowserFavicons } from './favicons';
+import { Favicons } from './favicons';
+
 import { AppRoutingModule } from './app-routing/app-routing.module';
 
 import { AppComponent } from './app.component';
@@ -41,6 +45,7 @@ import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
 import { EmojifyPipe } from './messenger/messages/emojify.pipe';
 import { Decode8Pipe } from './messenger/messages/decode8.pipe';
 import { NormalizePipe } from './messenger/messages/normalize.pipe';
+import { NotificationSoundComponent } from './messenger/sidebar/notification-sound/notification-sound.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -72,6 +77,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     EmojifyPipe,
     Decode8Pipe,
     NormalizePipe,
+    NotificationSoundComponent,
   ],
   imports: [
     BrowserModule,
@@ -90,7 +96,28 @@ const config: SocketIoConfig = { url: '/', options: {} };
     MessageService,
     SocketIoService,
     Decode8Pipe,
-    NotificationService
+    NotificationService,
+    {
+      provide: Favicons,
+      useClass: BrowserFavicons
+    },
+    {
+      provide: BROWSER_FAVICONS_CONFIG,
+      useValue: {
+        icons: {
+          'inactive': {
+            type: 'image/jpg',
+            href: './assets/images/inactive.jpg',
+            isDefault: true
+          },
+          'active': {
+            type: 'image/jpg',
+            href: './assets/images/active.jpg'
+          }
+        },
+        cacheBusting: true
+      }
+    }
   ],
   bootstrap: [AppComponent]
 })

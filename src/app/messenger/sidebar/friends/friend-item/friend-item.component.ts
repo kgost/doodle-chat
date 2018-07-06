@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { SidebarService } from '../../sidebar.service';
 import { FriendService } from '../friend.service';
+import { ConversationService } from '../../conversations/conversation.service';
 import { Friendship } from '../friendship.model';
 import { AuthService } from '../../../../auth/auth.service';
 
@@ -20,6 +21,7 @@ export class FriendItemComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private friendService: FriendService,
+    private conversationService: ConversationService,
     private sidebarService: SidebarService,
   ) { }
 
@@ -39,6 +41,10 @@ export class FriendItemComponent implements OnInit, OnDestroy {
           if ( this.friendService.checkNotification( this.friendship._id ) &&
             ( !this.friendService.getCurrentFriendship() || this.friendService.getCurrentFriendship()._id !== this.friendship._id ) ) {
             this.notification = true;
+
+            if ( !this.active ) {
+              this.friendService.notifySound();
+            }
           } else if ( this.friendService.checkNotification( this.friendship._id ) &&
             this.friendService.getCurrentFriendship() &&
             this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
@@ -100,6 +106,7 @@ export class FriendItemComponent implements OnInit, OnDestroy {
       this.friendService.loadMessages( this.friendship._id );
       this.sidebarService.deactivate.emit();
       this.active = true;
+      this.conversationService.reset();
     }
   }
 

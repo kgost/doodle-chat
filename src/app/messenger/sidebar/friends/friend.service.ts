@@ -143,6 +143,10 @@ export class FriendService {
     delete this.currentFriendship;
   }
 
+  notifySound() {
+    this.notificationService.notifySound();
+  }
+
   private getFriendshipIndex( id: string ) {
     for ( let i = 0; i < this.friendships.length; i++ ) {
       if ( this.friendships[i]._id === id ) {

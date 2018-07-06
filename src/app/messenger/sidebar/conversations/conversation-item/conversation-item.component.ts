@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { SidebarService } from '../../sidebar.service';
 import { ConversationService } from '../conversation.service';
+import { FriendService } from '../../friends/friend.service';
 import { Conversation } from '../conversation.model';
 import { AuthService } from '../../../../auth/auth.service';
 
@@ -20,6 +21,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private conversationService: ConversationService,
+    private friendService: FriendService,
     private sidebarService: SidebarService,
   ) { }
 
@@ -31,6 +33,10 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
             ( !this.conversationService.getCurrentConversation() ||
               this.conversationService.getCurrentConversation()._id !== this.conversation._id ) ) {
             this.notification = true;
+
+            if ( !this.active ) {
+              this.conversationService.notifySound();
+            }
           } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
             this.conversationService.getCurrentConversation() &&
             this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
@@ -67,6 +73,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     this.conversationService.loadMessages( this.conversation._id );
     this.sidebarService.deactivate.emit();
     this.active = true;
+    this.friendService.reset();
   }
 
   ngOnDestroy() {

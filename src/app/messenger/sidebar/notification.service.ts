@@ -2,6 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 
 import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from './sidebar.service';
+import { Favicons } from '../../favicons';
 
 @Injectable()
 export class NotificationService {
@@ -9,15 +10,22 @@ export class NotificationService {
   friendshipNotifications: string[] = [];
   conversationEmitter = new EventEmitter<void>();
   friendshipEmitter = new EventEmitter<void>();
+  soundEmitter = new EventEmitter<void>();
 
   constructor(
     private socketIoService: SocketIoService,
     private sidebarService: SidebarService,
+    private favicons: Favicons,
   ) {
     this.socketIoService.notifyConversation
       .subscribe(
         ( conversationId: string ) => {
           this.conversationNotifications.push( conversationId );
+
+          if ( !this.isEmpty() ) {
+            this.favicons.activate( 'active' );
+          }
+
           this.conversationEmitter.emit();
         }
       );
@@ -25,6 +33,11 @@ export class NotificationService {
       .subscribe(
         ( friendshipId: string ) => {
           this.friendshipNotifications.push( friendshipId );
+
+          if ( !this.isEmpty() ) {
+            this.favicons.activate( 'active' );
+          }
+
           this.friendshipEmitter.emit();
         }
       );
@@ -36,6 +49,11 @@ export class NotificationService {
         ( notifications: any ) => {
           this.conversationNotifications = notifications.conversations;
           this.friendshipNotifications = notifications.friendships;
+
+          if ( !this.isEmpty() ) {
+            this.favicons.activate( 'active' );
+          }
+
           this.conversationEmitter.emit();
           this.friendshipEmitter.emit();
         }
@@ -63,6 +81,11 @@ export class NotificationService {
       .subscribe(
         () => {
           this.conversationNotifications.splice( this.getConversationIndex( id ), 1 );
+
+          if ( this.isEmpty() ) {
+            this.favicons.activate( 'inactive' );
+          }
+
           this.conversationEmitter.emit();
         }
       );
@@ -73,9 +96,18 @@ export class NotificationService {
       .subscribe(
         () => {
           this.friendshipNotifications.splice( this.getFriendshipIndex( id ), 1 );
+
+          if ( this.isEmpty() ) {
+            this.favicons.activate( 'inactive' );
+          }
+
           this.friendshipEmitter.emit();
         }
       );
+  }
+
+  notifySound() {
+    this.soundEmitter.emit();
   }
 
   private getConversationIndex( id: string ) {
@@ -92,5 +124,9 @@ export class NotificationService {
         return i;
       }
     }
+  }
+
+  private isEmpty() {
+    return this.conversationNotifications.length === 0 && this.friendshipNotifications.length === 0;
   }
 }

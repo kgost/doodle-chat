@@ -165,6 +165,10 @@ export class ConversationService {
     delete this.currentConversation;
   }
 
+  notifySound() {
+    this.notificationService.notifySound();
+  }
+
   private getConversationIndex( id: string ) {
     for ( let i = 0; i < this.conversations.length; i++ ) {
       if ( this.conversations[i]._id === id ) {

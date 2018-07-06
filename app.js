@@ -31,6 +31,8 @@ app.use( express.static(__dirname + '/dist/chat-front') )
 app.use('/api', apiRoutes)
 app.use('/auth', authRoutes)
 
+app.use( '/assets', express.static( __dirname + '/src/assets' ) )
+
 app.get('/*', (req, res) => {
   // Just send the index.html for other files to support HTML5Mode
   res.sendFile('index.html', { root: __dirname + '/dist/chat-front' })
