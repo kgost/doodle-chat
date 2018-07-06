@@ -30,7 +30,7 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
       .subscribe( () => {
         const messages = this.messageService.getMessages();
 
-        if ( this.messages.length > 0 && messages[0]._id !== this.messages[0]._id ) {
+        if ( this.messages.length > 0 && messages.length > 0 &&  messages[0]._id !== this.messages[0]._id ) {
           this.paginate = true;
         } else {
           this.paginate = false;

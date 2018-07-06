@@ -26,6 +26,20 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    if ( this.conversationService.checkNotification( this.conversation._id ) &&
+      ( !this.conversationService.getCurrentConversation() ||
+        this.conversationService.getCurrentConversation()._id !== this.conversation._id ) ) {
+      this.notification = true;
+
+      if ( !this.active ) {
+        this.conversationService.notifySound();
+      }
+    } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
+      this.conversationService.getCurrentConversation() &&
+      this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
+      this.conversationService.removeNotification( this.conversation._id );
+    }
+
     this.subscriptions.push( this.conversationService.changeEmitter
       .subscribe(
         () => {

@@ -25,7 +25,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
       } ) );
     this.subscriptions.push( this.socketIoService.reconnectEmitter
       .subscribe( () => {
-        this.friendService.loadFriendships();
+        this.friendService.loadFriendships( true );
       } ) );
   }
 

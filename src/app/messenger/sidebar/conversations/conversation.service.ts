@@ -32,11 +32,15 @@ export class ConversationService {
       );
   }
 
-  loadConversations() {
+  loadConversations( reload = false ) {
     this.sidebarService.getConversations()
       .subscribe(
         ( conversations: Conversation[] ) => {
-          this.updateSocket( conversations.slice() );
+          if ( reload ) {
+            this.reloadSocket( conversations );
+          } else {
+            this.updateSocket( conversations.slice() );
+          }
           this.conversations = conversations;
           this.changeEmitter.emit();
         }
@@ -148,6 +152,9 @@ export class ConversationService {
     this.sidebarService.leaveConversation( id )
       .subscribe(
         ( data: any ) => {
+          if ( this.currentConversation && this.currentConversation._id === id ) {
+            delete this.currentConversation;
+          }
           this.socketIoService.updateConversation( id );
         }
       );
@@ -196,6 +203,16 @@ export class ConversationService {
         }
         this.socketIoService.unListenConversation( this.conversations[i]._id );
       }
+    }
+
+    for ( let i = 0; i < conversations.length; i++ ) {
+      this.socketIoService.listenConversation( conversations[i]._id );
+    }
+  }
+
+  private reloadSocket( conversations: Conversation[] ) {
+    for ( let i = 0; i < this.conversations.length; i++ ) {
+      this.socketIoService.unListenConversation( this.conversations[i]._id );
     }
 
     for ( let i = 0; i < conversations.length; i++ ) {

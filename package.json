@@ -39,6 +39,7 @@
     "buffer": "^5.1.0",
     "core-js": "^2.5.4",
     "ejs": "^2.5.7",
+    "emoji-js": "^3.4.1",
     "express": "^4.16.2",
     "express-sanitizer": "^1.0.4",
     "fs": "0.0.1-security",
@@ -56,6 +57,7 @@
     "socket.io-client": "^2.1.1",
     "streamifier": "^0.1.1",
     "twemoji": "^11.0.0",
+    "wdt-emoji-bundle": "^0.2.1",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

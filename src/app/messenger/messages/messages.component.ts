@@ -79,9 +79,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.subscriptions.push( this.socketIoService.reconnectEmitter
       .subscribe(
         () => {
-          if ( this.messageService.privateMode ) {
+          if ( this.messageService.privateMode && this.messageService.getCurrentFriendship() ) {
             this.friendService.loadMessages( this.messageService.getCurrentFriendship()._id );
-          } else {
+          } else if ( this.messageService.getCurrentConversation() ) {
             this.conversationService.loadMessages( this.messageService.getCurrentConversation()._id );
           }
         }

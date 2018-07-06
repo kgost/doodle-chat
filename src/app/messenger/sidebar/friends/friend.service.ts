@@ -35,11 +35,15 @@ export class FriendService {
       );
   }
 
-  loadFriendships() {
+  loadFriendships( reload = false ) {
     this.sidebarService.getFriendships()
       .subscribe(
         ( friendships: Friendship[] ) => {
-          this.updateSocket( friendships.slice() );
+          if ( reload ) {
+            this.reloadSocket( friendships.slice() );
+          } else {
+            this.updateSocket( friendships.slice() );
+          }
           this.friendships = friendships;
           this.changeEmitter.emit();
         }
@@ -174,6 +178,16 @@ export class FriendService {
         }
         this.socketIoService.unListenFriendship( this.friendships[i]._id );
       }
+    }
+
+    for ( let i = 0; i < friendships.length; i++ ) {
+      this.socketIoService.listenFriendship( friendships[i]._id );
+    }
+  }
+
+  private reloadSocket( friendships: Friendship[] ) {
+    for ( let i = 0; i < this.friendships.length; i++ ) {
+      this.socketIoService.unListenFriendship( this.friendships[i]._id );
     }
 
     for ( let i = 0; i < friendships.length; i++ ) {

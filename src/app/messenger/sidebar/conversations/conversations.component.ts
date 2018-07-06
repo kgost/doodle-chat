@@ -25,7 +25,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       } ) );
     this.subscriptions.push( this.socketIoService.reconnectEmitter
       .subscribe( () => {
-        this.conversationService.loadConversations();
+        this.conversationService.loadConversations( true );
       } ) );
   }
 

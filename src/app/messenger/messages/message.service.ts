@@ -48,7 +48,7 @@ export class MessageService {
 
   loadPreviousMessages() {
     if ( this.loadMore ) {
-      if ( this.privateMode ) {
+      if ( this.privateMode && this.currentFriendship ) {
         this.sidebarService.getPreviousPrivateMessages( this.currentFriendship._id, this.messages[0]._id )
           .subscribe(
             ( messages: Message[] ) => {
@@ -59,7 +59,7 @@ export class MessageService {
               this.changeEmitter.emit();
             }
           );
-      } else {
+      } else if ( this.currentConversation ) {
         this.sidebarService.getPreviousMessages( this.currentConversation._id, this.messages[0]._id )
           .subscribe(
             ( messages: Message[] ) => {

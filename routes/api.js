@@ -143,14 +143,7 @@ router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) =>
       })
     }
 
-    for ( let i = 0; i < conversation.participants.length; i++ ) {
-      if ( conversation.participants[i].id == user._id ) {
-        conversation.participants.splice( i, 1 )
-        break
-      }
-    }
-
-    conversation.save( ( err ) => {
+    Notifier.update( { user: mongoose.Types.ObjectId( user._id ) }, { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }, ( err ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -158,7 +151,23 @@ router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) =>
         })
       }
 
-      res.status( 200 ).json({ message: 'Left Converrsation' })
+      for ( let i = 0; i < conversation.participants.length; i++ ) {
+        if ( conversation.participants[i].id == user._id ) {
+          conversation.participants.splice( i, 1 )
+          break
+        }
+      }
+
+      conversation.save( ( err ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        res.status( 200 ).json({ message: 'Left Converrsation' })
+      } )
     } )
   } )
 } )
@@ -182,8 +191,7 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
       })
     }
 
-    //Removes all messages that reference the conversation
-    Message.find( { conversation_id: req.params.id }, ( err, messages ) => {
+    Notifier.update( { conversations: mongoose.Types.ObjectId( req.params.id ) }, { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }, ( err ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -191,23 +199,33 @@ router.delete('/conversations/:id', middleware.authenticate, middleware.isConver
         })
       }
 
-      async.map( messages, ( message, cb ) => {
-        if ( message.media ) {
-          Media.findByIdAndRemove( message.media.id, ( err ) => {
+      //Removes all messages that reference the conversation
+      Message.find( { conversation_id: req.params.id }, ( err, messages ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        async.map( messages, ( message, cb ) => {
+          if ( message.media ) {
+            Media.findByIdAndRemove( message.media.id, ( err ) => {
+              message.remove( ( err ) => {
+                cb( err )
+              } )
+            } )
+          } else {
             message.remove( ( err ) => {
               cb( err )
             } )
-          } )
-        } else {
-          message.remove( ( err ) => {
-            cb( err )
-          } )
-        }
-      }, ( err ) => {
+          }
+        }, ( err ) => {
 
-        res.status( 200 ).json({
-          message: 'Conversation deleted'
-        })
+          res.status( 200 ).json({
+            message: 'Conversation deleted'
+          })
+        } )
       } )
     } )
   })
@@ -318,8 +336,7 @@ router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware
       })
     }
 
-    //Removes all messages that reference the conversation
-    Message.find( { friendship_id: req.params.friendshipId }, ( err, messages ) => {
+    Notifier.update( { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) }, { '$pull': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -327,23 +344,33 @@ router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware
         })
       }
 
-      async.map( messages, ( message, cb ) => {
-        if ( message.media ) {
-          Media.findByIdAndRemove( message.media.id, ( err ) => {
+      //Removes all messages that reference the conversation
+      Message.find( { friendship_id: req.params.friendshipId }, ( err, messages ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        async.map( messages, ( message, cb ) => {
+          if ( message.media ) {
+            Media.findByIdAndRemove( message.media.id, ( err ) => {
+              message.remove( ( err ) => {
+                cb( err )
+              } )
+            } )
+          } else {
             message.remove( ( err ) => {
               cb( err )
             } )
-          } )
-        } else {
-          message.remove( ( err ) => {
-            cb( err )
-          } )
-        }
-      }, ( err ) => {
+          }
+        }, ( err ) => {
 
-        res.status( 200 ).json({
-          message: 'Conversation deleted'
-        })
+          res.status( 200 ).json({
+            message: 'Conversation deleted'
+          })
+        } )
       } )
     } )
   } )

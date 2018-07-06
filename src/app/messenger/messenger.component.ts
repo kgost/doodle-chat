@@ -50,6 +50,12 @@ export class MessengerComponent implements OnInit, OnDestroy {
           this.showMessages = true;
         }
       ) );
+    this.subscriptions.push( this.socketIoService.reconnectEmitter
+      .subscribe(
+        () => {
+          this.socketIoService.signin( this.authService.getCurrentUser()._id );
+        }
+      ) );
 
     this.socketIoService.signin( this.authService.getCurrentUser()._id );
   }
