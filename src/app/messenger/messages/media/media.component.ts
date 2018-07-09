@@ -10,6 +10,7 @@ import { MessageService } from '../message.service';
 })
 export class MediaComponent implements OnInit, AfterViewInit {
   @Input() media: Media;
+  loaded = false;
 
   constructor(
     private messageService: MessageService
@@ -23,5 +24,6 @@ export class MediaComponent implements OnInit, AfterViewInit {
   }
 
   loadEmit() {
+    this.loaded = true;
   }
 }

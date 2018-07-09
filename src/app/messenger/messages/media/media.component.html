@@ -6,8 +6,10 @@
   (load)="loadEmit()"
   alt="">
 <video
-  style="width: 100%;"
+  height="100%"
+  width="100%"
   class="img-responsive"
+  [ngStyle]="{ 'padding-top': ( loaded ? '' : '7%' ) }"
   *ngIf="media.mime.indexOf( 'video' ) !== -1"
   (loadeddata)="loadEmit()"
   controls>
