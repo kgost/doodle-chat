@@ -10,7 +10,18 @@ export class LinkPipe implements PipeTransform {
     if ( !value || value === '' ) {
       return '';
     }
-    return linkifyHtml( value );
+
+    const matches = value.match( /https?:\/\/[^\s]+\.[^\s][^\s]+/gm );
+
+    if ( matches ) {
+      for ( let i = 0; i < matches.length; i++ ) {
+        const linkified = linkifyHtml( matches[i] );
+        value = value.substr( 0, value.indexOf( matches[i] ) ) +
+          linkified + value.substr( value.indexOf( matches[i] ) + matches[i].length );
+      }
+    }
+
+    return value;
   }
 
 }

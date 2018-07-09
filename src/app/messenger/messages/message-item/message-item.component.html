@@ -1,13 +1,13 @@
 <div class="clearfix" #clearfix>
   <li 
     style="position: relative;"
-    [ngStyle]="{ padding: message.media ? '0' : '' }"
+    [ngStyle]="{ padding: message.media ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) ? '50%' : '' }"
     [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
     class="list-group-item">
     <span
       *ngIf="message.text !== undefined && message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
-      [innerHtml]="message.text | dcrypt: key | decode8 | emojify | link | normalize"
+      [innerHtml]="message.text | dcrypt: key | decode8 | link | emojify | normalize"
       style="font-size: 18px;"></span>
     <app-media
       *ngIf="message.media"
