@@ -45,3 +45,16 @@ app-message-item .emoji {
   margin: 0 .05em 0 .1em;
   vertical-align: -0.4em;
 }
+
+div::-webkit-scrollbar {
+    width: 0.5em;
+}
+ 
+div::-webkit-scrollbar-track {
+  display: none;
+}
+ 
+div::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
