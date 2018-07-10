@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
+import { Favicons } from '../favicons';
+
 @Component({
   selector: 'app-landing',
   templateUrl: './landing.component.html',
@@ -7,9 +9,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LandingComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private favicons: Favicons
+  ) { }
 
   ngOnInit() {
+    this.favicons.activate( 'inactive' );
   }
 
 }
