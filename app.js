@@ -1,4 +1,5 @@
 const express      = require( 'express' ),
+  sslRedirect      = require( 'heroku-ssl-redirect' ),
   app              = express(),
   http             = require( 'http' ).Server(app),
   mongoose         = require( 'mongoose' ),
@@ -23,6 +24,9 @@ app.set('port', ( process.env.PORT || 3000 ) )
 app.use( bodyParser.json({ limit: '50mb' }) )
 app.use( bodyParser.urlencoded( { extended: true } ) )
 
+if ( process.env.HEROKU ) {
+  app.use( sslRedirect )
+}
 app.use( expressSanitizer() )
 //Pathing to our static files, css/js etc...
 app.use( express.static(__dirname + '/dist/chat-front') )

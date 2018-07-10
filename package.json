@@ -43,6 +43,7 @@
     "express": "^4.16.2",
     "express-sanitizer": "^1.0.4",
     "fs": "0.0.1-security",
+    "heroku-ssl-redirect": "0.0.4",
     "http": "0.0.0",
     "jsonwebtoken": "^8.2.0",
     "linkifyjs": "^2.1.6",
