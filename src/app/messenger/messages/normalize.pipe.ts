@@ -36,6 +36,8 @@ export class NormalizePipe implements PipeTransform {
       }
     }
 
+    result = result.replace( /\n/gm, '</span><br><span>' );
+
     return result;
   }
 
@@ -45,7 +47,7 @@ export class NormalizePipe implements PipeTransform {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/'/g, '&quot;')
+      .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   }
 }

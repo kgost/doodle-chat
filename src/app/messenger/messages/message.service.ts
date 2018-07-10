@@ -21,6 +21,7 @@ export class MessageService {
   loadEmitter = new EventEmitter<void>();
   reloadEmitter = new EventEmitter<void>();
   keyEmitter = new EventEmitter<void>();
+  removeEmitter = new EventEmitter<string>();
   editChange = new Subject<Message>();
   privateMode = false;
   key = '';
@@ -156,6 +157,7 @@ export class MessageService {
   }
 
   removeMessage( id: string ) {
+    this.removeEmitter.emit( id );
     this.sidebarService.removeMessage( id )
       .subscribe(
         ( data: any ) => {

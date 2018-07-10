@@ -7,9 +7,11 @@
         style="margin: 0;"
         class="form-group">
         <textarea
+          (keydown)="onTextKey($event)"
           id="text"
           name="text"
           ngModel
+          #textarea
           class="form-control" 
           style="border-radius: 0; border-left: 0; resize: none;"
           required></textarea>
@@ -17,7 +19,13 @@
       <button
         [disabled]="!messageEdit.valid"
         type="submit"
-        class="btn btn-primary pull-right">Submit</button>
+        style="font-family: arial, Segoe UI Symbol;"
+        class="btn btn-primary pull-right">{{ editMode ? 	'&#10004;' : 'Submit' }}</button>
+      <button
+        *ngIf="editMode"
+        (click)="onCancel($event)"
+        type="button"
+        class="btn btn-warning pull-right">X</button>
       <button class="btn btn-default pull-right" (click)="fileInput.click()">
         <input
           class="hidden"
@@ -29,20 +37,7 @@
           style="font-size: 16px;"
           class="glyphicon glyphicon-picture"></span>
       </button>
-      <button
-        *ngIf="editMode"
-        (click)="onCancel()"
-        type="button"
-        class="btn btn-warning pull-right">Cancel</button>
-      <button
-        *ngIf="!showEmojis"
-        [innerHtml]="emojis[0] | emojify"
-        (click)="onShowEmojis()"
-        type="button"
-        style="padding: 0;"
-        class="btn btn-default pull-right"></button>
       <div
-        *ngIf="showEmojis"
         class="pull-right">
         <button
           *ngFor="let emoji of emojis; let i = index"

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ElementRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Buffer } from 'buffer';
@@ -15,10 +15,10 @@ import { AuthService } from '../../../auth/auth.service';
 })
 export class MessageEditComponent implements OnInit, OnDestroy {
   @ViewChild('f') messageEdit: NgForm;
+  @ViewChild('textarea') textarea: ElementRef;
+  subscriptions: Subscription[] = [];
   editMode = false;
   editId: string;
-  subscription: Subscription;
-  showEmojis = false;
   emojis = ['🤔', '😂', '😍', '😤', '😢', '🇮🇱'];
 
   constructor(
@@ -27,7 +27,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.subscription = this.messageService.editChange
+    this.subscriptions.push( this.messageService.editChange
       .subscribe(
         ( message: Message ) => {
           this.messageEdit.setValue({
@@ -35,8 +35,17 @@ export class MessageEditComponent implements OnInit, OnDestroy {
           });
           this.editMode = true;
           this.editId = message._id;
+          this.textarea.nativeElement.focus();
         }
-      );
+      ) );
+    this.subscriptions.push( this.messageService.removeEmitter
+      .subscribe(
+        ( id: string ) => {
+          if ( this.editMode && this.editId === id ) {
+            this.onCancel();
+          }
+        }
+      ) );
   }
 
   onSubmit() {
@@ -69,10 +78,19 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCancel() {
+  onCancel( event = null ) {
+    console.log( event );
+    if ( event ) {
+      event.preventDefault();
+    }
+
     this.editMode = false;
     delete this.editId;
     this.messageEdit.reset();
+
+    if ( !event ) {
+      this.textarea.nativeElement.focus();
+    }
   }
 
   onMediaUpload( event ) {
@@ -90,17 +108,33 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     reader.readAsArrayBuffer( file );
   }
 
-  onShowEmojis() {
-    this.showEmojis = true;
+  onSelectEmoji( index: number ) {
+    let text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
+    let endIndex;
+    if (typeof this.textarea.nativeElement.selectionStart !== 'undefined' &&
+      typeof this.textarea.nativeElement.selectionEnd !== 'undefined') {
+      endIndex = this.textarea.nativeElement.selectionEnd;
+      text = text.slice(0, this.textarea.nativeElement.selectionStart) + this.emojis[index] + text.slice(endIndex);
+      this.messageEdit.setValue({ 'text': text });
+      this.textarea.nativeElement.focus();
+      this.textarea.nativeElement.selectionStart = this.textarea.nativeElement.selectionEnd = endIndex + this.emojis[index].length;
+    } else {
+      text = text + this.emojis[index];
+      this.messageEdit.setValue({ 'text': text });
+      this.textarea.nativeElement.focus();
+    }
   }
 
-  onSelectEmoji( index: number ) {
-    const text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
-    this.messageEdit.setValue({ 'text': text + this.emojis[index] });
-    this.showEmojis = false;
+  onTextKey( event ) {
+    if ( event.keyCode === 13 && !event.shiftKey ) {
+      event.preventDefault();
+      this.onSubmit();
+    }
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.subscriptions.forEach( ( sub ) => {
+      sub.unsubscribe();
+    } );
   }
 }

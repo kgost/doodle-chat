@@ -4,11 +4,11 @@
     [ngStyle]="{ padding: message.media ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) ? '50%' : '' }"
     [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
     class="list-group-item">
-    <span
+    <p
       *ngIf="message.text !== undefined && message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
       [innerHtml]="message.text | dcrypt: key | decode8 | link | emojify | normalize"
-      style="font-size: 18px;"></span>
+      style="font-size: 18px; word-break: break-word;"></p>
     <app-media
       *ngIf="message.media"
       [media]="message.media"></app-media>
