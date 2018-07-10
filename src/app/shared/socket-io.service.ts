@@ -18,6 +18,7 @@ export class SocketIoService {
   notifyConversation = new EventEmitter<string>();
   notifyFriendship = new EventEmitter<string>();
   reconnectEmitter = new EventEmitter<void>();
+  userTyping = new EventEmitter<string>();
   reconnect = false;
 
   constructor( private socket: Socket, private alertService: AlertService ) {
@@ -66,6 +67,10 @@ export class SocketIoService {
 
     this.socket.on( 'notify-friendship', ( friendshipId ) => {
       this.notifyFriendship.emit( friendshipId );
+    } );
+
+    this.socket.on( 'user-typing', ( username ) => {
+      this.userTyping.emit( username );
     } );
   }
 
@@ -150,5 +155,13 @@ export class SocketIoService {
 
   changePrivateMessage( friendshipId: string, messageId: string ) {
     this.socket.emit( 'change-private-message', { messageId: messageId, friendshipId: friendshipId } );
+  }
+
+  showTypingConversation( username: string, conversationId: string ) {
+    this.socket.emit( 'user-typing-send', { conversationId: conversationId, username: username } );
+  }
+
+  showTypingFriendship( username: string, friendshipId: string ) {
+    this.socket.emit( 'user-typing-send', { friendshipId: friendshipId, username: username } );
   }
 }

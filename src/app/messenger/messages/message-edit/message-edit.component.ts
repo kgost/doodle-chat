@@ -7,6 +7,7 @@ import { Media } from '../media/media.model';
 import { Message } from '../message.model';
 import { MessageService } from '../message.service';
 import { AuthService } from '../../../auth/auth.service';
+import { SocketIoService } from '../../../shared/socket-io.service';
 
 @Component({
   selector: 'app-message-edit',
@@ -19,11 +20,12 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   editMode = false;
   editId: string;
-  emojis = ['🤔', '😂', '😍', '😤', '😢', '🇮🇱'];
+  emojis = ['🤔', '😂', '😍', '😤', '😢', '🇮🇪'];
 
   constructor(
     private messageService: MessageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private socketIoService: SocketIoService
   ) { }
 
   ngOnInit() {
@@ -79,7 +81,6 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   }
 
   onCancel( event = null ) {
-    console.log( event );
     if ( event ) {
       event.preventDefault();
     }
@@ -123,12 +124,15 @@ export class MessageEditComponent implements OnInit, OnDestroy {
       this.messageEdit.setValue({ 'text': text });
       this.textarea.nativeElement.focus();
     }
+    this.typing();
   }
 
   onTextKey( event ) {
     if ( event.keyCode === 13 && !event.shiftKey ) {
       event.preventDefault();
       this.onSubmit();
+    } else if ( [13, 16, 17, 18, 19, 20, 27, 35, 36, 37, 38, 39, 40, 91, 93, 224].indexOf( event.keyCode ) === -1 ) {
+      this.typing();
     }
   }
 
@@ -136,5 +140,15 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
+  }
+
+  private typing() {
+    if ( this.messageService.privateMode ) {
+      this.socketIoService.showTypingFriendship(
+        this.authService.getCurrentUser().username, this.messageService.getCurrentFriendship()._id );
+    } else {
+      this.socketIoService.showTypingConversation(
+        this.authService.getCurrentUser().username, this.messageService.getCurrentConversation()._id );
+    }
   }
 }

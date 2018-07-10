@@ -29,6 +29,10 @@ import { HeaderComponent } from './shared/header/header.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { SigninComponent } from './auth/signin/signin.component';
 import { LandingComponent } from './landing/landing.component';
+import { MediaComponent } from './messenger/messages/media/media.component';
+import { AlertComponent } from './alert/alert.component';
+import { NotificationSoundComponent } from './messenger/sidebar/notification-sound/notification-sound.component';
+import { TypingComponent } from './messenger/messages/typing/typing.component';
 
 import { SidebarService } from './messenger/sidebar/sidebar.service';
 import { NotificationService } from './messenger/sidebar/notification.service';
@@ -38,14 +42,12 @@ import { MessageService } from './messenger/messages/message.service';
 import { AuthService } from './auth/auth.service';
 import { AuthGuard } from './auth/auth-guard.service';
 import { SocketIoService } from './shared/socket-io.service';
-import { MediaComponent } from './messenger/messages/media/media.component';
+import { TypingService } from './messenger/messages/typing.service';
 import { LinkPipe } from './messenger/messages/link.pipe';
-import { AlertComponent } from './alert/alert.component';
 import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
 import { EmojifyPipe } from './messenger/messages/emojify.pipe';
 import { Decode8Pipe } from './messenger/messages/decode8.pipe';
 import { NormalizePipe } from './messenger/messages/normalize.pipe';
-import { NotificationSoundComponent } from './messenger/sidebar/notification-sound/notification-sound.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -78,6 +80,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     Decode8Pipe,
     NormalizePipe,
     NotificationSoundComponent,
+    TypingComponent,
   ],
   imports: [
     BrowserModule,
@@ -97,6 +100,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     SocketIoService,
     Decode8Pipe,
     NotificationService,
+    TypingService,
     {
       provide: Favicons,
       useClass: BrowserFavicons

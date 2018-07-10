@@ -8,6 +8,7 @@ import { User } from '../../auth/user.model';
 import { AuthService } from '../../auth/auth.service';
 import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from '../sidebar/sidebar.service';
+import { TypingService } from './typing.service';
 
 @Injectable()
 export class MessageService {
@@ -30,7 +31,8 @@ export class MessageService {
   constructor(
     private authService: AuthService,
     private sidebarService: SidebarService,
-    private socketIoService: SocketIoService
+    private socketIoService: SocketIoService,
+    private typingService: TypingService,
   ) { }
 
   getTitle() {
@@ -113,12 +115,14 @@ export class MessageService {
 
   loadMessage( message: Message ) {
     this.messages.push( message );
+    this.typingService.stopTyping.emit( message.username );
     this.changeEmitter.emit();
   }
 
   changeMessage( id: string, message: Message ) {
     if ( message ) {
       this.messages[this.getMessageIndex( id )] = message;
+      this.typingService.stopTyping.emit( message.username );
     } else {
       this.messages.splice( this.getMessageIndex( id ), 1 );
     }

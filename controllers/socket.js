@@ -91,6 +91,14 @@ exports = module.exports = function( io ) {
       io.sockets.in( userId  ).emit( 'refresh-friendships' )
     })
 
+    socket.on( 'user-typing-send', ( data ) => {
+      if ( data.conversationId ) {
+        io.sockets.in( data.conversationId ).emit( 'user-typing', data.username )
+      } else {
+        io.sockets.in( data.friendshipId ).emit( 'user-typing', data.username )
+      }
+    } )
+
     //Logs users disconnecting from any socket
     socket.on( 'disconnect', () => {
       console.log( 'user disconnected' )
