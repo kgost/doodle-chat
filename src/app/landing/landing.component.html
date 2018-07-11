@@ -1,1 +1,51 @@
-<img src="https://i.imgur.com/NufRWp3.jpg" style="width: 100%;" alt="pelican">
+<div class="page-header text-center">
+  <h1>La Li Lu Le Lo <small>End to End Encrypted Messaging</small></h1>
+</div>
+<div class="container" style="font-size: 18px;">
+  <h2>The Security</h2>
+
+  <p>La Li Lu Le Lo is an end to end encrypted messaging service that keeps all messages
+  hidden, not only from outside parties but the host server and anyone with access to
+  the database.</p>
+
+  <p>The encryption scheme works as follows:</p>
+
+  <p>First, when you sign up, a public and private RSA key-pair are generated using the
+  <a href="https://github.com/digitalbazaar/forge" target="_blank">node-forge</a> encryption package.
+  The public key is saved to the database as is but your private key is itself encrypted
+  using your password and the AES key and is then stored in the database. When you sign
+  in after that, the private key is decrypted and ready to use throughout the rest of
+  the app.</p>
+  <p>Next, when a conversation is created, all messages are encrypted using a
+  pseudorandomly generated AES key. This key is then encrypted using all participants
+  in the conversation's public RSA key, so each user has a unique encrypted AES key.</p>
+  <p>Finally, when you send messages in a conversation, it decrypts your version of
+  the AES key and then encrypts and decrypts all messages using that AES key. This way
+  we can take advantage of the speed and convenience of a single AES key but still
+  keep all keys completely hidden.</p>
+
+  <h2>The Fun</h2>
+
+  <p>In addition to being secure, La Li Lu Le Lo also has many of the features
+  expected from a proprietary messaging service. Using the
+  <a href="https://github.com/twitter/twemoji">twemoji</a> package, La Li Lu Le Lo has
+  support for emojis. It also allows for media, images and videos including webm,
+  mp4, jpg, png and gif, to be shared through the service.</p>
+
+  <h2>The Message Behind The Messaging</h2>
+
+  <p>I started this project because many of my friends and I primarily use Facebook
+  messenger to communicate but I always disliked it because of the numerous
+  privacy violations and potential free speech concerns but couldn't offer a
+  <em>LIBRE</em> alternative. And thus the app was born. With the encryption in place
+  and guarantees of transparency made possible by the GPL 2, I know this app can be a
+  tool for freedom of speech and data privacy. I hope that people find it not only good
+  in terms of security and ethics, but also in terms of quality and usability.</p>
+
+  <h2>Support</h2>
+  
+  <p>Check out this repository on <a href="" target="_blank">GitHub</a> and make sure
+  to create issues when you encounter bugs or contribute if you feel so inclined.</p>
+
+  <p>To support financially, click <a href="https://www.patreon.com/jackthelast" target="_blank">here</a>.</p>
+</div>
