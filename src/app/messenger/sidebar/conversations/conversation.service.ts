@@ -16,6 +16,7 @@ export class ConversationService {
   changeEmitter = new EventEmitter<void>();
   editChange = new Subject<Conversation>();
   conversations: Conversation[] = [];
+  friendNames: string[] = [];
 
   constructor(
     private sidebarService: SidebarService,
@@ -28,6 +29,12 @@ export class ConversationService {
       .subscribe(
         (  ) => {
           this.changeEmitter.emit();
+        }
+      );
+    this.sidebarService.friendNamesSubject
+      .subscribe(
+        ( friendNames: string[] ) => {
+          this.friendNames = friendNames;
         }
       );
   }
@@ -86,6 +93,10 @@ export class ConversationService {
 
   getConversations() {
     return this.conversations.slice();
+  }
+
+  getFriendNames() {
+    return this.friendNames.slice();
   }
 
   addConversation( conversation: Conversation ) {

@@ -18,6 +18,7 @@ export class ConversationEditComponent implements OnInit {
   editMode = false;
   editId: string;
   editKey: string;
+  friendNames: string[] = [];
 
   constructor(
     private conversationService: ConversationService,
@@ -25,6 +26,7 @@ export class ConversationEditComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.friendNames = this.conversationService.getFriendNames();
     this.editId = this.conversation._id;
 
     if ( this.editId !== undefined && this.editId.length > 0 ) {
@@ -109,6 +111,10 @@ export class ConversationEditComponent implements OnInit {
 
   onClose() {
     this.conversationService.editChange.next( null );
+  }
+
+  forceCheck( event: string, index: number ) {
+    ( <FormArray> this.editForm.get('participants') ).controls[index].patchValue( event );
   }
 
   private getAccessKey( userId: string ) {

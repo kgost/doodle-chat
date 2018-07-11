@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { Ng2AutoCompleteModule } from './auto-complete/dist/index.js';
 
 import { BROWSER_FAVICONS_CONFIG } from './favicons';
 import { BrowserFavicons } from './favicons';
@@ -43,6 +44,7 @@ import { AuthService } from './auth/auth.service';
 import { AuthGuard } from './auth/auth-guard.service';
 import { SocketIoService } from './shared/socket-io.service';
 import { TypingService } from './messenger/messages/typing.service';
+
 import { LinkPipe } from './messenger/messages/link.pipe';
 import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
 import { EmojifyPipe } from './messenger/messages/emojify.pipe';
@@ -88,7 +90,8 @@ const config: SocketIoConfig = { url: '/', options: {} };
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    SocketIoModule.forRoot( config )
+    SocketIoModule.forRoot( config ),
+    Ng2AutoCompleteModule,
   ],
   providers: [
     AuthService,

@@ -18,6 +18,7 @@ export class FriendService {
   changeEmitter = new EventEmitter<void>();
   editChange = new Subject<Friendship>();
   friendships: Friendship[] = [];
+  friendNames: string[];
 
   constructor(
     private authService: AuthService,
@@ -31,6 +32,12 @@ export class FriendService {
       .subscribe(
         () => {
           this.changeEmitter.emit();
+        }
+      );
+    this.sidebarService.friendNamesSubject
+      .subscribe(
+        ( friendNames: string[] ) => {
+          this.friendNames = friendNames;
         }
       );
   }
@@ -89,6 +96,10 @@ export class FriendService {
 
   getFriendships() {
     return this.friendships.slice();
+  }
+
+  getFriendNames() {
+    return this.friendNames.slice();
   }
 
   addFriendship( friendship: Friendship ) {

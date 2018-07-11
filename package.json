@@ -58,7 +58,6 @@
     "socket.io-client": "^2.1.1",
     "streamifier": "^0.1.1",
     "twemoji": "^11.0.0",
-    "wdt-emoji-bundle": "^0.2.1",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

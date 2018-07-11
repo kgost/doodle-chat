@@ -62,3 +62,7 @@ div::-webkit-scrollbar-thumb {
 a.linkified {
   word-break: break-all;
 }
+
+.hide-auto .ng2-auto-complete-wrapper ng2-auto-complete {
+  display: none !important;
+}

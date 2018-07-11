@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { Subject } from 'rxjs/Subject';
 
 import { AuthService } from '../../auth/auth.service';
 import { User } from '../../auth/user.model';
@@ -13,6 +14,7 @@ import { Media } from '../messages/media/media.model';
 export class SidebarService {
   baseUrl = '/api/';
   deactivate = new EventEmitter<void>();
+  friendNamesSubject = new Subject<string[]>();
 
   constructor(
     private http: Http,
@@ -77,7 +79,7 @@ export class SidebarService {
 
   getFriendships() {
     return this.http.get( this.baseUrl + 'friendships?token=' + this.authService.getToken() )
-      .pipe( map( this.mapFriendships ) );
+      .pipe( map( this.mapFriendships.bind( this ) ) );
   }
 
   updateFriendship( id: string, friendship: Friendship ) {
@@ -105,16 +107,23 @@ export class SidebarService {
 
   private mapFriendships( response: Response ) {
     let friendships = response.json().obj;
+    const friendNames = [];
 
     friendships = friendships.map( ( friendship ) => {
       friendship.users = friendship.users.map( ( user: any ) => {
         user.id = <User> user.id;
+
+        if ( user.id._id !== this.authService.getCurrentUser()._id ) {
+          friendNames.push( user.id.username );
+        }
+
         return user;
       } );
 
       return <Friendship> friendship;
     } );
 
+    this.friendNamesSubject.next( friendNames );
     return friendships;
   }
 

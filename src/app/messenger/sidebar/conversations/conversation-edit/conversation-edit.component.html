@@ -35,17 +35,22 @@
                 </h3>
                 <div
                   class="col-xs-12 participant"
+                  [ngClass]="{ 'hide-auto': editForm.get('participants').controls[i].valid }"
                   *ngFor="let participantCtrl of editForm.get('participants').controls; let i = index">
                   <input
-                    [formControlName]="i"
+                    auto-complete
+                    [source]="friendNames"
+                    no-match-found-text="Invalid Username"
+                    (valueChanged)="forceCheck($event, i)"
+                    [formControlName]="i + ''"
                     class="form-control"
                     type="text">
                   <button 
                     (click)="onRemoveParticipant(i)"
                     type="button" 
                     class="close" 
-                    data-dismiss="alert" a
-                    ria-label="Close">
+                    data-dismiss="alert"
+                    aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                   <div
