@@ -28,7 +28,7 @@
         <li routerLinkActive="active" *ngIf="isSignedin()">
           <a 
             (click)="onSignout()"
-            style="cursor: pointer;">Log Out</a>
+            style="cursor: pointer;">Sign Out</a>
         </li>
         <ng-template [ngIf]="!isSignedin()">
           <li routerLinkActive="active">
