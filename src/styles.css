@@ -66,3 +66,11 @@ a.linkified {
 .hide-auto .ng2-auto-complete-wrapper ng2-auto-complete {
   display: none !important;
 }
+
+app-typing {
+  position: absolute;
+  bottom: 90px;
+  left: 0;
+  background-color: white;
+  z-index: 1;
+}
