@@ -95,7 +95,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   }
 
   onMediaUpload( event ) {
-    const file = event.srcElement.files[0];
+    const file = event.srcElement ? event.srcElement.files[0] : event.target.files[0];
     const reader = new FileReader();
 
     reader.onloadend = () => {

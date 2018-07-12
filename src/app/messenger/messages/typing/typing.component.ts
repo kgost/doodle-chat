@@ -25,7 +25,6 @@ export class TypingComponent implements OnInit, OnDestroy {
     this.subscriptions.push( this.socketIoService.userTyping
       .subscribe(
         ( username: string ) => {
-          console.log( username );
           if ( username !== this.authService.getCurrentUser().username ) {
             if ( this.usernames[username] ) {
               clearTimeout( this.usernames[username] );

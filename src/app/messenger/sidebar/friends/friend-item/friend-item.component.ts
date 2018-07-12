@@ -6,6 +6,7 @@ import { FriendService } from '../friend.service';
 import { ConversationService } from '../../conversations/conversation.service';
 import { Friendship } from '../friendship.model';
 import { AuthService } from '../../../../auth/auth.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-friend-item',
@@ -23,38 +24,15 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     private friendService: FriendService,
     private conversationService: ConversationService,
     private sidebarService: SidebarService,
+    private notificationService: NotificationService,
   ) { }
 
   ngOnInit() {
-    if ( this.friendService.checkNotification( this.friendship._id ) &&
-      ( !this.friendService.getCurrentFriendship() || this.friendService.getCurrentFriendship()._id !== this.friendship._id ) ) {
-      this.notification = true;
-
-      if ( !this.active ) {
-        this.friendService.notifySound();
-      }
-    } else if ( this.friendService.checkNotification( this.friendship._id ) &&
-      this.friendService.getCurrentFriendship() &&
-      this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
-      this.friendService.removeNotification( this.friendship._id );
-    }
+    this.reInit();
 
     this.subscriptions.push( this.friendService.changeEmitter
       .subscribe(
-        () => {
-          if ( this.friendService.checkNotification( this.friendship._id ) &&
-            ( !this.friendService.getCurrentFriendship() || this.friendService.getCurrentFriendship()._id !== this.friendship._id ) ) {
-            this.notification = true;
-
-            if ( !this.active ) {
-              this.friendService.notifySound();
-            }
-          } else if ( this.friendService.checkNotification( this.friendship._id ) &&
-            this.friendService.getCurrentFriendship() &&
-            this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
-            this.friendService.removeNotification( this.friendship._id );
-          }
-        }
+        () => this.reInit()
       ) );
 
     this.subscriptions.push( this.sidebarService.deactivate
@@ -62,6 +40,11 @@ export class FriendItemComponent implements OnInit, OnDestroy {
         () => {
           this.active = false;
         }
+      ) );
+
+    this.subscriptions.push( this.notificationService.hiddenEmitter
+      .subscribe(
+        () => this.reInit()
       ) );
   }
 
@@ -118,5 +101,22 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
+  }
+
+  private reInit() {
+    if ( this.friendService.checkNotification( this.friendship._id ) &&
+      ( !this.friendService.getCurrentFriendship() ||
+        this.friendService.getCurrentFriendship()._id !== this.friendship._id ||
+        this.notificationService.getBrowserHidden() ) ) {
+      this.notification = true;
+
+      if ( !this.active || this.notificationService.getBrowserHidden() ) {
+        this.friendService.notifySound();
+      }
+    } else if ( this.friendService.checkNotification( this.friendship._id ) &&
+      this.friendService.getCurrentFriendship() &&
+      this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
+      this.friendService.removeNotification( this.friendship._id );
+    }
   }
 }

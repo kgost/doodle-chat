@@ -6,6 +6,7 @@ import { ConversationService } from '../conversation.service';
 import { FriendService } from '../../friends/friend.service';
 import { Conversation } from '../conversation.model';
 import { AuthService } from '../../../../auth/auth.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-conversation-item',
@@ -23,40 +24,15 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     private conversationService: ConversationService,
     private friendService: FriendService,
     private sidebarService: SidebarService,
+    private notificationService: NotificationService,
   ) { }
 
   ngOnInit() {
-    if ( this.conversationService.checkNotification( this.conversation._id ) &&
-      ( !this.conversationService.getCurrentConversation() ||
-        this.conversationService.getCurrentConversation()._id !== this.conversation._id ) ) {
-      this.notification = true;
-
-      if ( !this.active ) {
-        this.conversationService.notifySound();
-      }
-    } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
-      this.conversationService.getCurrentConversation() &&
-      this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
-      this.conversationService.removeNotification( this.conversation._id );
-    }
+    this.reInit();
 
     this.subscriptions.push( this.conversationService.changeEmitter
       .subscribe(
-        () => {
-          if ( this.conversationService.checkNotification( this.conversation._id ) &&
-            ( !this.conversationService.getCurrentConversation() ||
-              this.conversationService.getCurrentConversation()._id !== this.conversation._id ) ) {
-            this.notification = true;
-
-            if ( !this.active ) {
-              this.conversationService.notifySound();
-            }
-          } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
-            this.conversationService.getCurrentConversation() &&
-            this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
-            this.conversationService.removeNotification( this.conversation._id );
-          }
-        }
+        () => this.reInit()
       ) );
 
     this.subscriptions.push( this.sidebarService.deactivate
@@ -64,6 +40,11 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
         () => {
           this.active = false;
         }
+      ) );
+
+    this.subscriptions.push( this.notificationService.hiddenEmitter
+      .subscribe(
+        () => this.reInit()
       ) );
   }
 
@@ -94,5 +75,22 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
+  }
+
+  private reInit() {
+    if ( this.conversationService.checkNotification( this.conversation._id ) &&
+      ( !this.conversationService.getCurrentConversation() ||
+        this.conversationService.getCurrentConversation()._id !== this.conversation._id ||
+        this.notificationService.getBrowserHidden() ) ) {
+      this.notification = true;
+
+      if ( !this.active || this.notificationService.getBrowserHidden() ) {
+        this.friendService.notifySound();
+      }
+    } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
+      this.conversationService.getCurrentConversation() &&
+      this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
+      this.conversationService.removeNotification( this.conversation._id );
+    }
   }
 }
