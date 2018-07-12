@@ -16,6 +16,7 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   subscriptions: Subscription[] = [];
   owner = false;
   key = '';
+  editReaction = false;
 
   constructor(
     private messageService: MessageService,
@@ -37,6 +38,21 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onDelete() {
     this.messageService.removeMessage( this.message._id );
+  }
+
+  onCheckReactions() {
+    this.messageService.showReactions.next( this.message.reactions );
+  }
+
+  toggleReaction() {
+    this.editReaction = !this.editReaction;
+  }
+
+  onSelectEmoji( emoji: string ) {
+
+    this.messageService.addReaction( this.message._id,
+      this.authService.encryptAes( unescape( encodeURIComponent( emoji ) ), this.messageService.getKey() ) );
+    this.toggleReaction();
   }
 
   ngAfterViewInit() {

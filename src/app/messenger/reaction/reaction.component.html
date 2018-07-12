@@ -1,0 +1,16 @@
+<div class="greyout"></div>
+<div class="container">
+  <button 
+    (click)="onClose()"
+    type="button" 
+    class="close pull-right" 
+    aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <div class="jumbotron">
+    <span
+      *ngFor="let reaction of message.reactions"
+      [innerHtml]="( reaction.text | dcrypt: key | decode8 | emojify ) + ' ' + reaction.username"
+      style="font-size: 10px;"></span>
+  </div>
+</div>

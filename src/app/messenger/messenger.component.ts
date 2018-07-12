@@ -6,6 +6,7 @@ import { Friendship } from './sidebar/friends/friendship.model';
 import { SidebarService } from './sidebar/sidebar.service';
 import { ConversationService } from './sidebar/conversations/conversation.service';
 import { FriendService } from './sidebar/friends/friend.service';
+import { MessageService } from './messages/message.service';
 import { AuthService } from '../auth/auth.service';
 import { AlertService } from '../alert.service';
 import { SocketIoService } from '../shared/socket-io.service';
@@ -19,15 +20,17 @@ export class MessengerComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   conversation: Conversation;
   friendship: Friendship;
+  reactions: { text: string, username: string }[];
   showMessages = false;
 
   constructor(
     private sidebarService: SidebarService,
     private conversationService: ConversationService,
+    private messageService: MessageService,
     private friendService: FriendService,
     private authService: AuthService,
     private alertService: AlertService,
-    private socketIoService: SocketIoService
+    private socketIoService: SocketIoService,
   ) { }
 
   ngOnInit() {
@@ -42,6 +45,12 @@ export class MessengerComponent implements OnInit, OnDestroy {
       .subscribe(
         ( friendship: Friendship ) => {
           this.friendship = friendship;
+        }
+      ) );
+    this.subscriptions.push( this.messageService.showReactions
+      .subscribe(
+        ( reactions: { text: string, username: string }[] ) => {
+          this.reactions = reactions;
         }
       ) );
     this.subscriptions.push( this.sidebarService.deactivate

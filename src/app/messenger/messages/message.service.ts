@@ -24,6 +24,7 @@ export class MessageService {
   keyEmitter = new EventEmitter<void>();
   removeEmitter = new EventEmitter<string>();
   editChange = new Subject<Message>();
+  showReactions = new Subject<{ text: string, username: string }[]>();
   privateMode = false;
   key = '';
   loadMore = false;
@@ -142,6 +143,24 @@ export class MessageService {
         .subscribe(
           ( newMessage: Message ) => {
             this.socketIoService.newPrivateMessage( this.currentFriendship._id, newMessage._id );
+          }
+        );
+    }
+  }
+
+  addReaction( id: string, emoji: string ) {
+    if ( !this.privateMode ) {
+      this.sidebarService.postReaction( id, this.currentConversation._id, emoji )
+        .subscribe(
+          ( newMessage: Message ) => {
+            this.socketIoService.changeMessage( this.currentConversation._id, newMessage._id );
+          }
+        );
+    } else {
+      this.sidebarService.postPrivateReaction( id, this.currentFriendship._id, emoji )
+        .subscribe(
+          ( newMessage: Message ) => {
+            this.socketIoService.changePrivateMessage( this.currentFriendship._id, newMessage._id );
           }
         );
     }

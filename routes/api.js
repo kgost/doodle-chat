@@ -437,6 +437,43 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
   }
 } )
 
+router.post( '/message/:conversationId/:messageId/reaction', middleware.authenticate, middleware.inConversation, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Message.findById( req.params.messageId, ( err, message ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    for ( let i = 0; i < message.reactions.length; i++ ) {
+      if ( message.reactions[i] ) {
+        if ( user.username === message.reactions[i].username ) {
+          message.reactions[i].text = req.body.reaction
+          break
+        }
+      }
+
+      if ( i === message.reactions.length - 1 ) {
+        message.reactions.push({ username: user.username, text: req.body.reaction })
+      }
+    }
+
+    message.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 201 ).json( message )
+    } )
+  } )
+} )
+
 /**
  * CREATE route for messages:
  *    Creates message and saves to MongoDB
@@ -494,6 +531,43 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
       notifyFriendship( req, res, user._id, message )
     } )
   }
+} )
+
+router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Message.findById( req.params.messageId, ( err, message ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    for ( let i = 0; i < message.reactions.length; i++ ) {
+      if ( message.reactions[i] ) {
+        if ( user.username === message.reactions[i].username ) {
+          message.reactions[i].text = req.body.reaction
+          break
+        }
+      }
+
+      if ( i === message.reactions.length - 1 ) {
+        message.reactions.push({ username: user.username, text: req.body.reaction })
+      }
+    }
+
+    message.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 201 ).json( message )
+    } )
+  } )
 } )
 
 /**

@@ -1,0 +1,7 @@
+<button
+  *ngFor="let emoji of emojis; let i = index"
+  [innerHtml]="emoji | emojify"
+  (click)="onSelectEmoji(i)"
+  type="button"
+  style="padding: 0;"
+  class="btn btn-default pull-right"></button>

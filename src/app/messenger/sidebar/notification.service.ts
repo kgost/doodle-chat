@@ -46,28 +46,29 @@ export class NotificationService {
           this.friendshipEmitter.emit();
         }
       );
-      let visibilityChange;
 
-      if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support
-        this.hiddenType = 'hidden';
-        visibilityChange = 'visibilitychange';
-      } else if (typeof document.msHidden !== 'undefined') {
-        this.hiddenType = 'msHidden';
-        visibilityChange = 'msvisibilitychange';
-      } else if (typeof document.webkitHidden !== 'undefined') {
-        this.hiddenType = 'webkitHidden';
-        visibilityChange = 'webkitvisibilitychange';
-      }
+    let visibilityChange;
 
-      if (typeof document.addEventListener === 'undefined' || this.hiddenType === undefined) {
-        console.log('This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.');
-      } else {
-        // Handle page visibility change
-        document.addEventListener(visibilityChange, () => {
-          this.browserHidden = this.document[this.hiddenType];
-          this.hiddenEmitter.emit();
-        }, false);
-      }
+    if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support
+      this.hiddenType = 'hidden';
+      visibilityChange = 'visibilitychange';
+    } else if (typeof document.msHidden !== 'undefined') {
+      this.hiddenType = 'msHidden';
+      visibilityChange = 'msvisibilitychange';
+    } else if (typeof document.webkitHidden !== 'undefined') {
+      this.hiddenType = 'webkitHidden';
+      visibilityChange = 'webkitvisibilitychange';
+    }
+
+    if (typeof document.addEventListener === 'undefined' || this.hiddenType === undefined) {
+      console.log('This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.');
+    } else {
+      // Handle page visibility change
+      document.addEventListener(visibilityChange, () => {
+        this.browserHidden = this.document[this.hiddenType];
+        this.hiddenEmitter.emit();
+      }, false);
+    }
 
     window.addEventListener( 'blur', () => {
       this.browserHidden = true;

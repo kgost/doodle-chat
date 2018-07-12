@@ -20,7 +20,6 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   editMode = false;
   editId: string;
-  emojis = ['🤔', '😂', '😍', '😤', '😢', '🇮🇪'];
 
   constructor(
     private messageService: MessageService,
@@ -109,18 +108,18 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     reader.readAsArrayBuffer( file );
   }
 
-  onSelectEmoji( index: number ) {
+  onSelectEmoji( emoji: string ) {
     let text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
     let endIndex;
     if (typeof this.textarea.nativeElement.selectionStart !== 'undefined' &&
       typeof this.textarea.nativeElement.selectionEnd !== 'undefined') {
       endIndex = this.textarea.nativeElement.selectionEnd;
-      text = text.slice(0, this.textarea.nativeElement.selectionStart) + this.emojis[index] + text.slice(endIndex);
+      text = text.slice(0, this.textarea.nativeElement.selectionStart) + emoji + text.slice(endIndex);
       this.messageEdit.setValue({ 'text': text });
       this.textarea.nativeElement.focus();
-      this.textarea.nativeElement.selectionStart = this.textarea.nativeElement.selectionEnd = endIndex + this.emojis[index].length;
+      this.textarea.nativeElement.selectionStart = this.textarea.nativeElement.selectionEnd = endIndex + emoji.length;
     } else {
-      text = text + this.emojis[index];
+      text = text + emoji;
       this.messageEdit.setValue({ 'text': text });
       this.textarea.nativeElement.focus();
     }

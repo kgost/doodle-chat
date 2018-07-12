@@ -13,7 +13,11 @@ const messageSchema = new mongoose.Schema({
   media: {
     mime: String,
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' }
-  }
+  },
+  reactions: [{
+    username: { type: String, required: true },
+    text: { type: String, required: true },
+  }]
 }, { timestamps: true } )
 
 messageSchema.pre( 'remove', ( next ) => {

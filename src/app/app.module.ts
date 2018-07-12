@@ -50,6 +50,8 @@ import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
 import { EmojifyPipe } from './messenger/messages/emojify.pipe';
 import { Decode8Pipe } from './messenger/messages/decode8.pipe';
 import { NormalizePipe } from './messenger/messages/normalize.pipe';
+import { ReactionComponent } from './messenger/reaction/reaction.component';
+import { EmojiPickerComponent } from './messenger/emoji-picker/emoji-picker.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -83,6 +85,8 @@ const config: SocketIoConfig = { url: '/', options: {} };
     NormalizePipe,
     NotificationSoundComponent,
     TypingComponent,
+    ReactionComponent,
+    EmojiPickerComponent,
   ],
   imports: [
     BrowserModule,

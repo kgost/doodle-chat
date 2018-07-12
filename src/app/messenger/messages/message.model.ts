@@ -9,6 +9,7 @@ export class Message {
     public media?: Media,
     public _id?: string,
     public username?: string,
-    public scrollTop?: number
+    public scrollTop?: number,
+    public reactions?: { username: string, text: string }[]
   ) {}
 }

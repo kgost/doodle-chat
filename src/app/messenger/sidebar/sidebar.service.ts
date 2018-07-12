@@ -135,8 +135,20 @@ export class SidebarService {
       .pipe( map( this.mapMessage ) );
   }
 
+  postReaction( messageId: string, conversationId: string, emoji: string ) {
+    return this.http.post( this.baseUrl + 'message/' + conversationId + '/' + messageId + '/reaction?token=' +
+      this.authService.getToken(), { reaction: emoji } )
+      .pipe( map( this.mapMessage ) );
+  }
+
   createPrivateMessage( friendshipId: string, message: Message ) {
     return this.http.post( this.baseUrl + 'privateMessages/' + friendshipId + '?token=' + this.authService.getToken(), message )
+      .pipe( map( this.mapMessage ) );
+  }
+
+  postPrivateReaction( messageId: string, friendshipId: string, emoji: string ) {
+    return this.http.post( this.baseUrl + 'privateMessage/' + friendshipId + '/' + messageId + '/reaction?token=' +
+      this.authService.getToken(), { reaction: emoji } )
       .pipe( map( this.mapMessage ) );
   }
 

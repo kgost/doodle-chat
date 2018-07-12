@@ -32,5 +32,22 @@
       class="glyphicon glyphicon-edit" 
       style="cursor: pointer; color: black; position: absolute; bottom: 2px; top: auto; right: 5px; font-size: 16px;"
       aria-hidden="true"></span>
+    <div (click)="onCheckReactions()">
+      <span
+        *ngFor="let reaction of message.reactions"
+        [innerHtml]="reaction.text | dcrypt: key | decode8 | emojify"
+        style="font-size: 10px;"></span>
+    </div>
   </li>
+  <div
+    *ngIf="!owner"
+    class="pull-left reaction">
+    <span
+      *ngIf="!editReaction"
+      [innerHtml]="'🤔' | emojify"
+      (click)="toggleReaction()"></span>
+    <app-emoji-picker
+      (emitEmoji)="onSelectEmoji(emoji)"
+      *ngIf="editReaction"></app-emoji-picker>
+  </div>
 </div>

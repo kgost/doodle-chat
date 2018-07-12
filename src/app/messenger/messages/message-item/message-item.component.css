@@ -1,3 +1,11 @@
+.clearfix .reaction {
+  display: none;
+}
+
+.clearfix:hover .reaction {
+  display: inline-block;
+}
+
 li {
   position: relative;
   max-width: 50%;
