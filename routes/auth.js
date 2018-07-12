@@ -51,6 +51,11 @@ router.post('/signin', (req, res) => {
   * @return {[type]}        Returns a status code and corresponding message and token.
   */
 router.post('/signup', (req, res) => {
+  if ( req.body.password.length < 6 ) {
+    return res.status( 400 ).json({
+      userMessage: 'Invalid Password'
+    })
+  }
   //New user object
   const user = new User({
     username: req.body.username,

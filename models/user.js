@@ -15,4 +15,11 @@ userSchema.path('password').validate(function(password) {
   return true
 })
 
+userSchema.path('username').validate(function(username) {
+  if (username.length > 20) return false
+  if ( !username.match( /^[^\s]+.*[^\s]+$/ ) ) return false
+
+  return true
+})
+
 module.exports = mongoose.model( 'User' , userSchema )
