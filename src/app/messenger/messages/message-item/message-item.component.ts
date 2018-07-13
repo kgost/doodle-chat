@@ -24,9 +24,6 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    if ( this.message.media ) {
-      console.log( this.message.media.size );
-    }
     this.owner = this.authService.getCurrentUser()._id === this.message.user;
     this.key = this.messageService.getKey();
     this.subscriptions.push( this.messageService.keyEmitter
