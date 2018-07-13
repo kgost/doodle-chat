@@ -96,13 +96,28 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   onMediaUpload( event ) {
     const file = event.srcElement ? event.srcElement.files[0] : event.target.files[0];
     const reader = new FileReader();
+    console.log( file );
 
     reader.onloadend = () => {
-      const message = new Message(
-        this.authService.getCurrentUser()._id,
-        '', '', '',
-        new Media( file.type, new Buffer( reader.result ) ) );
-      this.messageService.addMessage( message );
+      if ( file.type.indexOf( 'image' ) !== -1 ) {
+        const image = new Image();
+
+        image.onload = () => {
+          const message = new Message(
+            this.authService.getCurrentUser()._id,
+            '', '', '',
+            new Media( file.type, new Buffer( reader.result ), null, { width: image.width, height: image.height } ) );
+          this.messageService.addMessage( message );
+        };
+
+        image.src = window.URL.createObjectURL( file );
+      } else {
+        const message = new Message(
+          this.authService.getCurrentUser()._id,
+          '', '', '',
+          new Media( file.type, new Buffer( reader.result ) ) );
+        this.messageService.addMessage( message );
+      }
     };
 
     reader.readAsArrayBuffer( file );

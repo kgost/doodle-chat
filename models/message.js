@@ -12,6 +12,7 @@ const messageSchema = new mongoose.Schema({
   friendship_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Friendship' },
   media: {
     mime: String,
+    size: { width: Number, height: Number },
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' }
   },
   reactions: [{

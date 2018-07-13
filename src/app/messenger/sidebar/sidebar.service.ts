@@ -198,9 +198,10 @@ export class SidebarService {
     const data = response.json();
     if ( data ) {
       if ( data.media ) {
-        data.media = new Media( data.media.mime, null, data.media.id );
+        data.media = new Media( data.media.mime, null, data.media.id, data.media.size );
       }
     }
+
     return <Message>data;
   }
 
@@ -209,7 +210,7 @@ export class SidebarService {
 
     messages.map( ( message: any ) => {
       if ( message.media ) {
-        message.media = new Media( message.media.mime, null, message.media.id );
+        message.media = new Media( message.media.mime, null, message.media.id, message.media.size );
       }
       return <Message>message;
     } );

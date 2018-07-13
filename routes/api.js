@@ -1,4 +1,6 @@
-const express  = require('express'),
+const
+  childProcess = require( 'child_process' ),
+  express      = require('express'),
   router       = express.Router(),
   jwt          = require( 'jsonwebtoken' ),
   async        = require( 'async' ),
@@ -398,15 +400,21 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
   }
 
   if ( req.body.media ) {
-    Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
-      if ( err ) {
+    const mediaCreate = childProcess.fork( './controllers/mediaCreate.js' )
+
+    mediaCreate.on( 'message', ( data ) => {
+      if ( data.err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
-          error: err
+          error: data.err
         })
       }
 
-      message.media = { mime: req.body.media.mime, id: media._id }
+      message.media = { mime: req.body.media.mime, id: data.id }
+
+      if ( req.body.media.size ) {
+        message.media.size = req.body.media.size
+      }
 
       Message.create( message, ( err, msg ) => {
         if ( err ) {
@@ -420,7 +428,9 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 
         notifyConversation( req, res, user._id, message )
       } )
-    })
+    } )
+
+    mediaCreate.send( { data: req.body.media.data, mime: req.body.media.mime } )
   } else {
     Message.create( message, ( err, msg ) => {
       if ( err ) {
@@ -495,17 +505,21 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
   }
 
   if ( req.body.media ) {
-    console.log( req.body.media.mime )
-    Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
-      console.log( req.body.media.mime )
-      if ( err ) {
+    const mediaCreate = childProcess.fork( './controllers/mediaCreate' )
+
+    mediaCreate.on( 'message', ( data ) => {
+      if ( data.err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
-          error: err
+          error: data.err
         })
       }
 
-      message.media = { mime: req.body.media.mime, id: media._id }
+      message.media = { mime: req.body.media.mime, id: data.id }
+
+      if ( req.body.media.size ) {
+        message.media.size = req.body.media.size
+      }
 
       Message.create( message, ( err, msg ) => {
         if ( err ) {
@@ -519,7 +533,9 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
 
         notifyFriendship( req, res, user._id, message )
       } )
-    })
+    } )
+
+    mediaCreate.send( { data: req.body.media.data, mime: req.body.media.mime } )
   } else {
     Message.create( message, ( err, msg ) => {
       if ( err ) {
