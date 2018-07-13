@@ -7,7 +7,7 @@ import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 })
 export class EmojiPickerComponent implements OnInit {
   @Output() emitEmoji = new EventEmitter<string>();
-  emojis = ['🤔', '😂', '😍', '😤', '😢', '🇮🇪'];
+  emojis = ['🤔', '😂', '😍', '😤', '😢', '👍'];
 
   constructor() { }
 

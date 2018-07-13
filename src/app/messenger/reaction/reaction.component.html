@@ -7,10 +7,14 @@
     aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
-  <div class="jumbotron">
-    <span
-      *ngFor="let reaction of message.reactions"
-      [innerHtml]="( reaction.text | dcrypt: key | decode8 | emojify ) + ' ' + reaction.username"
-      style="font-size: 10px;"></span>
+  <div
+    style="width: auto;"
+    class="jumbotron text-center">
+    <div
+      style="font-size: 10px;"
+      *ngFor="let reaction of reactions">
+      <span [innerHtml]="( reaction.text | dcrypt: key | decode8 | emojify ) + '<br>' + reaction.username">
+      </span>
+    </div>
   </div>
 </div>

@@ -10,12 +10,14 @@ import { MessageService } from '../messages/message.service';
 })
 export class ReactionComponent implements OnInit {
   @Input() reactions: { text: string, username: string }[];
+  key: string;
 
   constructor(
     private messageService: MessageService,
   ) { }
 
   ngOnInit() {
+    this.key = this.messageService.getKey();
   }
 
   onClose() {

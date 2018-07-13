@@ -90,6 +90,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     } else if ( this.conversationService.checkNotification( this.conversation._id ) &&
       this.conversationService.getCurrentConversation() &&
       this.conversationService.getCurrentConversation()._id === this.conversation._id ) {
+      this.notification = false;
       this.conversationService.removeNotification( this.conversation._id );
     }
   }

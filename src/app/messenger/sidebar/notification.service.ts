@@ -115,33 +115,37 @@ export class NotificationService {
   }
 
   removeConversation( id: string ) {
-    this.sidebarService.removeConversationNotification( id )
-      .subscribe(
-        () => {
-          this.conversationNotifications.splice( this.getConversationIndex( id ), 1 );
+    if ( this.getConversationStatus( id ) ) {
+      this.conversationNotifications.splice( this.getConversationIndex( id ), 1 );
 
-          if ( this.isEmpty() ) {
-            this.favicons.activate( 'inactive' );
+      this.sidebarService.removeConversationNotification( id )
+        .subscribe(
+          () => {
+            if ( this.isEmpty() ) {
+              this.favicons.activate( 'inactive' );
+            }
+
+            this.conversationEmitter.emit();
           }
-
-          this.conversationEmitter.emit();
-        }
-      );
+        );
+    }
   }
 
   removeFriendship( id: string ) {
-    this.sidebarService.removeFriendshipNotification( id )
-      .subscribe(
-        () => {
-          this.friendshipNotifications.splice( this.getFriendshipIndex( id ), 1 );
+    if ( this.getFriendshipStatus( id ) ) {
+      this.friendshipNotifications.splice( this.getFriendshipIndex( id ), 1 );
 
-          if ( this.isEmpty() ) {
-            this.favicons.activate( 'inactive' );
+      this.sidebarService.removeFriendshipNotification( id )
+        .subscribe(
+          () => {
+            if ( this.isEmpty() ) {
+              this.favicons.activate( 'inactive' );
+            }
+
+            this.friendshipEmitter.emit();
           }
-
-          this.friendshipEmitter.emit();
-        }
-      );
+        );
+    }
   }
 
   notifySound() {

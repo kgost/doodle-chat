@@ -448,17 +448,18 @@ router.post( '/message/:conversationId/:messageId/reaction', middleware.authenti
       })
     }
 
-    for ( let i = 0; i < message.reactions.length; i++ ) {
+    let i
+    for ( i = 0; i < message.reactions.length; i++ ) {
       if ( message.reactions[i] ) {
         if ( user.username === message.reactions[i].username ) {
           message.reactions[i].text = req.body.reaction
           break
         }
       }
+    }
 
-      if ( i === message.reactions.length - 1 ) {
-        message.reactions.push({ username: user.username, text: req.body.reaction })
-      }
+    if ( !message.reactions.length || ( i && i === message.reactions.length - 1 ) ) {
+      message.reactions.push({ username: user.username, text: req.body.reaction })
     }
 
     message.save( ( err ) => {
@@ -494,7 +495,9 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
   }
 
   if ( req.body.media ) {
+    console.log( req.body.media.mime )
     Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
+      console.log( req.body.media.mime )
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -544,17 +547,18 @@ router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.aut
       })
     }
 
-    for ( let i = 0; i < message.reactions.length; i++ ) {
+    let i
+    for ( i = 0; i < message.reactions.length; i++ ) {
       if ( message.reactions[i] ) {
         if ( user.username === message.reactions[i].username ) {
           message.reactions[i].text = req.body.reaction
           break
         }
       }
+    }
 
-      if ( i === message.reactions.length - 1 ) {
-        message.reactions.push({ username: user.username, text: req.body.reaction })
-      }
+    if ( !message.reactions.length || ( i && i === message.reactions.length - 1 ) ) {
+      message.reactions.push({ username: user.username, text: req.body.reaction })
     }
 
     message.save( ( err ) => {

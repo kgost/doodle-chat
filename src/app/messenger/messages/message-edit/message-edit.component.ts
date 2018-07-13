@@ -108,7 +108,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     reader.readAsArrayBuffer( file );
   }
 
-  onSelectEmoji( emoji: string ) {
+  onSelectEmoji( emoji ) {
     let text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
     let endIndex;
     if (typeof this.textarea.nativeElement.selectionStart !== 'undefined' &&

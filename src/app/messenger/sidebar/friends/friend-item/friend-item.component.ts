@@ -116,6 +116,7 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     } else if ( this.friendService.checkNotification( this.friendship._id ) &&
       this.friendService.getCurrentFriendship() &&
       this.friendService.getCurrentFriendship()._id === this.friendship._id ) {
+      this.notification = false;
       this.friendService.removeNotification( this.friendship._id );
     }
   }

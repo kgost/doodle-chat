@@ -21,7 +21,7 @@ mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.
 app.set( 'view engine', 'ejs' )
 app.set('port', ( process.env.PORT || 3000 ) )
 //Setting up bodyParser
-app.use( bodyParser.json({ limit: '50mb' }) )
+app.use( bodyParser.json({ limit: '100mb' }) )
 app.use( bodyParser.urlencoded( { extended: true } ) )
 
 if ( process.env.HEROKU ) {

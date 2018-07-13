@@ -49,7 +49,6 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onSelectEmoji( emoji: string ) {
-
     this.messageService.addReaction( this.message._id,
       this.authService.encryptAes( unescape( encodeURIComponent( emoji ) ), this.messageService.getKey() ) );
     this.toggleReaction();
