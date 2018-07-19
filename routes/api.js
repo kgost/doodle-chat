@@ -832,7 +832,7 @@ router.delete( '/notifications/conversation/:id', middleware.authenticate, ( req
     }
 
     for ( let i = 0; i < notifier.conversations.length; i++ ) {
-      if ( notifier.conversations == req.params.id ) {
+      if ( notifier.conversations[i] == req.params.id ) {
         notifier.conversations.splice( i, 1 )
         break
       }
@@ -863,7 +863,7 @@ router.delete( '/notifications/friendship/:id', middleware.authenticate, ( req, 
     }
 
     for ( let i = 0; i < notifier.friendships.length; i++ ) {
-      if ( notifier.friendships == req.params.id ) {
+      if ( notifier.friendships[i] == req.params.id ) {
         notifier.friendships.splice( i, 1 )
         break
       }

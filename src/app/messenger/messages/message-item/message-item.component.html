@@ -15,7 +15,7 @@
     <div style="margin-top: -3px;" *ngIf="!owner">
       <span
         class="pull-left"
-        class="small">{{ message.username }}</span>
+        class="small">{{ message.username + ' ' + getDate() }}</span>
     </div>
     <button 
       (click)="onDelete()"

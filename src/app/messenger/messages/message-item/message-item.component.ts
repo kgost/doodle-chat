@@ -54,6 +54,46 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
     this.toggleReaction();
   }
 
+  getDate() {
+    let date;
+    let dateString = '';
+
+    if ( this.message.createdAt === this.message.updatedAt ) {
+      date = this.message.createdAt;
+    } else {
+      date = this.message.createdAt;
+      dateString = ' edited';
+    }
+
+    date = new Date( date );
+
+    let time = date.toLocaleTimeString();
+    time = time.substr( 0, time.length - 6 ) + ' ' + time.substr( time.length - 2, time.length );
+    let dd;
+    let mm;
+
+    if ( date.getDate() !== new Date().getDate() ) {
+      dd = date.getDate();
+      mm = date.getMonth();
+
+      if ( dd < 10 ) {
+        dd = '0' + dd;
+      }
+
+      if ( mm < 10 ) {
+        mm = '0' + mm;
+      }
+
+      dateString = `${ mm }/${ dd }, ${ time }${ dateString }`;
+    } else {
+      dateString = time + dateString;
+    }
+
+    console.log( date );
+    console.log( dateString );
+    return dateString;
+  }
+
   ngAfterViewInit() {
     if ( !this.message.media ) {
       this.messageService.loadEmitter.emit();

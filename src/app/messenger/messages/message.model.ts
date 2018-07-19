@@ -10,6 +10,8 @@ export class Message {
     public _id?: string,
     public username?: string,
     public scrollTop?: number,
-    public reactions?: { username: string, text: string }[]
+    public reactions?: { username: string, text: string }[],
+    public createdAt?: Date,
+    public updatedAt?: Date
   ) {}
 }
