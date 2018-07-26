@@ -18,6 +18,7 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
   initial = true;
   loaded = 0;
   paginate = false;
+  edit = false;
 
   constructor(
     private messageService: MessageService,
@@ -30,10 +31,17 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
       .subscribe( () => {
         const messages = this.messageService.getMessages();
 
+
         if ( this.messages.length > 0 && messages.length > 0 &&  messages[0]._id !== this.messages[0]._id ) {
           this.paginate = true;
         } else {
           this.paginate = false;
+        }
+
+        if ( this.messages.length === messages.length ) {
+          this.edit = true;
+        } else {
+          this.edit = false;
         }
 
         if ( this.initial || this.paginate ) {
@@ -49,7 +57,7 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
         () => {
           if ( this.initial || this.paginate ) {
             this.loaded++;
-          } else if ( !this.paginate ) {
+          } else if ( !this.paginate && !this.edit ) {
             this.messageService.containerEmitter.emit();
           }
         }

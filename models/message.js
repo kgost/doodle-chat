@@ -15,10 +15,7 @@ const messageSchema = new mongoose.Schema({
     size: { width: Number, height: Number },
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' }
   },
-  reactions: [{
-    username: { type: String, required: true },
-    text: { type: String, required: true },
-  }]
+  reactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Reactions' },
 }, { timestamps: true } )
 
 messageSchema.pre( 'remove', ( next ) => {

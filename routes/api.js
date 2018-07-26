@@ -11,6 +11,7 @@ const
   Notifier     = require( '../models/notifier' ),
   Friendship   = require( '../models/friendship' ),
   Conversation = require( '../models/conversation' ),
+  Reactions    = require( '../models/reactions' ),
   middleware   = require( '../functions/middleware' )
 
 //Conversation Routes
@@ -390,12 +391,15 @@ router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware
  */
 router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
+  const reactionsId = mongoose.Types.ObjectId()
+
   // Save new message with corresponding conversationId
   let message = {
     text: req.body.text,
     conversation_id: req.params.conversationId,
     user: user._id,
-    username: user.username
+    username: user.username,
+    reactions: reactionsId
   }
 
   if ( req.body.media ) {
@@ -423,7 +427,16 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 
         message._id = msg._id
 
-        notifyConversation( req, res, user._id, message )
+        Reactions.create( { _id: reactionsId, message: message._id, reactions: [] }, ( err, reactions ) => {
+          if ( err ) {
+            return res.status( 500 ).json({
+              title: 'An error occured',
+              error: err
+            })
+          }
+
+          notifyConversation( req, res, user._id, message )
+        } )
       } )
     } )
   } else {
@@ -437,7 +450,16 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 
       message._id = msg._id
 
-      notifyConversation( req, res, user._id, message )
+      Reactions.create( { _id: reactionsId, message: message._id }, ( err, reactions ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        notifyConversation( req, res, user._id, message )
+      } )
     } )
   }
 } )
@@ -445,7 +467,7 @@ router.post( '/messages/:conversationId', middleware.authenticate, middleware.in
 router.post( '/message/:conversationId/:messageId/reaction', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
-  Message.findById( req.params.messageId, ( err, message ) => {
+  Reactions.findOne( { message: req.params.messageId }, ( err, reactions ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -454,18 +476,18 @@ router.post( '/message/:conversationId/:messageId/reaction', middleware.authenti
     }
 
     let i
-    for ( i = 0; i < message.reactions.length; i++ ) {
-      if ( user.username === message.reactions[i].username ) {
-        message.reactions[i].text = req.body.reaction
+    for ( i = 0; i < reactions.reactions.length; i++ ) {
+      if ( user.username === reactions.reactions[i].username ) {
+        reactions.reactions[i].text = req.body.reaction
         break
       }
     }
 
-    if ( !message.reactions.length || ( i && i === message.reactions.length ) ) {
-      message.reactions.push({ username: user.username, text: req.body.reaction })
+    if ( !reactions.reactions.length || ( i && i === reactions.reactions.length ) ) {
+      reactions.reactions.push({ username: user.username, text: req.body.reaction })
     }
 
-    message.save( ( err ) => {
+    reactions.save( ( err ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -473,7 +495,7 @@ router.post( '/message/:conversationId/:messageId/reaction', middleware.authenti
         })
       }
 
-      res.status( 201 ).json( message )
+      res.status( 201 ).json({ _id: req.params.messageId, user: user._id, text: '' })
     } )
   } )
 } )
@@ -489,12 +511,14 @@ router.post( '/message/:conversationId/:messageId/reaction', middleware.authenti
  */
 router.post( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
+  const reactionsId = mongoose.Types.ObjectId()
   // Save new message with corresponding conversationId
   let message = {
     text: req.body.text,
     friendship_id: req.params.friendshipId,
     user: user._id,
-    username: user.username
+    username: user.username,
+    reactions: reactionsId
   }
 
   if ( req.body.media ) {
@@ -522,7 +546,16 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
 
         message._id = msg._id
 
-        notifyFriendship( req, res, user._id, message )
+        Reactions.create( { _id: reactionsId, message: message._id }, ( err, reactions ) => {
+          if ( err ) {
+            return res.status( 500 ).json({
+              title: 'An error occured',
+              error: err
+            })
+          }
+
+          notifyFriendship( req, res, user._id, message )
+        } )
       } )
     } )
   } else {
@@ -536,7 +569,16 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
 
       message._id = msg._id
 
-      notifyFriendship( req, res, user._id, message )
+      Reactions.create( { _id: reactionsId, message: message._id }, ( err, reactions ) => {
+        if ( err ) {
+          return res.status( 500 ).json({
+            title: 'An error occured',
+            error: err
+          })
+        }
+
+        notifyFriendship( req, res, user._id, message )
+      } )
     } )
   }
 } )
@@ -544,7 +586,7 @@ router.post( '/privateMessages/:friendshipId', middleware.authenticate, middlewa
 router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
-  Message.findById( req.params.messageId, ( err, message ) => {
+  Reactions.findOne({ message: req.params.messageId } , ( err, reactions ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -553,20 +595,20 @@ router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.aut
     }
 
     let i
-    for ( i = 0; i < message.reactions.length; i++ ) {
-      if ( message.reactions[i] ) {
-        if ( user.username === message.reactions[i].username ) {
-          message.reactions[i].text = req.body.reaction
+    for ( i = 0; i < reactions.reactions.length; i++ ) {
+      if ( reactions.reactions[i] ) {
+        if ( user.username === reactions.reactions[i].username ) {
+          reactions.reactions[i].text = req.body.reaction
           break
         }
       }
     }
 
-    if ( !message.reactions.length || ( i && i === message.reactions.length - 1 ) ) {
-      message.reactions.push({ username: user.username, text: req.body.reaction })
+    if ( !reactions.reactions.length || ( i && i === reactions.reactions.length - 1 ) ) {
+      reactions.reactions.push({ username: user.username, text: req.body.reaction })
     }
 
-    message.save( ( err ) => {
+    reactions.save( ( err ) => {
       if ( err ) {
         return res.status( 500 ).json({
           title: 'An error occured',
@@ -574,7 +616,7 @@ router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.aut
         })
       }
 
-      res.status( 201 ).json( message )
+      res.status( 201 ).json({ _id: req.params.messageId, user: user._id, text: '' })
     } )
   } )
 } )
@@ -596,7 +638,7 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
     query['_id'] = { '$lt': req.query.id }
   }
 
-  Message.find( query ).sort( '-createdAt' ).limit( 20 ).exec( ( err, messages ) => {
+  Message.find( query ).populate( 'reactions' ).sort( '-createdAt' ).limit( 20 ).lean().exec( ( err, messages ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -607,6 +649,7 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
     const result = []
 
     for ( let i = messages.length - 1; i >= 0; i-- ) {
+      messages[i].reactions = messages[i].reactions.reactions
       result.push( messages[i] )
     }
 
@@ -634,7 +677,7 @@ router.get( '/privateMessages/:friendshipId', middleware.authenticate, middlewar
     query['_id'] = { '$lt': req.query.id }
   }
 
-  Message.find( query ).sort( '-createdAt' ).limit( 20 ).exec( ( err, messages ) => {
+  Message.find( query ).populate( 'reactions' ).sort( '-createdAt' ).limit( 20 ).lean().exec( ( err, messages ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -645,6 +688,7 @@ router.get( '/privateMessages/:friendshipId', middleware.authenticate, middlewar
     const result = []
 
     for ( let i = messages.length - 1; i >= 0; i-- ) {
+      messages[i].reactions = messages[i].reactions.reactions
       result.push( messages[i] )
     }
 
@@ -657,12 +701,17 @@ router.get( '/privateMessages/:friendshipId', middleware.authenticate, middlewar
 
 router.get( '/message/:conversationId/:messageId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId, ( err, message ) => {
+  Message.findById( req.params.messageId ).populate( 'reactions' ).lean().exec( ( err, message ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
         error: err
       })
+    }
+
+    if ( message ) {
+      const reactions = message.reactions.reactions
+      message.reactions = reactions
     }
 
     //Return success code and object with all messages
@@ -672,12 +721,17 @@ router.get( '/message/:conversationId/:messageId', middleware.authenticate, midd
 
 router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
   //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId, ( err, message ) => {
+  Message.findById( req.params.messageId ).populate( 'reactions' ).exec( ( err, message ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
         error: err
       })
+    }
+
+    if ( message ) {
+      const reactions = message.reactions.reactions
+      message.reactions = reactions
     }
 
     //Return success code and object with all messages
@@ -730,24 +784,33 @@ router.delete('/messages/:id', middleware.authenticate, middleware.isMessageOwne
       })
     }
 
-    if ( message.media ) {
-      Media.findByIdAndRemove( message.media.id, ( err ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
+    Reactions.findByIdAndRemove(message.reactions, ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
 
+      if ( message.media ) {
+        Media.findByIdAndRemove( message.media.id, ( err ) => {
+          if ( err ) {
+            return res.status( 500 ).json({
+              title: 'An error occured',
+              error: err
+            })
+          }
+
+          res.status( 200 ).json({
+            message: 'Message deleted'
+          })
+        } )
+      } else {
         res.status( 200 ).json({
           message: 'Message deleted'
         })
-      } )
-    } else {
-      res.status( 200 ).json({
-        message: 'Message deleted'
-      })
-    }
+      }
+    })
   } )
 })
 

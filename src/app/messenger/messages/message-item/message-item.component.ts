@@ -81,7 +81,7 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       if ( mm < 10 ) {
-        mm = '0' + mm;
+        mm = '0' + ( mm + 1 );
       }
 
       dateString = `${ mm }/${ dd }, ${ time }${ dateString }`;
