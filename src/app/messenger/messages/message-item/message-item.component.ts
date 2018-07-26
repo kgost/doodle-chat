@@ -89,8 +89,6 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
       dateString = time + dateString;
     }
 
-    console.log( date );
-    console.log( dateString );
     return dateString;
   }
 

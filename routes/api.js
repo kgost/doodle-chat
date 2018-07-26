@@ -455,15 +455,13 @@ router.post( '/message/:conversationId/:messageId/reaction', middleware.authenti
 
     let i
     for ( i = 0; i < message.reactions.length; i++ ) {
-      if ( message.reactions[i] ) {
-        if ( user.username === message.reactions[i].username ) {
-          message.reactions[i].text = req.body.reaction
-          break
-        }
+      if ( user.username === message.reactions[i].username ) {
+        message.reactions[i].text = req.body.reaction
+        break
       }
     }
 
-    if ( !message.reactions.length || ( i && i === message.reactions.length - 1 ) ) {
+    if ( !message.reactions.length || ( i && i === message.reactions.length ) ) {
       message.reactions.push({ username: user.username, text: req.body.reaction })
     }
 
