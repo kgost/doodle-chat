@@ -117,6 +117,8 @@ export class ConversationEditComponent implements OnInit {
     ( <FormArray> this.editForm.get('participants') ).controls[index].patchValue( event );
   }
 
+  getParticipantsArray() { return <FormArray> this.editForm.get('participants'); }
+
   private getAccessKey( userId: string ) {
     for ( let i = 0; i < this.conversation.participants.length; i++ ) {
       if ( this.conversation.participants[i].id._id === userId ) {
