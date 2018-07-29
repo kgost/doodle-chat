@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
+import { SwPush } from '@angular/service-worker';
 
 import { Conversation } from './sidebar/conversations/conversation.model';
 import { Friendship } from './sidebar/friends/friendship.model';
@@ -22,6 +23,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   friendship: Friendship;
   reactions: { text: string, username: string }[];
   showMessages = false;
+  VAPID_PUBLIC_KEY = 'BM9h7Hn2hkQKAb1joJCplHqfX2wCCo9DjOvUrwuUNroGbDLQa99hnnJGGWKBXbYi1N869D3-YN7uaXxe7xpTfBk';
 
   constructor(
     private sidebarService: SidebarService,
@@ -31,6 +33,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private alertService: AlertService,
     private socketIoService: SocketIoService,
+    private swPush: SwPush,
   ) { }
 
   ngOnInit() {
@@ -67,6 +70,14 @@ export class MessengerComponent implements OnInit, OnDestroy {
       ) );
 
     this.socketIoService.signin( this.authService.getCurrentUser()._id );
+  }
+
+  onSubscribeToNotifications() {
+    this.swPush.requestSubscription({
+      serverPublicKey: this.VAPID_PUBLIC_KEY
+    })
+    .then( sub => this.sidebarService.addPushSubscriber( sub ) )
+    .catch( err => console.error( 'could not subscribe' ) );
   }
 
   ngOnDestroy() {

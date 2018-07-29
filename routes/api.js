@@ -11,8 +11,8 @@ const
   Notifier     = require( '../models/notifier' ),
   Friendship   = require( '../models/friendship' ),
   Conversation = require( '../models/conversation' ),
-  Reactions    = require( '../models/reactions' ),
-  middleware   = require( '../functions/middleware' )
+  middleware   = require( '../functions/middleware' ),
+  messageController   = require( '../controllers/message' )
 
 //Conversation Routes
 
@@ -389,116 +389,19 @@ router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding message.
  */
-router.post( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-  const reactionsId = mongoose.Types.ObjectId()
+router.post(
+  '/messages/:conversationId',
+  middleware.authenticate,
+  middleware.inConversation,
+  messageController.create
+)
 
-  // Save new message with corresponding conversationId
-  let message = {
-    text: req.body.text,
-    conversation_id: req.params.conversationId,
-    user: user._id,
-    username: user.username,
-    reactions: reactionsId
-  }
-
-  if ( req.body.media ) {
-    Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      message.media = { mime: req.body.media.mime, id: media._id }
-
-      if ( req.body.media.size ) {
-        message.media.size = req.body.media.size
-      }
-
-      Message.create( message, ( err, msg ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        message._id = msg._id
-
-        Reactions.create( { _id: reactionsId, message: message._id, reactions: [] }, ( err, reactions ) => {
-          if ( err ) {
-            return res.status( 500 ).json({
-              title: 'An error occured',
-              error: err
-            })
-          }
-
-          notifyConversation( req, res, user._id, message )
-        } )
-      } )
-    } )
-  } else {
-    Message.create( message, ( err, msg ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      message._id = msg._id
-
-      Reactions.create( { _id: reactionsId, message: message._id }, ( err, reactions ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        notifyConversation( req, res, user._id, message )
-      } )
-    } )
-  }
-} )
-
-router.post( '/message/:conversationId/:messageId/reaction', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  Reactions.findOne( { message: req.params.messageId }, ( err, reactions ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    let i
-    for ( i = 0; i < reactions.reactions.length; i++ ) {
-      if ( user.username === reactions.reactions[i].username ) {
-        reactions.reactions[i].text = req.body.reaction
-        break
-      }
-    }
-
-    if ( !reactions.reactions.length || ( i && i === reactions.reactions.length ) ) {
-      reactions.reactions.push({ username: user.username, text: req.body.reaction })
-    }
-
-    reactions.save( ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      res.status( 201 ).json({ _id: req.params.messageId, user: user._id, text: '' })
-    } )
-  } )
-} )
+router.post(
+  '/message/:conversationId/:messageId/reaction',
+  middleware.authenticate,
+  middleware.inConversation,
+  messageController.createReaction
+)
 
 /**
  * CREATE route for messages:
@@ -509,117 +412,19 @@ router.post( '/message/:conversationId/:messageId/reaction', middleware.authenti
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding message.
  */
-router.post( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-  const reactionsId = mongoose.Types.ObjectId()
-  // Save new message with corresponding conversationId
-  let message = {
-    text: req.body.text,
-    friendship_id: req.params.friendshipId,
-    user: user._id,
-    username: user.username,
-    reactions: reactionsId
-  }
+router.post(
+  '/privateMessages/:friendshipId',
+  middleware.authenticate,
+  middleware.inFriendship,
+  messageController.create
+)
 
-  if ( req.body.media ) {
-    Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime }, ( err, media ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      message.media = { mime: req.body.media.mime, id: media._id }
-
-      if ( req.body.media.size ) {
-        message.media.size = req.body.media.size
-      }
-
-      Message.create( message, ( err, msg ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        message._id = msg._id
-
-        Reactions.create( { _id: reactionsId, message: message._id }, ( err, reactions ) => {
-          if ( err ) {
-            return res.status( 500 ).json({
-              title: 'An error occured',
-              error: err
-            })
-          }
-
-          notifyFriendship( req, res, user._id, message )
-        } )
-      } )
-    } )
-  } else {
-    Message.create( message, ( err, msg ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      message._id = msg._id
-
-      Reactions.create( { _id: reactionsId, message: message._id }, ( err, reactions ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        notifyFriendship( req, res, user._id, message )
-      } )
-    } )
-  }
-} )
-
-router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  Reactions.findOne({ message: req.params.messageId } , ( err, reactions ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    let i
-    for ( i = 0; i < reactions.reactions.length; i++ ) {
-      if ( reactions.reactions[i] ) {
-        if ( user.username === reactions.reactions[i].username ) {
-          reactions.reactions[i].text = req.body.reaction
-          break
-        }
-      }
-    }
-
-    if ( !reactions.reactions.length || ( i && i === reactions.reactions.length - 1 ) ) {
-      reactions.reactions.push({ username: user.username, text: req.body.reaction })
-    }
-
-    reactions.save( ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      res.status( 201 ).json({ _id: req.params.messageId, user: user._id, text: '' })
-    } )
-  } )
-} )
+router.post(
+  '/privateMessage/:friendshipId/:messageId/reaction',
+  middleware.authenticate,
+  middleware.inFriendship,
+  messageController.createReaction
+)
 
 /**
  * READ route for message:
@@ -630,35 +435,12 @@ router.post( '/privateMessage/:friendshipId/:messageId/reaction', middleware.aut
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
  */
-router.get( '/messages/:conversationId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  //Finds all messages associated with given conversationId
-  let query = { conversation_id: req.params.conversationId }
-
-  if ( req.query.id ) {
-    query['_id'] = { '$lt': req.query.id }
-  }
-
-  Message.find( query ).populate( 'reactions' ).sort( '-createdAt' ).limit( 20 ).lean().exec( ( err, messages ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    const result = []
-
-    for ( let i = messages.length - 1; i >= 0; i-- ) {
-      messages[i].reactions = messages[i].reactions.reactions
-      result.push( messages[i] )
-    }
-
-    //Return success code and object with all messages
-    res.status( 200 ).json({
-      obj: result
-    })
-  })
-})
+router.get(
+  '/messages/:conversationId',
+  middleware.authenticate,
+  middleware.inConversation,
+  messageController.index
+)
 
 /**
  * READ route for message:
@@ -669,75 +451,26 @@ router.get( '/messages/:conversationId', middleware.authenticate, middleware.inC
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code along with an object containing the conversation's messages.
  */
-router.get( '/privateMessages/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
-  //Finds all messages associated with given conversationId
-  let query = { friendship_id: req.params.friendshipId }
+router.get(
+  '/privateMessages/:friendshipId',
+  middleware.authenticate,
+  middleware.inFriendship,
+  messageController.index
+)
 
-  if ( req.query.id ) {
-    query['_id'] = { '$lt': req.query.id }
-  }
+router.get(
+  '/message/:conversationId/:messageId',
+  middleware.authenticate,
+  middleware.inConversation,
+  messageController.show
+)
 
-  Message.find( query ).populate( 'reactions' ).sort( '-createdAt' ).limit( 20 ).lean().exec( ( err, messages ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    const result = []
-
-    for ( let i = messages.length - 1; i >= 0; i-- ) {
-      messages[i].reactions = messages[i].reactions.reactions
-      result.push( messages[i] )
-    }
-
-    //Return success code and object with all messages
-    res.status( 200 ).json({
-      obj: result
-    })
-  })
-})
-
-router.get( '/message/:conversationId/:messageId', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId ).populate( 'reactions' ).lean().exec( ( err, message ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    if ( message ) {
-      const reactions = message.reactions.reactions
-      message.reactions = reactions
-    }
-
-    //Return success code and object with all messages
-    res.status( 200 ).json(message)
-  })
-})
-
-router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
-  //Finds all messages associated with given conversationId
-  Message.findById( req.params.messageId ).populate( 'reactions' ).exec( ( err, message ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    if ( message ) {
-      const reactions = message.reactions.reactions
-      message.reactions = reactions
-    }
-
-    //Return success code and object with all messages
-    res.status( 200 ).json(message)
-  })
-})
+router.get(
+  '/privateMessage/:friendshipId/:messageId',
+  middleware.authenticate,
+  middleware.inFriendship,
+  messageController.show
+)
 
 /**
  * UPDATE route for message:
@@ -748,22 +481,12 @@ router.get( '/privateMessage/:friendshipId/:messageId', middleware.authenticate,
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code along with an object containing the messages.
  */
-router.put( '/messages/:id', middleware.authenticate, middleware.isMessageOwner, ( req, res ) => {
-  req.body.text = req.body.text
-  //Finds all messages associated with given id
-  Message.findByIdAndUpdate( req.params.id, req.body ).exec( ( err ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-    //Return success code and object with all messages
-    res.status( 200 ).json({
-      message: 'Reply Successful',
-    })
-  })
-})
+router.put(
+  '/messages/:id',
+  middleware.authenticate,
+  middleware.isMessageOwner,
+  messageController.update
+)
 
 /**
  * DELETE route for message:
@@ -774,45 +497,12 @@ router.put( '/messages/:id', middleware.authenticate, middleware.isMessageOwner,
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code
  */
-router.delete('/messages/:id', middleware.authenticate, middleware.isMessageOwner, (req, res) => {
-  //Finds conversation with given id and removes form the database
-  Message.findByIdAndRemove(req.params.id, req.body, (err, message) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    Reactions.findByIdAndRemove(message.reactions, ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      if ( message.media ) {
-        Media.findByIdAndRemove( message.media.id, ( err ) => {
-          if ( err ) {
-            return res.status( 500 ).json({
-              title: 'An error occured',
-              error: err
-            })
-          }
-
-          res.status( 200 ).json({
-            message: 'Message deleted'
-          })
-        } )
-      } else {
-        res.status( 200 ).json({
-          message: 'Message deleted'
-        })
-      }
-    })
-  } )
-})
+router.delete(
+  '/messages/:id',
+  middleware.authenticate,
+  middleware.isMessageOwner,
+  messageController.destroy
+)
 
 router.get( '/media/:id', ( req, res ) => {
   Media.findById( req.params.id, ( err, file ) => {
@@ -955,56 +645,6 @@ router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
     res.status( 200 ).json({ obj: users })
   } )
 } )
-
-function notifyConversation( req, res, userId, message ) {
-  Conversation.findById( req.params.conversationId, 'participants', ( err, conversation ) => {
-    const users = conversation.participants.map( ( user ) => {
-      if ( user.id != userId ) {
-        return mongoose.Types.ObjectId( user.id )
-      }
-    } )
-
-    Notifier.update( { user: { '$in': users },
-      conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) } },
-    { '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) } }, { multi: true }, ( err ) => {
-    //Notifier.find( { user: { '$in': users }, friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, notifier ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      // respond with success message
-      res.status( 201 ).json( message )
-    } )
-  } )
-}
-
-function notifyFriendship( req, res, userId, message ) {
-  Friendship.findById( req.params.friendshipId, 'users', ( err, friendship ) => {
-    const users = friendship.users.map( ( user ) => {
-      if ( user.id != userId ) {
-        return mongoose.Types.ObjectId( user.id )
-      }
-    } )
-
-    Notifier.update( { user: { '$in': users },
-      friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } },
-    { '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, { multi: true }, ( err ) => {
-    //Notifier.find( { user: { '$in': users }, friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err, notifier ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      // respond with success message
-      res.status( 201 ).json( message )
-    } )
-  } )
-}
 
 function pruneUsers( conversation ) {
   for ( let i = 0; i < conversation.participants.length; i++ ) {

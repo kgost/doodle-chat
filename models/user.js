@@ -6,7 +6,15 @@ const userSchema = new mongoose.Schema({
   username: {type:String, unique:true, required:true},
   password: {type:String, required:true},
   publicKey: { type:String, required:true },
-  privateKey: { type: String, required: true }
+  privateKey: { type: String, required: true },
+  pushSub: {
+    endpoint: String,
+    expirationTime: Object,
+    keys: {
+      p256dh: String,
+      auth: String,
+    }
+  }
 }, { timestamps: true } )
 
 userSchema.path('password').validate(function(password) {
