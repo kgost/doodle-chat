@@ -10,9 +10,9 @@ const
   User         = require( '../models/user' ),
   Notifier     = require( '../models/notifier' ),
   Friendship   = require( '../models/friendship' ),
-  Conversation = require( '../models/conversation' ),
   middleware   = require( '../functions/middleware' ),
-  messageController   = require( '../controllers/message' )
+  messageController   = require( '../controllers/message' ),
+  conversationController   = require( '../controllers/conversation' )
 
 //Conversation Routes
 
@@ -24,46 +24,11 @@ const
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding messages.
  */
-router.post( '/conversations', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user //Pull user from the JWT
-  const convo = pruneUsers( req.body )
-
-  async.map( convo.participants, ( participant, cb ) => {
-    User.findOne( { username: participant.id.username }, '_id username' ).lean().exec( ( err, usr ) => {
-      if ( err ) return cb( err )
-      if ( !usr ) return cb( null )
-      return cb( null, { id: { _id: usr._id, username: usr.username }, accessKey: participant.accessKey } )
-    } )
-  }, ( err, results ) => {
-    for ( let i = 0; i < results.length; i++ ) {
-      if ( !results[i] ) {
-        results.splice( i, 1 )
-        i--
-      }
-    }
-    convo.participants = results
-
-    convo.name = req.sanitize( convo.name )
-
-    //Create the new conversation object
-    Conversation.create( convo, ( err, conversation ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      //Successful Creation
-      res.status( 201 ).json({
-        _id: conversation._id,
-        name: convo.name,
-        owner: { _id: user._id, username: user.username },
-        participants: convo.participants
-      })
-    } )
-  } )
-} )
+router.post(
+  '/conversations',
+  middleware.authenticate,
+  conversationController.create
+)
 
 /**
  * READ route for conversations:
@@ -73,23 +38,11 @@ router.post( '/conversations', middleware.authenticate, ( req, res ) => {
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding messages.
  */
-router.get( '/conversations', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  //Find all conversations this user is a part of
-  Conversation.find({ 'participants.id': mongoose.Types.ObjectId( user._id ) }, '_id name participants owner' ).populate('participants.id', 'username').populate( 'owner', 'username' ).exec( ( err, conversations ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    return res.status( 200 ).json({
-      obj: conversations
-    })
-  })
-})
+router.get(
+  '/conversations',
+  middleware.authenticate,
+  conversationController.index
+)
 
 /**
  * UPDATE route for conversations:
@@ -100,79 +53,12 @@ router.get( '/conversations', middleware.authenticate, ( req, res ) => {
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding messages.
  */
-router.put('/conversations/:id', middleware.authenticate, middleware.isConversationOwner, (req, res) => {
-  const user = jwt.decode(req.query.token).user //Pull user from the JWT
-  const convo = pruneUsers( req.body )
-
-  async.map( convo.participants, ( participant, cb ) => {
-    User.findOne( { username: participant.id.username }, '_id username' ).lean().exec( ( err, usr ) => {
-      if ( err || !user._id ) return cb( err )
-      if ( !usr ) return cb( null )
-      return cb( null, { id: { _id: usr._id, username: usr.username }, accessKey: participant.accessKey } )
-    } )
-  }, ( err, results ) => {
-    convo.participants = results
-
-    convo.name = req.sanitize( convo.name )
-
-    //Create the new conversation object
-    Conversation.findByIdAndUpdate( req.params.id, convo, ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-      //Successful Creation
-      res.status( 201 ).json({
-        _id: req.params.id,
-        name: convo.name,
-        owner: { _id: user._id, username: user.username },
-        participants: convo.participants
-      })
-    } )
-  } )
-})
-
-router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user //Pull user from the JWT
-
-  Conversation.findById( req.params.id, ( err, conversation ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    Notifier.update( { user: mongoose.Types.ObjectId( user._id ) }, { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }, ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      for ( let i = 0; i < conversation.participants.length; i++ ) {
-        if ( conversation.participants[i].id == user._id ) {
-          conversation.participants.splice( i, 1 )
-          break
-        }
-      }
-
-      conversation.save( ( err ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        res.status( 200 ).json({ message: 'Left Converrsation' })
-      } )
-    } )
-  } )
-} )
+router.put(
+  '/conversations/:id',
+  middleware.authenticate,
+  middleware.isConversationOwner,
+  conversationController.update
+)
 
 /**
  * Destroy route for conversations:
@@ -183,55 +69,18 @@ router.get( '/conversations/:id/leave', middleware.authenticate, ( req, res ) =>
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding message.
  */
-router.delete('/conversations/:id', middleware.authenticate, middleware.isConversationOwner, (req, res) => {
-  //Finds conversation with given id and removes form the database
-  Conversation.findByIdAndRemove(req.params.id, req.body, (err) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
+router.delete(
+  '/conversations/:id',
+  middleware.authenticate,
+  middleware.isConversationOwner,
+  conversationController.destroy
+)
 
-    Notifier.update( { conversations: mongoose.Types.ObjectId( req.params.id ) }, { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }, ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      //Removes all messages that reference the conversation
-      Message.find( { conversation_id: req.params.id }, ( err, messages ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        async.map( messages, ( message, cb ) => {
-          if ( message.media ) {
-            Media.findByIdAndRemove( message.media.id, ( err ) => {
-              message.remove( ( err ) => {
-                cb( err )
-              } )
-            } )
-          } else {
-            message.remove( ( err ) => {
-              cb( err )
-            } )
-          }
-        }, ( err ) => {
-
-          res.status( 200 ).json({
-            message: 'Conversation deleted'
-          })
-        } )
-      } )
-    } )
-  })
-})
+router.get(
+  '/conversations/:id/leave',
+  middleware.authenticate,
+  conversationController.leave
+)
 
 //Friendship Routes
 router.post( '/friendships', middleware.authenticate, middleware.validSentFriendship, ( req, res ) => {

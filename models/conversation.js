@@ -1,5 +1,7 @@
 //Model File for Conversations
-var mongoose = require( 'mongoose' )
+var
+  mongoose = require( 'mongoose' ),
+  Message = require( './message' )
 
 // define conversation Schema, must have a name, owner and participants
 var conversationSchema = new mongoose.Schema({
@@ -15,5 +17,12 @@ conversationSchema.path( 'participants' ).validate( function( participants ) {
 
   return true
 }, 'Conversation must have participants' )
+
+conversationSchema.post( 'remove', ( conversation ) => {
+  console.log( 'feff' )
+  Message.remove( { conversation_id: conversation._id }, ( err ) => {
+    if ( err ) throw err
+  } )
+} )
 
 module.exports = mongoose.model( 'Conversation' , conversationSchema )

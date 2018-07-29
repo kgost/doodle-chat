@@ -18,13 +18,11 @@ const messageSchema = new mongoose.Schema({
   reactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Reactions' },
 }, { timestamps: true } )
 
-messageSchema.pre( 'remove', ( next ) => {
-  if ( this.media ) {
-    Media.findByIdAndRemove( this.media.id, () => {
-      next()
+messageSchema.post( 'remove', ( message ) => {
+  if ( message.media ) {
+    Media.findByIdAndRemove( message.media.id, ( err ) => {
+      if ( err ) throw err
     } )
-  } else {
-    next()
   }
 } )
 

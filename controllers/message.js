@@ -203,7 +203,7 @@ async function index( req ) {
   if ( req.params.conversationId ) {
     query = { conversation_id: req.params.conversationId }
   } else {
-    query = { conversation_id: req.params.friendshipId }
+    query = { friendship_id: req.params.friendshipId }
   }
 
   if ( req.query.id ) {
