@@ -1,12 +1,12 @@
 const
-  mongoose = require( 'mongoose' ),
-  jwt = require( 'jsonwebtoken' ),
-  to = require( 'await-to-js' ).to,
+  mongoose       = require( 'mongoose' ),
+  jwt            = require( 'jsonwebtoken' ),
+  to             = require( 'await-to-js' ).to,
   responseHelper = require( '../functions/responseHelper' ),
-  User = require( '../models/user' ),
-  Friendship = require( '../models/friendship' ),
-  Notifier = require( '../models/notifier' ),
-  Message = require( '../models/message' )
+  User           = require( '../models/user' ),
+  Friendship     = require( '../models/friendship' ),
+  Notifier       = require( '../models/notifier' ),
+  Message        = require( '../models/message' )
 
 const syncActions = {
   create: ( req, res, next ) => {
@@ -47,18 +47,6 @@ const syncActions = {
 
   destroy: ( req, res, next ) => {
     destroy( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-
-  leave: ( req, res, next ) => {
-    leave( req )
       .then( ( result ) => {
         responseHelper.handleResponse( result, res )
         return next()
@@ -167,7 +155,7 @@ async function destroy( req ) {
     ).exec()
   )
 
-  ;[err, messages] = await to( Message.find( { friendship_id: req.params.friendshipId }, 'media' ) )
+  ;[err, messages] = await to( Message.find( { friendship_id: req.params.friendshipId }, 'media reactions' ) )
   if ( err ) throw { status: 500, error: err }
 
   await Promise.all(
@@ -178,48 +166,6 @@ async function destroy( req ) {
   )
 
   return { status: 200, data: { message: 'Friendship deleted' } }
-}
-
-async function leave( req ) {
-  let err, conversation
-
-  const user = jwt.decode(req.query.token).user //Pull user from the JWT
-
-  ;[err, conversation] = await to( Conversation.findById( req.params.id ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
-
-  ;[err] = await to(
-    Notifier.update(
-      { user: mongoose.Types.ObjectId( user._id ) },
-      { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }
-    ).exec()
-  )
-  if ( err ) throw { status: 500, error: err }
-
-  for ( let i = 0; i < conversation.participants.length; i++ ) {
-    if ( conversation.participants[i].id == user._id ) {
-      conversation.participants.splice( i, 1 )
-      break
-    }
-  }
-
-  [err] = await to( Conversation.findByIdAndUpdate( conversation._id, conversation ).exec() )
-  if ( err ) throw { status: 500, error: err }
-
-  return { status: 200, data: { message: 'Left Converrsation' } }
-}
-
-function pruneUsers( conversation ) {
-  for ( let i = 0; i < conversation.participants.length; i++ ) {
-    for ( let j = i + 1; j < conversation.participants.length; j++ ) {
-      if ( conversation.participants[i].id.username === conversation.participants[j].id.username ) {
-        conversation.participants.splice( i, 1 )
-        i--
-        break
-      }
-    }
-  }
-  return conversation
 }
 
 module.exports = syncActions

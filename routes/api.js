@@ -1,16 +1,14 @@
 const
   express      = require('express'),
   router       = express.Router(),
-  jwt          = require( 'jsonwebtoken' ),
-  mongoose     = require( 'mongoose' ),
   streamifier  = require( 'streamifier' ),
   Media        = require( '../models/media' ),
   User         = require( '../models/user' ),
-  Notifier     = require( '../models/notifier' ),
   middleware   = require( '../functions/middleware' ),
-  messageController   = require( '../controllers/message' ),
-  conversationController   = require( '../controllers/conversation' ),
-  friendshipController   = require( '../controllers/friendship' )
+  messageController = require( '../controllers/message' ),
+  conversationController = require( '../controllers/conversation' ),
+  friendshipController = require( '../controllers/friendship' ),
+  notificationsController = require( '../controllers/notifications' )
 
 //Conversation Routes
 
@@ -286,82 +284,11 @@ router.get( '/media/:id', ( req, res ) => {
   } )
 } )
 
-router.get( '/notifications', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
+router.get( '/notifications', middleware.authenticate, notificationsController.index )
 
-  Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) }, ( err, notifier ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
+router.delete( '/notifications/conversation/:conversationId', middleware.authenticate, notificationsController.destroy )
 
-    res.status( 200 ).json( notifier )
-  } )
-} )
-
-router.delete( '/notifications/conversation/:id', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) }, ( err, notifier ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    for ( let i = 0; i < notifier.conversations.length; i++ ) {
-      if ( notifier.conversations[i] == req.params.id ) {
-        notifier.conversations.splice( i, 1 )
-        break
-      }
-    }
-
-    notifier.save( ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      res.status( 200 ).json({ message: 'Notification Removed' })
-    } )
-  } )
-} )
-
-router.delete( '/notifications/friendship/:id', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) }, ( err, notifier ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    for ( let i = 0; i < notifier.friendships.length; i++ ) {
-      if ( notifier.friendships[i] == req.params.id ) {
-        notifier.friendships.splice( i, 1 )
-        break
-      }
-    }
-
-    notifier.save( ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      res.status( 200 ).json({ message: 'Notification Removed' })
-    } )
-  } )
-} )
+router.delete( '/notifications/friendship/:friendshipId', middleware.authenticate, notificationsController.destroy )
 
 router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
   User.find( { username: { '$in': req.body } }, 'username publicKey', ( err, users ) => {

@@ -123,7 +123,7 @@ const actions = {
     // find the conversation with the provided id
     Friendship.findById( req.params.friendshipId, ( err, friendship ) => {
       // if no conversation was found respond with the invalid resource error
-      if ( !friendship._id ) {
+      if ( !friendship || !friendship._id ) {
         return res.status(404).json({
           title: 'No friendship provided.',
           error: {message: 'Invalid friendship id sent to server.'}

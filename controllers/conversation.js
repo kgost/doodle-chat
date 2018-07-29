@@ -141,7 +141,7 @@ async function destroy( req ) {
   )
   if ( err ) throw { status: 500, error: err }
 
-  ;[err, messages] = await to( Message.find( { conversation_id: req.params.id }, 'media' ).exec() )
+  ;[err, messages] = await to( Message.find( { conversation_id: req.params.id }, 'media reactions' ).exec() )
   if ( err ) throw { status: 500, error: err }
 
   await Promise.all(

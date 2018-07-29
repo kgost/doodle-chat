@@ -249,16 +249,11 @@ async function update( req ) {
 async function destroy( req ) {
   let err, message
 
-  [err, message] = await to( Message.findByIdAndRemove( req.params.id ).exec() )
+  [err, message] = await to( Message.findById( req.params.id, 'media reactions' ).exec() )
   if ( err ) throw { status: 500, error: err }
 
-  ;[err] = await to( Reactions.findByIdAndRemove( message.reactions ).exec() )
+  ;[err] = await to( message.remove() )
   if ( err ) throw { status: 500, error: err }
-
-  if ( message.media ) {
-    [err] = await to( Media.findByIdAndRemove( message.media.id ).exec() )
-    if ( err ) throw { status: 500, error: err }
-  }
 
   return { status: 200, data: { message: 'Message deleted' } }
 }

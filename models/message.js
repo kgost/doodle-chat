@@ -1,7 +1,8 @@
 //Model File for Messages
 //http://blog.slatepeak.com/creating-a-real-time-chat-api-with-node-express-socket-io-and-mongodb/
 const mongoose 	= require( 'mongoose' ),
-  Media = require( './media' )
+  Media = require( './media' ),
+  Reactions = require( './reactions' )
 
 // define the message schema, must have a user and conversation that it belongs to
 const messageSchema = new mongoose.Schema({
@@ -19,11 +20,15 @@ const messageSchema = new mongoose.Schema({
 }, { timestamps: true } )
 
 messageSchema.post( 'remove', ( message ) => {
-  if ( message.media ) {
-    Media.findByIdAndRemove( message.media.id, ( err ) => {
-      if ( err ) throw err
-    } )
-  }
+  Reactions.findByIdAndRemove( message.reactions, ( err ) => {
+    if ( err ) throw err
+
+    if ( message.media ) {
+      Media.findByIdAndRemove( message.media.id, ( err ) => {
+        if ( err ) throw err
+      } )
+    }
+  } )
 } )
 
 module.exports = mongoose.model( 'Message' , messageSchema )
