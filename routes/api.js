@@ -2,17 +2,15 @@ const
   express      = require('express'),
   router       = express.Router(),
   jwt          = require( 'jsonwebtoken' ),
-  async        = require( 'async' ),
   mongoose     = require( 'mongoose' ),
   streamifier  = require( 'streamifier' ),
-  Message      = require( '../models/message' ),
   Media        = require( '../models/media' ),
   User         = require( '../models/user' ),
   Notifier     = require( '../models/notifier' ),
-  Friendship   = require( '../models/friendship' ),
   middleware   = require( '../functions/middleware' ),
   messageController   = require( '../controllers/message' ),
-  conversationController   = require( '../controllers/conversation' )
+  conversationController   = require( '../controllers/conversation' ),
+  friendshipController   = require( '../controllers/friendship' )
 
 //Conversation Routes
 
@@ -83,149 +81,32 @@ router.get(
 )
 
 //Friendship Routes
-router.post( '/friendships', middleware.authenticate, middleware.validSentFriendship, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-  let key1 = ''
-  let key2 = ''
-  let otherUsername = ''
+router.post(
+  '/friendships',
+  middleware.authenticate,
+  middleware.validSentFriendship,
+  friendshipController.create
+)
 
-  for ( let i = 0; i < req.body.users.length; i++ ) {
-    if ( req.body.users[i].id.username != user.username ) {
-      otherUsername = req.body.users[i].id.username
-      key2 = req.body.users[i].accessKey
-    } else {
-      key1 = req.body.users[i].accessKey
-    }
-  }
+router.get(
+  '/friendships',
+  middleware.authenticate,
+  friendshipController.index
+)
 
-  User.findOne( { username: otherUsername }, '_id username', ( err, usr ) =>  {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
+router.put(
+  '/friendships/:friendshipId',
+  middleware.authenticate,
+  middleware.inFriendship,
+  friendshipController.update
+)
 
-    if ( !usr || !usr._id ) {
-      return res.status( 400 ).json({
-        title: 'Invalid friendship request',
-        error: { message: 'The Friendship Request Was Invalid' }
-      })
-    }
-
-    Friendship.create( { users: [{ id: user._id, accessKey: key1, accepted: true }, { id: usr._id, accessKey: key2, accepted: false }] }, ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      res.status( 201 ).json({
-        users: [
-          { id: { _id: user._id, username: user.username }, accepted: true },
-          { id: { _id: usr._id, username: usr.username }, accepted: false }
-        ]
-      })
-    } )
-  } )
-} )
-
-router.get( '/friendships', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  Friendship.find({ 'users.id': mongoose.Types.ObjectId( user._id ) }).populate( 'users.id', 'username' ).exec( ( err, friendships ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    return res.status( 200 ).json({
-      obj: friendships
-    })
-  } )
-} )
-
-router.put( '/friendships/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  Friendship.findById( req.params.friendshipId, ( err, friendship ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    for ( let i = 0; i < friendship.users.length; i++ ) {
-      if ( friendship.users[i].id == user._id ) {
-        friendship.users[i].accepted = true
-      }
-    }
-
-    friendship.save( ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-      
-      res.status( 201 ).json( friendship )
-    } )
-  } )
-} )
-
-router.delete( '/friendships/:friendshipId', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
-  Friendship.findByIdAndRemove( req.params.friendshipId, ( err ) => {
-    if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
-    }
-
-    Notifier.update( { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) }, { '$pull': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }, ( err ) => {
-      if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
-      }
-
-      //Removes all messages that reference the conversation
-      Message.find( { friendship_id: req.params.friendshipId }, ( err, messages ) => {
-        if ( err ) {
-          return res.status( 500 ).json({
-            title: 'An error occured',
-            error: err
-          })
-        }
-
-        async.map( messages, ( message, cb ) => {
-          if ( message.media ) {
-            Media.findByIdAndRemove( message.media.id, ( err ) => {
-              message.remove( ( err ) => {
-                cb( err )
-              } )
-            } )
-          } else {
-            message.remove( ( err ) => {
-              cb( err )
-            } )
-          }
-        }, ( err ) => {
-
-          res.status( 200 ).json({
-            message: 'Conversation deleted'
-          })
-        } )
-      } )
-    } )
-  } )
-} )
+router.delete(
+  '/friendships/:friendshipId',
+  middleware.authenticate,
+  middleware.inFriendship,
+  friendshipController.destroy
+)
 
 //Message Routes
 
@@ -494,18 +375,5 @@ router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
     res.status( 200 ).json({ obj: users })
   } )
 } )
-
-function pruneUsers( conversation ) {
-  for ( let i = 0; i < conversation.participants.length; i++ ) {
-    for ( let j = i + 1; j < conversation.participants.length; j++ ) {
-      if ( conversation.participants[i].id.username === conversation.participants[j].id.username ) {
-        conversation.participants.splice( i, 1 )
-        i--
-        break
-      }
-    }
-  }
-  return conversation
-}
 
 module.exports = router
