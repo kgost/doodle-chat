@@ -19,7 +19,7 @@ mongoose.connect( 'mongodb://localhost:27017/doodle_chat', function( err ) {
     throw err
   }
 
-  User.find( {}, ( err, users ) => {
+  User.find( { pushSub: { '$exists': true, '$ne': null } }, ( err, users ) => {
     if ( err ) {
       console.log( err )
       process.exit()

@@ -6,9 +6,12 @@
     "resources": {
       "files": [
         "/favicon.ico",
-        "/index.html",
-        "/*.css",
-        "/*.js"
+        "/index.html"
+      ],
+      "files": [
+        "/*.bundle.css",
+        "/*.bundle.js",
+        "/*.chunk.js"
       ]
     }
   }, {

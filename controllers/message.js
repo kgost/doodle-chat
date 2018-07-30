@@ -2,6 +2,7 @@ const
   mongoose = require( 'mongoose' ),
   to = require( 'await-to-js' ).to,
   jwt = require( 'jsonwebtoken' ),
+  webpush = require('web-push'),
   responseHelper = require( '../functions/responseHelper' ),
   Media = require( '../models/media' ),
   Message = require( '../models/message' ),
@@ -9,6 +10,17 @@ const
   Conversation = require( '../models/conversation' ),
   Friendship = require( '../models/friendship' ),
   Notifier = require( '../models/notifier' )
+
+const vapidKeys = {
+  'publicKey':'BIvF-GchsDONxK_P9zHU23Iv7uT8Ng3Lz62zfpOkvf8leyqjHItqp7hDQXV3i6Dh-7PaznxNg-dxFOz7gg3GmaQ',
+  'privateKey':'tAfWc6F8aN3EuS3mkj51OlFQQPzonQIA3YiGDdcgWM8'
+}
+
+webpush.setVapidDetails(
+  'mailto:example@yourdomain.org',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+)
 
 const syncActions = {
   create: ( req, res, next ) => {
@@ -123,13 +135,13 @@ async function create( req ) {
   ;[err] = await to( Reactions.create( { _id: reactionsId, message: message._id, reactions: [] } ) )
   if ( err ) throw { status: 500, error: err }
 
-  let notifierQuery, notifierObject
+  let notifierQuery, notifierObject, users, pushQuery
 
   if ( req.params.conversationId ) {
     [err, conversation] = await to( Conversation.findById( req.params.conversationId, 'participants' ).lean().exec() )
     if ( err ) throw { status: 500, error: err }
 
-    const users = conversation.participants.map( ( usr ) => {
+    users = conversation.participants.map( ( usr ) => {
       if ( usr.id != user._id ) {
         return mongoose.Types.ObjectId( usr.id )
       }
@@ -138,6 +150,11 @@ async function create( req ) {
     notifierQuery = {
       user: { '$in': users },
       conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) }
+    }
+
+    pushQuery = {
+      user: { '$in': users },
+      conversations: mongoose.Types.ObjectId( req.params.conversationId )
     }
 
     notifierObject = {
@@ -149,7 +166,7 @@ async function create( req ) {
     [err, friendship] = await to( Friendship.findById( req.params.friendshipId, 'users' ).lean().exec() )
     if ( err ) throw { status: 500, error: err }
 
-    const users = friendship.users.map( ( usr ) => {
+    users = friendship.users.map( ( usr ) => {
       if ( usr.id != user._id ) {
         return mongoose.Types.ObjectId( usr.id )
       }
@@ -160,6 +177,11 @@ async function create( req ) {
       friendships: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) }
     }
 
+    pushQuery = {
+      user: { '$in': users },
+      friendships: mongoose.Types.ObjectId( req.params.friendshipId )
+    }
+
     notifierObject = {
       '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) }
     }
@@ -167,6 +189,36 @@ async function create( req ) {
 
   [err] = await to( Notifier.update( notifierQuery, notifierObject, { multi: true } ).exec() )
   if ( err ) throw { status: 500, error: err }
+
+  setTimeout( ( pushQuery ) => {
+    Notifier.find( pushQuery, 'user' ).populate( 'user' ).lean().exec( ( err, notifiers ) => {
+      const notificationPayload = {
+        'notification': {
+          'title': 'La Li Lu Le Lo',
+          'body': 'New Secure Message',
+          'icon': '../src/assets/icons/icon-128x128.png',
+          'vibrate': [100, 50, 100],
+          'data': {
+            'dateOfArrival': Date.now(),
+            'primaryKey': 1
+          },
+          'actions': [{
+            'action': 'explore',
+            'title': 'Go to the site'
+          }]
+        }
+      }
+
+      notifiers.forEach( ( notifier ) => {
+        if ( notifier.user.pushSub ) {
+          webpush.sendNotification(
+            notifier.user.pushSub,
+            JSON.stringify( notificationPayload )
+          )
+        }
+      } )
+    } )
+  }, 1000 * 60 * 2, pushQuery )
 
   return { status: 201, data: message }
 }
