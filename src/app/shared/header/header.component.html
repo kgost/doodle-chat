@@ -27,11 +27,6 @@
       <ul class="nav navbar-nav navbar-right">
         <li routerLinkActive="active" *ngIf="isSignedin()">
           <a 
-              routerLink="/settings"
-            style="cursor: pointer;">Settings</a>
-        </li>
-        <li routerLinkActive="active" *ngIf="isSignedin()">
-          <a 
             (click)="onSignout()"
             style="cursor: pointer;">Sign Out</a>
         </li>

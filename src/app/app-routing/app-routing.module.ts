@@ -6,7 +6,7 @@ import { LandingComponent } from '../landing/landing.component';
 import { SignupComponent } from '../auth/signup/signup.component';
 import { SigninComponent } from '../auth/signin/signin.component';
 import { MessengerComponent } from '../messenger/messenger.component';
-import { SettingsComponent } from '../settings/settings.component';
+import { ConversationEditComponent } from '../messenger/sidebar/conversations/conversation-edit/conversation-edit.component';
 
 import { AuthGuard } from '../auth/auth-guard.service';
 
@@ -15,7 +15,6 @@ const AppRoutes: Route[] = [
   { component: SignupComponent, path: 'signup' },
   { component: SigninComponent, path: 'signin' },
   { component: MessengerComponent, path: 'messenger', canActivate: [AuthGuard] },
-  { component: SettingsComponent, path: 'settings', canActivate: [AuthGuard] },
 ];
 
 @NgModule({

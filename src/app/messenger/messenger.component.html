@@ -32,3 +32,6 @@
 <app-reaction
   [reactions]="reactions"
   *ngIf="reactions && reactions.length"></app-reaction>
+<button
+  (click)="onSubscribeToNotifications()"
+  class="btn btn-primary">Enable Notifications</button>

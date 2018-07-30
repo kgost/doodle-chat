@@ -36,8 +36,7 @@ router.post('/signin', (req, res) => {
       token: token,
       userId: user._id,
       publicKey: user.publicKey,
-      privateKey: user.privateKey,
-      pushSub: user.pushSub
+      privateKey: user.privateKey
     } )
   })
 } )
@@ -85,10 +84,7 @@ router.post('/signup', (req, res) => {
       res.status( 200 ).json( {
         message: 'Successfully Signed In',
         token: jwt.sign( { user: user }, process.env.JWTKEY, {expiresIn : 7200}),
-        userId: user._id,
-        publicKey: user.publicKey,
-        privateKey: user.privateKey,
-        pushSub: user.pushSub
+        userId: user._id
       })
     } )
   })

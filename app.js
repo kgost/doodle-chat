@@ -41,7 +41,7 @@ app.use( expressSanitizer() )
 app.use('/api', apiRoutes)
 app.use('/auth', authRoutes)
 
-//app.use( '/assets', express.static( __dirname + '/src/assets' ) )
+app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 
 //Pathing to our static files, css/js etc...
 app.use( express.static(__dirname + '/dist/chat-front') )

@@ -318,18 +318,4 @@ router.post( '/addSubscriber', middleware.authenticate, ( req, res ) => {
   } )
 } )
 
-router.post( '/removeSubscriber', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  User.findByIdAndUpdate( user._id, { pushSub: null }, ( err ) => {
-    if ( err ) {
-      res.status( 500 ).json( err )
-    }
-
-    console.log( 'feff' )
-
-    res.status( 201 ).json({ message: 'Subscription Object Removed' })
-  } )
-} )
-
 module.exports = router
