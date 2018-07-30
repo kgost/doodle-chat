@@ -41,6 +41,8 @@ export class AuthService {
               this.currentUser = new User(
                 localStorage.getItem( 'username' ),
                 localStorage.getItem( 'userId' ),
+                '',
+                data.pushSub
               );
               this.socketIoService.signin( this.currentUser._id );
               this.alertService.alertSubject.next( { message: 'Successfully Signed Up!', mode: 'success' } );
@@ -66,6 +68,8 @@ export class AuthService {
           this.currentUser = new User(
             localStorage.getItem( 'username' ),
             localStorage.getItem( 'userId' ),
+            '',
+            data.pushSub
           );
           this.socketIoService.signin( this.currentUser._id );
           this.publicKey = this.getPublicKeyFromString( data.publicKey );
@@ -164,6 +168,15 @@ export class AuthService {
     }
 
     return '';
+  }
+
+  addPushSub() {
+    this.currentUser.pushSub = true;
+  }
+
+  removePushSub() {
+    this.currentUser.pushSub = false;
+    console.log( this.currentUser );
   }
 
   private keyGen(): Promise<void> {

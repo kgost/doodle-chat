@@ -266,4 +266,16 @@ export class SidebarService {
         }
       );
   }
+
+  removePushSubscriber() {
+    this.http.delete( this.baseUrl + 'removeSubscriber?token=' + this.authService.getToken() )
+      .subscribe(
+        ( response: Response ) => {
+          console.log( response.json() );
+        },
+        ( error: Response ) => {
+          console.log( error.json() );
+        }
+      );
+  }
 }
