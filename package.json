@@ -61,6 +61,7 @@
     "socket.io-client": "^2.1.1",
     "streamifier": "^0.1.1",
     "twemoji": "^11.0.0",
+    "web-push": "^3.3.2",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

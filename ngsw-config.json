@@ -1,5 +1,4 @@
 {
-  "port": 3000,
   "index": "/index.html",
   "assetGroups": [{
     "name": "app",

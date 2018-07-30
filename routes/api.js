@@ -2,6 +2,7 @@ const
   express      = require('express'),
   router       = express.Router(),
   streamifier  = require( 'streamifier' ),
+  jwt          = require( 'jsonwebtoken' ),
   Media        = require( '../models/media' ),
   User         = require( '../models/user' ),
   middleware   = require( '../functions/middleware' ),
@@ -300,6 +301,20 @@ router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
     }
 
     res.status( 200 ).json({ obj: users })
+  } )
+} )
+
+router.post( '/addSubscriber', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  user.pushSub = req.body
+
+  User.findByIdAndUpdate( user._id, user, ( err ) => {
+    if ( err ) {
+      res.status( 500 ).json( err )
+    }
+
+    res.status( 201 ).json({ message: 'Subscription Object Added' })
   } )
 } )
 

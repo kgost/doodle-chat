@@ -23,7 +23,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   friendship: Friendship;
   reactions: { text: string, username: string }[];
   showMessages = false;
-  VAPID_PUBLIC_KEY = 'BM9h7Hn2hkQKAb1joJCplHqfX2wCCo9DjOvUrwuUNroGbDLQa99hnnJGGWKBXbYi1N869D3-YN7uaXxe7xpTfBk';
+  VAPID_PUBLIC_KEY = 'BIvF-GchsDONxK_P9zHU23Iv7uT8Ng3Lz62zfpOkvf8leyqjHItqp7hDQXV3i6Dh-7PaznxNg-dxFOz7gg3GmaQ';
 
   constructor(
     private sidebarService: SidebarService,
