@@ -196,16 +196,12 @@ async function create( req ) {
         'notification': {
           'title': 'La Li Lu Le Lo',
           'body': 'New Secure Message',
-          'icon': '../src/assets/icons/icon-128x128.png',
+          'icon': '/assets/icons/icon-128x128.png',
           'vibrate': [100, 50, 100],
           'data': {
             'dateOfArrival': Date.now(),
             'primaryKey': 1
-          },
-          'actions': [{
-            'action': 'explore',
-            'title': 'Go to the site'
-          }]
+          }
         }
       }
 
@@ -218,7 +214,7 @@ async function create( req ) {
         }
       } )
     } )
-  }, 1000 * 60 * 2, pushQuery )
+  }, 1000 * 30, pushQuery )
 
   return { status: 201, data: message }
 }

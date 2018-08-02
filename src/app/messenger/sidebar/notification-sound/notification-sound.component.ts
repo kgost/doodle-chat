@@ -20,7 +20,7 @@ export class NotificationSoundComponent implements OnInit, OnDestroy {
     this.subscriptions.push( this.notificationService.soundEmitter
       .subscribe(
         () => {
-          this.playAudio();
+          //this.playAudio();
         }
       ) );
   }
