@@ -4,7 +4,7 @@
   "description": "a web app for messaging and sending drawing",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js && ng build --prod",
+    "start": "node app.js & ng build --prod",
     "test": "mocha",
     "ng": "ng",
     "build": "ng build",
