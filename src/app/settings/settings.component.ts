@@ -3,6 +3,7 @@ import { SwPush } from '@angular/service-worker';
 
 import { SidebarService } from '../messenger/sidebar/sidebar.service';
 import { AuthService } from '../auth/auth.service';
+import { AlertService } from '../alert.service';
 
 @Component({
   selector: 'app-settings',
@@ -15,6 +16,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private alertService: AlertService,
     private sidebarService: SidebarService,
     private swPush: SwPush,
   ) { }
@@ -41,10 +43,11 @@ export class SettingsComponent implements OnInit {
     this.swPush.requestSubscription({
       serverPublicKey: this.VAPID_PUBLIC_KEY
     })
-    .then( sub => this.sidebarService.addPushSubscriber( sub ) )
+      .then( sub => this.sidebarService.addPushSubscriber( sub ) )
       .catch( err => {
         console.error( 'could not subscribe' );
         console.error( err );
+        this.alertService.alertSubject.next( { message: err.toString(), mode: 'danger' } );
       } );
   }
 

@@ -223,7 +223,7 @@ async function create( req ) {
         }
       } )
     } )
-  }, 1000 * 1, pushQuery )
+  }, 1000 * 10, pushQuery )
 
   return { status: 201, data: message }
 }
