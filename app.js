@@ -45,7 +45,7 @@ app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 //Pathing to our static files, css/js etc...
 app.use( express.static(__dirname + '/dist/chat-front') )
 
-app.get('/:name', (req, res, next) => {
+app.get('/:name/*', (req, res, next) => {
   // Just send the index.html for other files to support HTML5Mode
   if ( req.params.name.match( /\./ ) === null ) {
     res.sendFile( 'index.html', { root: __dirname + '/dist/chat-front' })
