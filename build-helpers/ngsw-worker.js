@@ -10,13 +10,14 @@
                 }).then(function(clientList) {
                   for (var i = 0; i < clientList.length; i++) {
                     var client = clientList[i];
-                    if (client.url.substr( client.url.lastIndexOf( '/' ) + 1 ) == 'messenger') {
-                      return client.focus();
+                    if ( client.navigate ) {
+                      client.focus();
+                      return client.navigate( '/messenger' + event.notification.data.url );
                     }
                   }
 
                   if (clients.openWindow)
-                    return clients.openWindow('/messenger');
+                    return clients.openWindow( '/messenger' + event.notification.data.url );
                 }));
               }
             });

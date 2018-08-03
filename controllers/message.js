@@ -208,6 +208,12 @@ async function create( req ) {
         }
       }
 
+      if ( pushQuery.friendships ) {
+        notificationPayload.notification.data.url = `/friends/${ pushQuery.friendships }`
+      } else {
+        notificationPayload.notification.data.url = `/friends/${ pushQuery.conversations }`
+      }
+
       notifiers.forEach( ( notifier ) => {
         if ( notifier.user.pushSub ) {
           webpush.sendNotification(
