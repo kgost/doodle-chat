@@ -14,8 +14,6 @@ const
 
 env( __dirname + '/.env', { raise: false } )
 
-console.log( process.env.PRIVATE_VAPID_KEY )
-
 const mongooseUrl = ( process.env.MNPASS ) ?
   'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.club:27017/doodle_chat?authSource=doodle_chat' :
   'mongodb://localhost:27017/doodle_chat'
