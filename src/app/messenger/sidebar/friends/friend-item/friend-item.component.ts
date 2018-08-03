@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 import { SidebarService } from '../../sidebar.service';
@@ -25,6 +26,7 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     private conversationService: ConversationService,
     private sidebarService: SidebarService,
     private notificationService: NotificationService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -90,10 +92,11 @@ export class FriendItemComponent implements OnInit, OnDestroy {
         this.friendService.removeNotification( this.friendship._id );
         this.notification = false;
       }
-      this.friendService.loadMessages( this.friendship._id );
+      //this.friendService.loadMessages( this.friendship._id );
       this.sidebarService.deactivate.emit();
       this.active = true;
       this.conversationService.reset();
+      this.router.navigate( ['/messenger/friends', this.friendship._id] );
     }
   }
 

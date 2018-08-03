@@ -1,4 +1,5 @@
 const
+  env = require( 'node-env-file' ),
   mongoose = require( 'mongoose' ),
   to = require( 'await-to-js' ).to,
   jwt = require( 'jsonwebtoken' ),
@@ -11,13 +12,15 @@ const
   Friendship = require( '../models/friendship' ),
   Notifier = require( '../models/notifier' )
 
+env( __dirname + '/../.env', { raise: false } )
+
 const vapidKeys = {
-  'publicKey':'BIvF-GchsDONxK_P9zHU23Iv7uT8Ng3Lz62zfpOkvf8leyqjHItqp7hDQXV3i6Dh-7PaznxNg-dxFOz7gg3GmaQ',
-  'privateKey':'tAfWc6F8aN3EuS3mkj51OlFQQPzonQIA3YiGDdcgWM8'
+  'publicKey':'BGkgfZpOxJfbbAp-dZcNhJxB-oFE9Tz2fROAqXDs211GqWcomgzxPYgQMBSX3ZY5PYSxJcnSf2diyj-jad6TAm0',
+  'privateKey': process.env.PRIVATE_VAPID_KEY
 }
 
 webpush.setVapidDetails(
-  'mailto:example@yourdomain.org',
+  'mailto:me@jackthelast.com',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 )
@@ -196,7 +199,7 @@ async function create( req ) {
         'notification': {
           'title': 'La Li Lu Le Lo',
           'body': 'New Secure Message',
-          'icon': '/assets/icons/icon-128x128.png',
+          'icon': '/assets/images/active.jpg',
           'vibrate': [100, 50, 100],
           'data': {
             'dateOfArrival': Date.now(),

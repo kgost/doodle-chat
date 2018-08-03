@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 import { SidebarService } from '../../sidebar.service';
@@ -25,6 +26,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     private friendService: FriendService,
     private sidebarService: SidebarService,
     private notificationService: NotificationService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -65,10 +67,11 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
       this.conversationService.removeNotification( this.conversation._id );
       this.notification = false;
     }
-    this.conversationService.loadMessages( this.conversation._id );
+    //this.conversationService.loadMessages( this.conversation._id );
     this.sidebarService.deactivate.emit();
     this.active = true;
     this.friendService.reset();
+    this.router.navigate( ['/messenger/conversations', this.conversation._id] );
   }
 
   ngOnDestroy() {

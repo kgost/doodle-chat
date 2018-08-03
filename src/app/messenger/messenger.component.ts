@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Conversation } from './sidebar/conversations/conversation.model';
@@ -31,9 +32,22 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private alertService: AlertService,
     private socketIoService: SocketIoService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
+    this.subscriptions.push( this.route.params
+      .subscribe(
+        ( params ) => {
+          if ( this.router.url.indexOf( 'conversations' ) !== -1 ) {
+            this.conversationService.loadMessages( params['id'] );
+          } else if ( this.router.url.indexOf( 'friends' ) !== -1 ) {
+            this.friendService.loadMessages( params['id'] );
+          }
+        }
+      ) );
+
     this.subscriptions.push( this.conversationService.editChange
       .subscribe(
         ( conversation: Conversation ) => {

@@ -1,4 +1,6 @@
-const express      = require( 'express' ),
+const
+  env              = require( 'node-env-file' ),
+  express          = require( 'express' ),
   sslRedirect      = require( 'heroku-ssl-redirect' ),
   app              = express(),
   http             = require( 'http' ).Server(app),
@@ -10,20 +12,19 @@ const express      = require( 'express' ),
   apiRoutes        = require('./routes/api'),
   authRoutes       = require('./routes/auth')
 
-//Connecting to mongoose
-if ( process.env.MNPASS ) {
-  mongoose.connect( 'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.club:27017/doodle_chat?authSource=doodle_chat', function( err ) {
-    if ( err ) {
-      throw err
-    }
-  } )
-} else {
-  mongoose.connect( 'mongodb://localhost:27017/doodle_chat', function( err ) {
-    if ( err ) {
-      throw err
-    }
-  } )
-}
+env( __dirname + '/.env', { raise: false } )
+
+console.log( process.env.PRIVATE_VAPID_KEY )
+
+const mongooseUrl = ( process.env.MNPASS ) ?
+  'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.club:27017/doodle_chat?authSource=doodle_chat' :
+  'mongodb://localhost:27017/doodle_chat'
+
+mongoose.connect( mongooseUrl, function( err ) {
+  if ( err ) {
+    throw err
+  }
+} )
 
 //Setting our views and port for the app
 app.set( 'view engine', 'ejs' )
