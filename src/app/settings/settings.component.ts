@@ -42,7 +42,10 @@ export class SettingsComponent implements OnInit {
       serverPublicKey: this.VAPID_PUBLIC_KEY
     })
     .then( sub => this.sidebarService.addPushSubscriber( sub ) )
-    .catch( err => console.error( 'could not subscribe' ) );
+      .catch( err => {
+        console.error( 'could not subscribe' );
+        console.error( err );
+      } );
   }
 
   unSubscribe() {
