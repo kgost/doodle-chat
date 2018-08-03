@@ -211,7 +211,7 @@ async function create( req ) {
       if ( pushQuery.friendships ) {
         notificationPayload.notification.data.url = `/friends/${ pushQuery.friendships }`
       } else {
-        notificationPayload.notification.data.url = `/friends/${ pushQuery.conversations }`
+        notificationPayload.notification.data.url = `/conversations/${ pushQuery.conversations }`
       }
 
       notifiers.forEach( ( notifier ) => {
@@ -223,7 +223,7 @@ async function create( req ) {
         }
       } )
     } )
-  }, 1000 * 30, pushQuery )
+  }, 1000 * 1, pushQuery )
 
   return { status: 201, data: message }
 }

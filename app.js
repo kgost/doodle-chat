@@ -15,8 +15,8 @@ const
 env( __dirname + '/.env', { raise: false } )
 
 const mongooseUrl = ( process.env.MNPASS ) ?
-  'mongodb://doodle:' + process.env.MNPASS + '@ci.mtuopensource.club:27017/doodle_chat?authSource=doodle_chat' :
-  'mongodb://localhost:27017/doodle_chat'
+  'mongodb://doodle:' + process.env.MNPASS + '@159.89.94.171:27017/doodle_chat?authSource=doodle_chat' :
+  'mongodb://127.0.0.1:27017/doodle_chat'
 
 mongoose.connect( mongooseUrl, function( err ) {
   if ( err ) {
@@ -42,17 +42,19 @@ app.use('/auth', authRoutes)
 
 app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 
-//Pathing to our static files, css/js etc...
-app.use( express.static(__dirname + '/dist/chat-front') )
-
-app.get('/:name/*', (req, res, next) => {
+app.get('/*', (req, res, next) => {
   // Just send the index.html for other files to support HTML5Mode
-  if ( req.params.name.match( /\./ ) === null ) {
-    res.sendFile( 'index.html', { root: __dirname + '/dist/chat-front' })
+  if ( req.originalUrl.match( /\./ ) === null ) {
+    console.log( req.originalUrl )
+    return res.sendFile( 'index.html', { root: __dirname + '/dist/chat-front' })
   } else {
     return next()
   }
+
 })
+
+//Pathing to our static files, css/js etc...
+app.use( express.static(__dirname + '/dist/chat-front') )
 
 //Starts up sockets
 socketController( io )

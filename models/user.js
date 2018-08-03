@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password: {type:String, required:true},
   publicKey: { type:String, required:true },
   privateKey: { type: String, required: true },
+  nonce: String,
   pushSub: {
     endpoint: String,
     expirationTime: Object,

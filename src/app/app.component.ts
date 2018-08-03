@@ -17,8 +17,5 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if ( this.authService.isSignedin() ) {
-      this.router.navigate( ['/messenger'] );
-    }
   }
 }

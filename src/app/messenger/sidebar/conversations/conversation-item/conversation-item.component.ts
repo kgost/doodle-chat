@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -14,7 +14,7 @@ import { NotificationService } from '../../notification.service';
   templateUrl: './conversation-item.component.html',
   styleUrls: ['./conversation-item.component.css']
 })
-export class ConversationItemComponent implements OnInit, OnDestroy {
+export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() conversation: Conversation;
   subscriptions: Subscription[] = [];
   notification = false;
@@ -30,6 +30,10 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    if ( this.conversation.forceSelect || this.sidebarService.activeConversationId === this.conversation._id ) {
+      this.active = true;
+    }
+
     this.reInit();
 
     this.subscriptions.push( this.conversationService.changeEmitter
@@ -62,22 +66,36 @@ export class ConversationItemComponent implements OnInit, OnDestroy {
     this.conversationService.leaveConversation( this.conversation._id );
   }
 
-  onSelectConversation() {
+  onSelectConversation( force = false ) {
     if ( this.notification ) {
       this.conversationService.removeNotification( this.conversation._id );
       this.notification = false;
     }
-    //this.conversationService.loadMessages( this.conversation._id );
-    this.sidebarService.deactivate.emit();
-    this.active = true;
+
     this.friendService.reset();
-    this.router.navigate( ['/messenger/conversations', this.conversation._id] );
+    this.sidebarService.activeConversationId = this.conversation._id;
+    delete this.sidebarService.activeFriendshipId;
+
+    if ( !force ) {
+      this.sidebarService.deactivate.emit();
+      this.active = true;
+      this.router.navigate( ['/messenger/conversations', this.conversation._id] );
+    } else {
+      this.conversationService.loadMessages( this.conversation._id );
+      this.conversationService.stopForce( this.conversation._id );
+    }
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
+  }
+
+  ngAfterViewInit() {
+    if ( this.conversation.forceSelect ) {
+      this.onSelectConversation( true );
+    }
   }
 
   private reInit() {

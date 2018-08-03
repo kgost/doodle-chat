@@ -2,6 +2,8 @@ const express       = require('express'),
   router        = express.Router(),
   jwt         = require( 'jsonwebtoken' ),
   bcrypt        = require( 'bcryptjs' ),
+  forge        = require( 'node-forge' ),
+  middleware = require( '../functions/middleware' ),
   User        = require( '../models/user' ),
   Notifier        = require( '../models/notifier' )
 
@@ -15,14 +17,15 @@ const express       = require('express'),
   * @return {[type]}        Returns a status code and corresponding message and token.
   */
 router.post('/signin', (req, res) => {
-  //Finds user in databas
-  User.findOne( { username: req.body.username }, ( err, user ) => {
+  //Finds user in database
+  User.findOne( { username: req.body.username }, 'username password publicKey privateKey pushSub' ).lean().exec( ( err, user ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
         error: err
       })
     }
+
     //If no such user exists or passwords do not match, return an error
     if ( !user || !bcrypt.compareSync( req.body.password, user.password ) ) {
       return res.status( 401 ).json({
@@ -30,7 +33,7 @@ router.post('/signin', (req, res) => {
       })
     }
     //Sign the JWT and return success
-    const token = jwt.sign( { user: user }, process.env.JWTKEY, { expiresIn: 7200 } )  //TODO: change 'my nama jeff' to a environment variable
+    const token = jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, { expiresIn: 7200 } )  //TODO: change 'my nama jeff' to a environment variable
     res.status( 200 ).json( {
       message: 'Successfully Signed In',
       token: token,
@@ -84,7 +87,7 @@ router.post('/signup', (req, res) => {
       //Return success and send JWT
       res.status( 200 ).json( {
         message: 'Successfully Signed In',
-        token: jwt.sign( { user: user }, process.env.JWTKEY, {expiresIn : 7200}),
+        token: jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, {expiresIn : 7200}),
         userId: user._id,
         pushSub: user.pushSub
       })
@@ -119,5 +122,21 @@ router.get('/usernameTaken/:username', (req, res) => {
     })
   })
 })
+
+router.get( '/consumeNonce', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+  const nonce = forge.random.getBytesSync(32)
+
+  User.findByIdAndUpdate( user._id, { nonce: nonce }, ( err, user ) => {
+    if ( err ) {
+      return res.status( 500 ).json( err )
+    }
+
+    res.status( 200 ).json({
+      nonce: nonce,
+      oldNonce: user.nonce
+    })
+  } )
+} )
 
 module.exports = router

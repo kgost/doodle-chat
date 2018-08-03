@@ -14,9 +14,11 @@ import { Message } from '../../messages/message.model';
 export class ConversationService {
   private currentConversation: Conversation;
   changeEmitter = new EventEmitter<void>();
+  loadEmitter = new EventEmitter<void>();
   editChange = new Subject<Conversation>();
   conversations: Conversation[] = [];
   friendNames: string[] = [];
+  loaded = false;
 
   constructor(
     private sidebarService: SidebarService,
@@ -31,6 +33,7 @@ export class ConversationService {
           this.changeEmitter.emit();
         }
       );
+
     this.sidebarService.friendNamesSubject
       .subscribe(
         ( friendNames: string[] ) => {
@@ -48,10 +51,27 @@ export class ConversationService {
           } else {
             this.updateSocket( conversations.slice() );
           }
+          this.loaded = true;
           this.conversations = conversations;
           this.changeEmitter.emit();
+          this.loadEmitter.emit();
         }
       );
+  }
+
+  forceSelect( id: string ) {
+    this.socketIoService.joinConversation( id );
+    this.currentConversation = this.getConversation( id );
+    if ( this.loaded ) {
+      this.conversations[this.getConversationIndex( id )].forceSelect = true;
+      this.changeEmitter.emit();
+    } else {
+      const sub = this.loadEmitter.subscribe( () => {
+        this.conversations[this.getConversationIndex( id )].forceSelect = true;
+        this.changeEmitter.emit();
+        sub.unsubscribe();
+      } );
+    }
   }
 
   loadMessages( id: string ) {
@@ -185,6 +205,11 @@ export class ConversationService {
 
   notifySound() {
     this.notificationService.notifySound();
+  }
+
+  stopForce( id: string ) {
+    delete this.conversations[this.getConversationIndex( id )].forceSelect;
+    this.changeEmitter.emit();
   }
 
   private getConversationIndex( id: string ) {

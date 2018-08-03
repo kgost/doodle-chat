@@ -16,9 +16,11 @@ import { Message } from '../../messages/message.model';
 export class FriendService {
   private currentFriendship: Friendship;
   changeEmitter = new EventEmitter<void>();
+  loadEmitter = new EventEmitter<void>();
   editChange = new Subject<Friendship>();
   friendships: Friendship[] = [];
   friendNames: string[];
+  loaded = false;
 
   constructor(
     private authService: AuthService,
@@ -51,8 +53,10 @@ export class FriendService {
           } else {
             this.updateSocket( friendships.slice() );
           }
+          this.loaded = true;
           this.friendships = friendships;
           this.changeEmitter.emit();
+          this.loadEmitter.emit();
         }
       );
   }
@@ -66,6 +70,21 @@ export class FriendService {
           this.messageService.loadPrivateMessages( this.getFriendship( id ), messages );
         }
       );
+  }
+
+  forceSelect( id: string ) {
+    this.socketIoService.joinFriendship( id );
+    this.currentFriendship = this.getFriendship( id );
+    if ( this.loaded ) {
+      this.friendships[this.getFriendshipIndex( id )].forceSelect = true;
+      this.changeEmitter.emit();
+    } else {
+      const sub = this.loadEmitter.subscribe( () => {
+        this.friendships[this.getFriendshipIndex( id )].forceSelect = true;
+        this.changeEmitter.emit();
+        sub.unsubscribe();
+      } );
+    }
   }
 
   loadMessage( id: string ) {
@@ -160,6 +179,11 @@ export class FriendService {
 
   notifySound() {
     this.notificationService.notifySound();
+  }
+
+  stopForce( id: string ) {
+    delete this.friendships[this.getFriendshipIndex( id )].forceSelect;
+    this.changeEmitter.emit();
   }
 
   private getFriendshipIndex( id: string ) {

@@ -47,6 +47,8 @@ export class AuthService {
               this.socketIoService.signin( this.currentUser._id );
               this.alertService.alertSubject.next( { message: 'Successfully Signed Up!', mode: 'success' } );
               this.router.navigate(['/messenger']);
+
+              this.storePrivateKey();
             },
             ( response: Response ) => {
               const error = response.json();
@@ -75,6 +77,8 @@ export class AuthService {
           this.publicKey = this.getPublicKeyFromString( data.publicKey );
           this.privateKey = this.getPrivateKeyFromString( this.decryptAes( data.privateKey, this.getKeyFromString( password ) ) );
           this.router.navigate(['/messenger']);
+
+          this.storePrivateKey();
         },
         ( response: Response ) => {
           const error = response.json();
@@ -172,6 +176,32 @@ export class AuthService {
 
   setPushSub( value: boolean ) {
     this.currentUser.pushSub = value;
+  }
+
+  storePrivateKey(): Promise<boolean> {
+    return new Promise<boolean>( ( resolve, reject ) => {
+      this.http.get( this.baseUrl + 'consumeNonce?token=' + this.getToken() )
+        .subscribe(
+          ( response: Response ) => {
+            const data = response.json();
+            let encryptedPrivateKey;
+            let decryptedPrivateKey;
+            if ( this.keysSet() ) {
+              encryptedPrivateKey = this.encryptAes( this.getPrivateKeyString(), data.nonce );
+              localStorage.setItem( 'privateKey', encryptedPrivateKey );
+              return resolve( true );
+            } else if ( localStorage.getItem( 'privateKey' ) ) {
+              decryptedPrivateKey = this.decryptAes( localStorage.getItem( 'privateKey' ), data.oldNonce );
+              encryptedPrivateKey = this.encryptAes( decryptedPrivateKey, data.nonce );
+              localStorage.setItem( 'privateKey', encryptedPrivateKey );
+              this.privateKey = this.getPrivateKeyFromString( decryptedPrivateKey );
+              return resolve( true );
+            }
+
+            return resolve( false );
+          }
+        );
+    } ) ;
   }
 
   private keyGen(): Promise<void> {

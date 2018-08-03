@@ -14,7 +14,10 @@ import { Media } from '../messages/media/media.model';
 export class SidebarService {
   baseUrl = '/api/';
   deactivate = new EventEmitter<void>();
+  activeConversationId: string;
+  activeFriendshipId: string;
   friendNamesSubject = new Subject<string[]>();
+  initialLoad = true;
 
   constructor(
     private http: Http,

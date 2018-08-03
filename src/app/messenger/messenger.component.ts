@@ -41,10 +41,25 @@ export class MessengerComponent implements OnInit, OnDestroy {
       .subscribe(
         ( params ) => {
           if ( this.router.url.indexOf( 'conversations' ) !== -1 ) {
-            this.conversationService.loadMessages( params['id'] );
+            if ( this.sidebarService.initialLoad ) {
+              this.showMessages = true;
+              this.conversationService.forceSelect( params['id'] );
+            } else {
+              this.conversationService.loadMessages( params['id'] );
+            }
           } else if ( this.router.url.indexOf( 'friends' ) !== -1 ) {
-            this.friendService.loadMessages( params['id'] );
+            if ( this.sidebarService.initialLoad ) {
+              this.showMessages = true;
+              this.friendService.forceSelect( params['id'] );
+            } else {
+              this.friendService.loadMessages( params['id'] );
+            }
+          } else {
+            delete this.sidebarService.activeConversationId;
+            delete this.sidebarService.activeFriendshipId;
           }
+
+          this.sidebarService.initialLoad = false;
         }
       ) );
 

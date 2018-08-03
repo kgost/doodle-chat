@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -14,7 +14,7 @@ import { NotificationService } from '../../notification.service';
   templateUrl: './friend-item.component.html',
   styleUrls: ['./friend-item.component.css']
 })
-export class FriendItemComponent implements OnInit, OnDestroy {
+export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() friendship: Friendship;
   subscriptions: Subscription[] = [];
   notification = false;
@@ -30,6 +30,10 @@ export class FriendItemComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    if ( this.friendship.forceSelect || this.sidebarService.activeFriendshipId === this.friendship._id ) {
+      this.active = true;
+    }
+
     this.reInit();
 
     this.subscriptions.push( this.friendService.changeEmitter
@@ -86,17 +90,25 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     this.friendService.removeFriendship( this.friendship._id );
   }
 
-  onSelectFriendship() {
+  onSelectFriendship( force = false ) {
     if ( !this.isPending() && !this.isRequest() ) {
       if ( this.notification ) {
         this.friendService.removeNotification( this.friendship._id );
         this.notification = false;
       }
-      //this.friendService.loadMessages( this.friendship._id );
-      this.sidebarService.deactivate.emit();
-      this.active = true;
+
       this.conversationService.reset();
-      this.router.navigate( ['/messenger/friends', this.friendship._id] );
+      this.sidebarService.activeFriendshipId = this.friendship._id;
+      delete this.sidebarService.activeConversationId;
+
+      if ( !force ) {
+        this.sidebarService.deactivate.emit();
+        this.active = true;
+        this.router.navigate( ['/messenger/friends', this.friendship._id] );
+      } else {
+        this.friendService.loadMessages( this.friendship._id );
+        this.friendService.stopForce( this.friendship._id );
+      }
     }
   }
 
@@ -104,6 +116,12 @@ export class FriendItemComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();
     } );
+  }
+
+  ngAfterViewInit() {
+    if ( this.friendship.forceSelect ) {
+      this.onSelectFriendship( true );
+    }
   }
 
   private reInit() {
