@@ -22,6 +22,12 @@ export class NotificationService {
     private favicons: Favicons,
     @Inject(DOCUMENT) private document: any
   ) {
+    if ( !this.isEmpty ) {
+      this.favicons.activate( 'active' );
+    } else {
+      this.favicons.activate( 'inactive' );
+    }
+
     this.socketIoService.notifyConversation
       .subscribe(
         ( conversationId: string ) => {
