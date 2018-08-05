@@ -125,6 +125,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   onSelectEmoji( emoji ) {
     let text = this.messageEdit.value.text ? this.messageEdit.value.text : '';
     let endIndex;
+
     if (typeof this.textarea.nativeElement.selectionStart !== 'undefined' &&
       typeof this.textarea.nativeElement.selectionEnd !== 'undefined') {
       endIndex = this.textarea.nativeElement.selectionEnd;
@@ -137,6 +138,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
       this.messageEdit.setValue({ 'text': text });
       this.textarea.nativeElement.focus();
     }
+
     this.typing();
   }
 

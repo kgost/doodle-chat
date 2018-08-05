@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -15,6 +15,7 @@ import { NotificationService } from '../../notification.service';
   styleUrls: ['./friend-item.component.css']
 })
 export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('container') container: ElementRef;
   @Input() friendship: Friendship;
   subscriptions: Subscription[] = [];
   notification = false;
@@ -121,6 +122,8 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     if ( this.friendship.forceSelect ) {
       this.onSelectFriendship( true );
+      this.sidebarService.scrollSubject
+        .next( { height: this.container.nativeElement.offsetTop, conversations: false } );
     }
   }
 

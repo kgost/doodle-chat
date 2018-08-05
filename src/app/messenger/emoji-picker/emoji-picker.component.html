@@ -1,7 +1,28 @@
-<button
-  *ngFor="let emoji of emojis; let i = index"
-  [innerHtml]="emoji | emojify"
-  (click)="onSelectEmoji(i)"
-  type="button"
-  style="padding: 0; font-size: inherit;"
-  class="btn btn-default pull-right"></button>
+<div
+  style="width: 204px; height: 200px; background-color: white; border: solid 1px #ccc; margin-right: 3px;"
+  *ngIf="isOpen">
+  <div
+    class="clearfix">
+    <div
+      *ngFor="let emoji of headers; let i = index"
+      [innerHtml]="emoji.emoji | emojify"
+      (click)="selected = i"
+      title="{{ emoji.title }}"
+      style="cursor: pointer;"
+      class="pull-left"></div>
+  </div>
+  <hr style="margin: 6px 0;">
+  <div style="height: 153px; overflow-y: scroll;">
+    <div
+      *ngFor="let emoji of emojis[selected]; let i = index"
+      [innerHtml]="emoji | emojify"
+      (click)="onSelectEmoji(i)"
+      style="padding: 0; font-size: inherit; cursor: pointer; margin: 2px 1px;"
+      class="pull-left selection"></div>
+  </div>
+</div>
+<div
+  [innerHtml]="headers[0].emoji | emojify"
+  (click)="toggle()"
+  style="padding: 0; font-size: inherit; cursor: pointer;"
+  class="pull-right"></div>

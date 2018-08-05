@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -15,6 +15,7 @@ import { NotificationService } from '../../notification.service';
   styleUrls: ['./conversation-item.component.css']
 })
 export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('container') container: ElementRef;
   @Input() conversation: Conversation;
   subscriptions: Subscription[] = [];
   notification = false;
@@ -95,6 +96,8 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
   ngAfterViewInit() {
     if ( this.conversation.forceSelect ) {
       this.onSelectConversation( true );
+      this.sidebarService.scrollSubject
+        .next( { height: this.container.nativeElement.offsetTop, conversations: true } );
     }
   }
 

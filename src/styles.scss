@@ -31,8 +31,16 @@ body {
   flex: 0 1 90px;
 }
 
+.hiden {
+  display: none;
+}
+
 app-messenger, app-messages, app-message-list {
   height: 100%;
+}
+
+.selection .emoji {
+  width: 25px;
 }
 
 .emoji {
@@ -47,16 +55,16 @@ app-message-item .emoji {
 }
 
 div::-webkit-scrollbar {
-    width: 0.5em;
+  width: 0.5em;
 }
  
 div::-webkit-scrollbar-track {
-  display: none;
+  background-color: rgba(0,0,0,0.1);
 }
  
 div::-webkit-scrollbar-thumb {
-  background-color: darkgrey;
-  outline: 1px solid slategrey;
+  background-color: #449d44;
+  outline: 5px solid grey;
 }
 
 a.linkified {

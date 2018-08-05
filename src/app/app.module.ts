@@ -55,6 +55,7 @@ import { EmojiPickerComponent } from './messenger/emoji-picker/emoji-picker.comp
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SettingsComponent } from './settings/settings.component';
+import { ReactionPickerComponent } from './messenger/reaction-picker/reaction-picker.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -91,6 +92,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     ReactionComponent,
     EmojiPickerComponent,
     SettingsComponent,
+    ReactionPickerComponent,
   ],
   imports: [
     BrowserModule,

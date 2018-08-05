@@ -40,6 +40,7 @@
     </div>
   </li>
   <div
+    [ngClass]="{ reactionShow: editReaction }"
     style="font-size: 20px; margin: 10px;"
     *ngIf="!owner"
     class="pull-left reaction">
@@ -48,8 +49,14 @@
       *ngIf="!editReaction"
       [innerHtml]="'🤔' | emojify"
       (click)="toggleReaction()"></span>
-    <app-emoji-picker
+    <app-reaction-picker
       (emitEmoji)="onSelectEmoji($event)"
-      *ngIf="editReaction"></app-emoji-picker>
+      *ngIf="editReaction"></app-reaction-picker>
+    <button
+      *ngIf="editReaction"
+      (click)="editReaction = false"
+      type="button"
+      style="padding: 0; font-size: inherit; width: 32px; height: 32px;"
+      class="btn btn-default pull-left">X</button>
   </div>
 </div>

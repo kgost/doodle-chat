@@ -17,6 +17,7 @@ export class SidebarService {
   activeConversationId: string;
   activeFriendshipId: string;
   friendNamesSubject = new Subject<string[]>();
+  scrollSubject = new Subject<{ height: number, conversations: boolean }>();
   initialLoad = true;
 
   constructor(
