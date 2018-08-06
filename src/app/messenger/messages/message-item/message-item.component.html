@@ -38,6 +38,7 @@
     class="pull-right options">
     <button
       (click)="onEdit()"
+      *ngIf="!message.media"
       type="button"
       class="btn btn-default">
       <span 

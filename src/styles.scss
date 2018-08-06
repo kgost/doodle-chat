@@ -302,57 +302,66 @@ app-root {
                 .form-group {
                   margin: 0;
                   position: relative;
+                  display: flex;
 
-                  textarea.form-control {
-                    border-radius: 0;
-                    border-left: 0;
-                    resize: none;
-                  }
+                  .textarea-container {
+                    width: 100%;
+                    position: relative;
 
-                  .emoji-picker-container {
-                    position: absolute;
-                    right: 0;
-                    bottom: 0;
+                    textarea.form-control {
+                      border-radius: 0;
+                      border-left: 0;
+                      resize: none;
+                    }
 
-                    app-emoji-picker {
-                      .emoji-picker {
-                        width: 204px;
-                        height: 200px;
-                        background-color: white;
-                        border: solid 1px #ccc;
-                        margin-right: 3px;
+                    .emoji-picker-container {
+                      position: absolute;
+                      right: 0;
+                      bottom: 0;
 
-                        .emoji-header {
-                          cursor: pointer;
-                        }
+                      app-emoji-picker {
+                        .emoji-picker {
+                          width: 329px;
+                          height: 325px;
+                          background-color: white;
+                          border: solid 1px #ccc;
 
-                        hr {
-                          margin: 6px 0;
-                        }
-
-                        .picker-body {
-                          height: 153px;
-                          overflow-y: scroll;
-
-                          .selection {
-                            padding: 0;
-                            font-size: inherit;
+                          .emoji-header {
                             cursor: pointer;
-                            margin: 2px 1px;
 
                             .emoji {
-                              width: 25px;
+                              width: 53px;
+                            }
+                          }
+
+                          hr {
+                            margin: 6px 0;
+                          }
+
+                          .picker-body {
+                            height: 255px;
+                            overflow-y: scroll;
+
+                            .selection {
+                              padding: 0;
+                              font-size: inherit;
+                              cursor: pointer;
+                              margin: 2px 1px;
+
+                              .emoji {
+                                width: 33px;
+                              }
                             }
                           }
                         }
-                      }
 
-                      .emoji-toggle {
-                        padding: 0;
-                        font-size: inherit;
-                        cursor: pointer;
-                        width: 32px;
-                        height: 32px;
+                        .emoji-toggle {
+                          padding: 0;
+                          font-size: inherit;
+                          cursor: pointer;
+                          width: 32px;
+                          height: 32px;
+                        }
                       }
                     }
                   }
@@ -517,7 +526,7 @@ body {
 }
 
 .box .clearfix.footer {
-  flex: 0 1 90px;
+  flex: 0 1 55px;
 }
 
 .hiden {
