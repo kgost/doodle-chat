@@ -14,6 +14,8 @@ export class AuthService {
   currentUser = new User(
     localStorage.getItem( 'username' ),
     localStorage.getItem( 'userId' ),
+    null,
+    JSON.parse( localStorage.getItem( 'pushSub' ) )
   );
   private privateKey: any;
   private publicKey: any;
@@ -38,6 +40,7 @@ export class AuthService {
               localStorage.setItem( 'token', data.token );
               localStorage.setItem( 'userId', data.userId );
               localStorage.setItem( 'username', username );
+              localStorage.setItem( 'pushSub', JSON.stringify( data.pushSub ) );
               this.currentUser = new User(
                 localStorage.getItem( 'username' ),
                 localStorage.getItem( 'userId' ),
@@ -67,6 +70,7 @@ export class AuthService {
           localStorage.setItem( 'token', data.token );
           localStorage.setItem( 'userId', data.userId );
           localStorage.setItem( 'username', username );
+          localStorage.setItem( 'pushSub', JSON.stringify( data.pushSub ) );
           this.currentUser = new User(
             localStorage.getItem( 'username' ),
             localStorage.getItem( 'userId' ),
@@ -110,6 +114,9 @@ export class AuthService {
     this.socketIoService.signout( this.currentUser._id );
     delete this.currentUser;
     localStorage.removeItem( 'token' );
+    localStorage.removeItem( 'userId' );
+    localStorage.removeItem( 'username' );
+    localStorage.removeItem( 'pushSub' );
     if ( signin ) {
       this.router.navigate( ['/signin'] );
     } else {
