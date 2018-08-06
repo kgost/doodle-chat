@@ -1,11 +1,11 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, AfterViewInit } from '@angular/core';
 
 @Component({
   selector: 'app-emoji-picker',
   templateUrl: './emoji-picker.component.html',
   styleUrls: ['./emoji-picker.component.css']
 })
-export class EmojiPickerComponent implements OnInit {
+export class EmojiPickerComponent implements OnInit, AfterViewInit {
   selected = 0;
   @Output() emitEmoji = new EventEmitter<string>();
   headers = [
@@ -102,10 +102,17 @@ export class EmojiPickerComponent implements OnInit {
      '🇦🇪', '🇬🇧', '🇺🇸', '🇺🇾', '🇺🇿', '🇻🇺', '🇻🇦', '🇻🇪', '🇻🇳', '🇼🇫', '🇪🇭', '🇾🇪', '🇿🇲', '🇿🇼']
   ];
   isOpen: boolean;
+  preload = false;
 
   constructor() { }
 
   ngOnInit() {
+  }
+
+  ngAfterViewInit() {
+    setTimeout( () => {
+      this.preload = true;
+    }, 100 )
   }
 
   toggle() {

@@ -20,6 +20,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   editMode = false;
   editId: string;
+  sendTyping = true;
 
   constructor(
     private messageService: MessageService,
@@ -158,12 +159,20 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   }
 
   private typing() {
-    if ( this.messageService.privateMode ) {
-      this.socketIoService.showTypingFriendship(
-        this.authService.getCurrentUser().username, this.messageService.getCurrentFriendship()._id );
-    } else {
-      this.socketIoService.showTypingConversation(
-        this.authService.getCurrentUser().username, this.messageService.getCurrentConversation()._id );
+    if ( this.sendTyping ) {
+      if ( this.messageService.privateMode ) {
+        this.socketIoService.showTypingFriendship(
+          this.authService.getCurrentUser().username, this.messageService.getCurrentFriendship()._id );
+      } else {
+        this.socketIoService.showTypingConversation(
+          this.authService.getCurrentUser().username, this.messageService.getCurrentConversation()._id );
+      }
+
+      this.sendTyping = false;
+
+      setTimeout( () => {
+        this.sendTyping = true;
+      }, 3500 );
     }
   }
 }

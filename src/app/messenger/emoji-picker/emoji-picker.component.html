@@ -1,11 +1,13 @@
 <div
   style="width: 204px; height: 200px; background-color: white; border: solid 1px #ccc; margin-right: 3px;"
-  *ngIf="isOpen">
+  [ngClass]="{ hidden: !isOpen }"
+  *ngIf="isOpen || preload">
   <div
     class="clearfix">
     <div
       *ngFor="let emoji of headers; let i = index"
       [innerHtml]="emoji.emoji | emojify"
+      [ngStyle]="{ border: selected === i ? 'solid 1px #449d44' : 'none' }"
       (click)="selected = i"
       title="{{ emoji.title }}"
       style="cursor: pointer;"
@@ -22,7 +24,8 @@
   </div>
 </div>
 <div
-  [innerHtml]="headers[0].emoji | emojify"
+  [ngStyle]="{ 'font-size': isOpen ? '25px' : 'inherit' }"
+  [innerHtml]="( !isOpen ) ? ( headers[0].emoji | emojify ) : 'X'"
   (click)="toggle()"
-  style="padding: 0; font-size: inherit; cursor: pointer;"
-  class="pull-right"></div>
+  style="padding: 0; font-size: inherit; cursor: pointer; width: 32px; height: 32px;"
+  class="pull-right text-center"></div>
