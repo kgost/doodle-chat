@@ -17,6 +17,8 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   owner = false;
   key = '';
   editReaction = false;
+  showOptions = false;
+  pressTimer: any;
 
   constructor(
     private messageService: MessageService,
@@ -30,14 +32,21 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(
         () => this.key = this.messageService.getKey()
       ));
+
+    this.subscriptions.push( this.messageService.contextEmitter
+      .subscribe(
+        () => this.showOptions = false
+      ));
   }
 
   onEdit() {
     this.messageService.editChange.next( this.message );
+    this.onCloseOptions();
   }
 
   onDelete() {
     this.messageService.removeMessage( this.message._id );
+    this.onCloseOptions();
   }
 
   onCheckReactions() {
@@ -90,6 +99,16 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return dateString;
+  }
+
+  onPress( event ) {
+    this.messageService.contextEmitter.emit();
+    this.showOptions = true;
+    return false;
+  }
+
+  onCloseOptions() {
+    this.showOptions = false;
   }
 
   ngAfterViewInit() {

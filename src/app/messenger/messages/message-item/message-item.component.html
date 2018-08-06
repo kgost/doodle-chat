@@ -2,10 +2,10 @@
   <li 
     [ngStyle]="{ padding: message.media ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) ? '50%' : '' }"
     [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
+    (contextmenu)="onPress($event)"
     class="list-group-item">
     <p
       *ngIf="message.text !== undefined && message.text !== ''"
-      [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
       [innerHtml]="message.text | dcrypt: key | decode8 | link | emojify | normalize"></p>
     <app-media
       *ngIf="message.media"
@@ -33,6 +33,34 @@
         [innerHtml]="reaction.text | dcrypt: key | decode8 | emojify"></span>
     </div>
   </li>
+  <div
+    *ngIf="owner && showOptions"
+    class="pull-right options">
+    <button
+      (click)="onEdit()"
+      type="button"
+      class="btn btn-default">
+      <span 
+        class="glyphicon glyphicon-edit" 
+        aria-hidden="true"></span>
+    </button>
+    <button
+      (click)="onDelete()"
+      type="button"
+      class="btn btn-default">
+      <span 
+        class="glyphicon glyphicon-trash" 
+        aria-hidden="true"></span>
+    </button>
+    <button
+      (click)="onCloseOptions()"
+      type="button"
+      class="btn btn-default">
+      <span 
+        class="glyphicon glyphicon-remove" 
+        aria-hidden="true"></span>
+    </button>
+  </div>
   <div
     [ngClass]="{ reactionShow: editReaction }"
     *ngIf="!owner"

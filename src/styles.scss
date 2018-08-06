@@ -44,7 +44,7 @@ app-root {
       display: initial;
     }
 
-    @media only screen and (max-width: 768px) {
+    @media only screen and (max-width: 767px) {
       .toggle {
         display: initial;
       }
@@ -172,6 +172,20 @@ app-root {
                         &.owner {
                           color: white;
                           background-color: #449d44;
+
+                          p {
+                            padding-right: 15px;
+
+                            a {
+                              color: #691DAA;
+                            }
+                          }
+
+                          @media only screen and (max-width: 767px) {
+                            p {
+                              padding: initial;
+                            }
+                          }
                         }
 
                         &.stranger {
@@ -211,6 +225,12 @@ app-root {
                           font-size: 16px;
                         }
 
+                        @media only screen and (max-width: 767px) {
+                          .delete, .edit {
+                            display: none;
+                          }
+                        }
+
                         .reactions {
                           cursor: pointer;
 
@@ -227,6 +247,14 @@ app-root {
                           video {
                             width: 100%;
                           }
+                        }
+                      }
+
+                      .options {
+                        button {
+                          height: 45px;
+                          width: 54px;
+                          font-size: 24px;
                         }
                       }
 

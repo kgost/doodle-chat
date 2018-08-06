@@ -17,6 +17,7 @@ export class MessageService {
   private currentFriendName: string;
   messages: Message[] = [];
   changeEmitter = new EventEmitter<void>();
+  contextEmitter = new EventEmitter<void>();
   containerEmitter = new EventEmitter<void>();
   paginateEmitter = new EventEmitter<void>();
   loadEmitter = new EventEmitter<void>();
