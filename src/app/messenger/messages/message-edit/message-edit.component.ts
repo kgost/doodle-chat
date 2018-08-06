@@ -8,6 +8,7 @@ import { Message } from '../message.model';
 import { MessageService } from '../message.service';
 import { AuthService } from '../../../auth/auth.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
+import { AlertService } from '../../../alert.service';
 
 @Component({
   selector: 'app-message-edit',
@@ -25,7 +26,8 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   constructor(
     private messageService: MessageService,
     private authService: AuthService,
-    private socketIoService: SocketIoService
+    private socketIoService: SocketIoService,
+    private alertService: AlertService
   ) { }
 
   ngOnInit() {
@@ -56,6 +58,15 @@ export class MessageEditComponent implements OnInit, OnDestroy {
           this.onCancel();
         }
       ) );
+  }
+
+  onFocus() {
+    this.messageService.allowScrollBottom = true;
+    this.messageService.containerEmitter.emit();
+    setTimeout( () => {
+      this.messageService.allowScrollBottom = true;
+      this.messageService.containerEmitter.emit();
+    }, 300 );
   }
 
   onSubmit() {

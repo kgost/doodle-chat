@@ -7,6 +7,7 @@
         class="form-group">
         <div class="textarea-container">
           <textarea
+            (focusin)="onFocus()"
             (keydown)="onTextKey($event)"
             id="text"
             name="text"
