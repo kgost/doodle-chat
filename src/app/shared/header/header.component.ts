@@ -21,10 +21,14 @@ export class HeaderComponent implements OnInit {
 
   onSignout() {
     this.authService.signout();
+    this.showNav = false;
   }
 
   toggleNav() {
     this.showNav = !this.showNav;
   }
 
+  onNavigate() {
+    this.showNav = false;
+  }
 }

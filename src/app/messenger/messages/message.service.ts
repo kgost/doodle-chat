@@ -28,6 +28,8 @@ export class MessageService {
   privateMode = false;
   key = '';
   loadMore = false;
+  allowScrollBottom = true;
+  scrollPrevious = false;
 
   constructor(
     private authService: AuthService,
@@ -60,6 +62,7 @@ export class MessageService {
                 this.loadMore = false;
               }
               this.messages = messages.concat( this.messages );
+              this.scrollPrevious = true;
               this.changeEmitter.emit();
             }
           );
@@ -71,6 +74,7 @@ export class MessageService {
                 this.loadMore = false;
               }
               this.messages = messages.concat( this.messages );
+              this.scrollPrevious = true;
               this.changeEmitter.emit();
             }
           );
@@ -85,6 +89,7 @@ export class MessageService {
     delete this.currentFriendName;
     this.messages = messages;
     this.privateMode = false;
+    this.allowScrollBottom = true;
 
     if ( messages.length === 20 ) {
       this.loadMore = true;
@@ -116,6 +121,12 @@ export class MessageService {
 
   loadMessage( message: Message ) {
     this.messages.push( message );
+
+    if ( this.messages.length > 40 && this.allowScrollBottom ) {
+      this.messages = this.messages.slice( this.messages.length - 40, this.messages.length );
+      this.loadMore = true;
+    }
+
     this.typingService.stopTyping.emit( message.username );
     this.changeEmitter.emit();
   }
