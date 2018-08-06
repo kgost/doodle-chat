@@ -40,12 +40,20 @@ export class MessageEditComponent implements OnInit, OnDestroy {
           this.textarea.nativeElement.focus();
         }
       ) );
+
     this.subscriptions.push( this.messageService.removeEmitter
       .subscribe(
         ( id: string ) => {
           if ( this.editMode && this.editId === id ) {
             this.onCancel();
           }
+        }
+      ) );
+
+    this.subscriptions.push( this.messageService.reloadEmitter
+      .subscribe(
+        () => {
+          this.onCancel();
         }
       ) );
   }
