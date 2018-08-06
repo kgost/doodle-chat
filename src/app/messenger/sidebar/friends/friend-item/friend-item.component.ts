@@ -51,7 +51,13 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.subscriptions.push( this.notificationService.hiddenEmitter
       .subscribe(
-        () => this.reInit()
+        () => {
+          if ( this.friendship.forceSelect ) {
+            this.onSelectFriendship( true );
+          }
+
+          this.reInit();
+        }
       ) );
   }
 
@@ -102,9 +108,10 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
       this.sidebarService.activeFriendshipId = this.friendship._id;
       delete this.sidebarService.activeConversationId;
 
+      this.sidebarService.deactivate.emit();
+      this.active = true;
+
       if ( !force ) {
-        this.sidebarService.deactivate.emit();
-        this.active = true;
         this.router.navigate( ['/messenger/friends', this.friendship._id] );
       } else {
         this.friendService.loadMessages( this.friendship._id );

@@ -105,6 +105,7 @@ export class MessageService {
         this.currentFriendName = friendship.users[i].id.username;
       }
     }
+
     this.key = this.authService.decryptAccessKey( this.getFriendshipAccessKey( friendship, this.authService.getCurrentUser()._id ) );
     this.currentFriendship = friendship;
     delete this.currentConversation;

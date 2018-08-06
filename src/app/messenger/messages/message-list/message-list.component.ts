@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewChecked, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { ApplicationRef, Component, OnInit, OnDestroy, AfterViewChecked, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Message } from '../message.model';
@@ -8,7 +8,8 @@ import { MessageService } from '../message.service';
 @Component({
   selector: 'app-message-list',
   templateUrl: './message-list.component.html',
-  styleUrls: ['./message-list.component.css']
+  styleUrls: ['./message-list.component.css'],
+  providers: [ApplicationRef]
 })
 export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('list') list: ElementRef;
@@ -22,6 +23,7 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
 
   constructor(
     private messageService: MessageService,
+    private appref: ApplicationRef
   ) { }
 
   ngOnInit() {
@@ -50,6 +52,8 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
 
         this.messages = messages;
         this.title = this.messageService.getTitle();
+
+        this.appref.tick();
       } ) );
 
     this.subscriptions.push( this.messageService.loadEmitter

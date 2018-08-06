@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from './auth/auth.service';
+import { SidebarService } from './messenger/sidebar/sidebar.service';
 
 @Component({
   selector: 'app-root',
@@ -13,9 +14,17 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private sidebarService: SidebarService,
     private router: Router,
   ) {}
 
   ngOnInit() {
+    navigator.serviceWorker.addEventListener( 'message', ( event ) => {
+      if ( !event.data.type ) {
+        this.sidebarService.initialLoad = true;
+        this.router.navigate(['/messenger']);
+        this.router.navigate([event.data]);
+      }
+    } );
   }
 }

@@ -138,10 +138,10 @@ async function create( req ) {
   ;[err] = await to( Reactions.create( { _id: reactionsId, message: message._id, reactions: [] } ) )
   if ( err ) throw { status: 500, error: err }
 
-  let notifierQuery, notifierObject, users, pushQuery
+  let notifierQuery, notifierObject, users, pushQuery, name
 
   if ( req.params.conversationId ) {
-    [err, conversation] = await to( Conversation.findById( req.params.conversationId, 'participants' ).lean().exec() )
+    [err, conversation] = await to( Conversation.findById( req.params.conversationId, 'name participants' ).lean().exec() )
     if ( err ) throw { status: 500, error: err }
 
     users = conversation.participants.map( ( usr ) => {
@@ -164,7 +164,7 @@ async function create( req ) {
       '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) }
     }
 
-    if ( err ) throw { status: 500, error: err }
+    name = conversation.name
   } else {
     [err, friendship] = await to( Friendship.findById( req.params.friendshipId, 'users' ).lean().exec() )
     if ( err ) throw { status: 500, error: err }
@@ -188,22 +188,26 @@ async function create( req ) {
     notifierObject = {
       '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) }
     }
+
+    name = user.username
   }
 
   [err] = await to( Notifier.update( notifierQuery, notifierObject, { multi: true } ).exec() )
   if ( err ) throw { status: 500, error: err }
 
-  setTimeout( ( pushQuery ) => {
+  name = ( name.length > 10 ) ? ( name.slice( 0, 10 ) + '...' ) : name
+
+  setTimeout( ( pushQuery, name ) => {
     Notifier.find( pushQuery, 'user' ).populate( 'user' ).lean().exec( ( err, notifiers ) => {
       const notificationPayload = {
         'notification': {
           'title': 'La Li Lu Le Lo',
-          'body': 'New Secure Message',
+          'body': `New Secure Message From ${ name }`,
           'icon': '/assets/images/active.jpg',
           'vibrate': [100, 50, 100],
           'data': {
             'dateOfArrival': Date.now(),
-            'primaryKey': 1
+            'primaryKey': 1,
           }
         }
       }
@@ -219,11 +223,13 @@ async function create( req ) {
           webpush.sendNotification(
             notifier.user.pushSub,
             JSON.stringify( notificationPayload )
-          )
+          ).catch( ( err ) => {
+            console.log( err )
+          } )
         }
       } )
     } )
-  }, 1000 * 10, pushQuery )
+  }, 1000 * 10, pushQuery, name )
 
   return { status: 201, data: message }
 }

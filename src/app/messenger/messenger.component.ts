@@ -99,13 +99,6 @@ export class MessengerComponent implements OnInit, OnDestroy {
       ) );
 
     this.socketIoService.signin( this.authService.getCurrentUser()._id );
-
-    navigator.serviceWorker.addEventListener( 'message', ( event ) => {
-      if ( !event.data.PUSH ) {
-        this.sidebarService.initialLoad = true;
-        this.router.navigate([event.data]);
-      }
-    } );
   }
 
   ngOnDestroy() {

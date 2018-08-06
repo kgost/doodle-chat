@@ -19,7 +19,6 @@ conversationSchema.path( 'participants' ).validate( function( participants ) {
 }, 'Conversation must have participants' )
 
 conversationSchema.post( 'remove', ( conversation ) => {
-  console.log( 'feff' )
   Message.remove( { conversation_id: conversation._id }, ( err ) => {
     if ( err ) throw err
   } )

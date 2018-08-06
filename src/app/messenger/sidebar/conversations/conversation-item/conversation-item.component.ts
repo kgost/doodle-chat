@@ -39,7 +39,13 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
 
     this.subscriptions.push( this.conversationService.changeEmitter
       .subscribe(
-        () => this.reInit()
+        () => {
+          if ( this.conversation.forceSelect ) {
+            this.onSelectConversation( true );
+          }
+
+          this.reInit();
+        }
       ) );
 
     this.subscriptions.push( this.sidebarService.deactivate
@@ -77,9 +83,10 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
     this.sidebarService.activeConversationId = this.conversation._id;
     delete this.sidebarService.activeFriendshipId;
 
+    this.sidebarService.deactivate.emit();
+    this.active = true;
+
     if ( !force ) {
-      this.sidebarService.deactivate.emit();
-      this.active = true;
       this.router.navigate( ['/messenger/conversations', this.conversation._id] );
     } else {
       this.conversationService.loadMessages( this.conversation._id );
