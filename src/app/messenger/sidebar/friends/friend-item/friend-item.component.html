@@ -4,16 +4,13 @@
   class="list-group-item">
   <span
     (click)="onRemove()"
-    style="cursor: pointer;"
     class="pull-right glyphicon glyphicon-remove"></span>
   <span
     *ngIf="isRequest()"
     (click)="onAccept()"
-    style="cursor: pointer;"
     class="pull-right glyphicon glyphicon-ok"></span>
   <span
     *ngIf="isPending()"
-    style="cursor: pointer; position: absolute; bottom: 2px; right: 12px;"
-    class="pull-right small">Pending</span>
+    class="pull-right small pending">Pending</span>
   <p style="width: 85%; word-wrap: break-word;">{{ getFriendName() }}</p>
 </li>

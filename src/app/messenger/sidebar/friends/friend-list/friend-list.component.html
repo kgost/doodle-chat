@@ -1,11 +1,8 @@
 <h4 class="text-center">Friends</h4>
-<ul
-  style="margin: 0;"
-  class="list-group">
+<ul class="list-group">
   <li 
     (click)="onNew()"
-    style="border-radius: 0; border-right: none;"
-    class="list-group-item btn btn-success">Add</li>
+    class="list-group-item btn btn-success new-friend">Add</li>
   <app-friend-item
     *ngFor="let friendship of friendships"
     [friendship]="friendship"></app-friend-item>

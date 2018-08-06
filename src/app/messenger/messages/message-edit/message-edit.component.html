@@ -1,10 +1,9 @@
 <div class="clearfix">
-  <div class="col-xs-12" style="padding: 0;">
+  <div class="col-xs-12">
     <form 
       #f="ngForm" 
       (ngSubmit)="onSubmit()">
       <div
-        style="margin: 0; position: relative;"
         class="form-group">
         <textarea
           (keydown)="onTextKey($event)"
@@ -13,25 +12,22 @@
           ngModel
           #textarea
           class="form-control" 
-          style="border-radius: 0; border-left: 0; resize: none;"
           required>
         </textarea>
-        <div
-          style="position: absolute; right: 0; bottom: 0;">
+        <div class="emoji-picker-container">
           <app-emoji-picker (emitEmoji)="onSelectEmoji($event)"></app-emoji-picker>
         </div>
       </div>
       <button
         [disabled]="!messageEdit.valid"
         type="submit"
-        style="font-family: arial, Segoe UI Symbol;"
-        class="btn btn-primary pull-right">{{ editMode ? 	'&#10004;' : 'Submit' }}</button>
+        class="btn btn-primary pull-right submit">{{ editMode ? '&#10004;' : 'Submit' }}</button>
       <button
         *ngIf="editMode"
         (click)="onCancel($event)"
         type="button"
         class="btn btn-warning pull-right">X</button>
-      <button class="btn btn-default pull-right" (click)="fileInput.click()">
+      <button class="btn btn-default pull-right file-picker" (click)="fileInput.click()">
         <input
           class="hidden"
           type="file"
@@ -39,7 +35,6 @@
           #fileInput
           (change)="onMediaUpload($event)">
         <span
-          style="font-size: 16px;"
           class="glyphicon glyphicon-picture"></span>
       </button>
     </form>

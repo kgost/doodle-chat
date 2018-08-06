@@ -5,12 +5,10 @@
   <span
     (click)="onLeave()"
     *ngIf="conversation.owner._id !== getCurrentUser()._id"
-    style="cursor: pointer;"
     class="pull-right glyphicon glyphicon-remove"></span>
   <span
     (click)="onEdit()"
     *ngIf="conversation.owner._id === getCurrentUser()._id"
-    style="cursor: pointer;"
     class="pull-right glyphicon glyphicon-option-vertical"></span>
-  <p style="width: 85%; word-wrap: break-word;">{{ conversation.name }}</p>
+  <p>{{ conversation.name }}</p>
 </li>

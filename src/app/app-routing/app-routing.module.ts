@@ -17,8 +17,7 @@ const AppRoutes: Route[] = [
   //{ component: MessengerComponent, path: 'messenger/conversations/:id', canActivate: [AuthGuard] },
   //{ component: MessengerComponent, path: 'messenger/friends/:id', canActivate: [AuthGuard] },
   { component: MessengerComponent, path: 'messenger/:category/:id', canActivate: [AuthGuard] },
-  { component: MessengerComponent, path: 'messenger', canActivate: [AuthGuard], children: [
-  ] },
+  { component: MessengerComponent, path: 'messenger', canActivate: [AuthGuard] },
   { component: SettingsComponent, path: 'settings', canActivate: [AuthGuard] },
 ];
 

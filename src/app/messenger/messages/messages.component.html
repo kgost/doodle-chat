@@ -2,16 +2,14 @@
   <div
     #container
     (scroll)="onContainerScroll()"
-    style="padding: 0; overflow-y: scroll; position: relative;"
-    class="col-xs-12 clearfix content">
-    <div style="position: absolute; top: 0; right: 0; bottom: 0; left: 0;">
+    class="col-xs-12 clearfix content messages">
+    <div class="message-list-container">
       <app-message-list></app-message-list>
     </div>
   </div>
   <div
     *ngIf="active"
-    style="padding: 0;"
-    class="col-xs-12 clearfix footer">
+    class="col-xs-12 clearfix footer message-edit-container">
     <app-message-edit></app-message-edit>
   </div>
 </div>

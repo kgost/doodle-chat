@@ -1,14 +1,8 @@
-<div #container
-  style="padding: 0; overflow-y: scroll; position: relative; height: 100%;"
-  class="row">
-  <div #conversations
-    style="padding: 0;"
-    class="col-xs-12">
+<div class="row sidebar" #container>
+  <div #conversations class="col-xs-12 conversations-container">
     <app-conversations></app-conversations>
   </div>
-  <div #friends
-    style="padding: 0;"
-    class="col-xs-12">
+  <div #friends class="col-xs-12 friends-container">
     <app-friends></app-friends>
   </div>
 </div>

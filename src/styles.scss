@@ -1,4 +1,465 @@
 /* You can add global styles to this file, and also import other style files */
+app-root {
+  app-header {
+    nav.navbar {
+      margin: 0;
+      a {
+        cursor: pointer;
+      }
+    }
+  }
+
+  app-alert {
+    .alert {
+      margin: 0;
+    }
+  }
+
+  app-landing {
+    .container {
+      font-size: 18px;
+    }
+  }
+
+  app-signup {
+
+  }
+
+  app-signin {
+
+  }
+
+  app-messenger {
+    .toggle {
+      position: absolute;
+      display: none;
+      left: 5px;
+      top: 5px;
+      cursor: pointer;
+      font-size: 22px;
+      z-index: 1;
+    }
+
+    .toggled {
+      display: initial;
+    }
+
+    @media only screen and (max-width: 768px) {
+      .toggle {
+        display: initial;
+      }
+
+      .toggled {
+        display: none;
+      }
+    }
+
+    .messenger {
+      height: 100%;
+      position: relative;
+
+      .sidebar-container {
+        height: 100%;
+        border-right: 1px solid #ddd;
+
+        app-sidebar {
+          .sidebar {
+            padding: 0;
+            overflow-y: scroll;
+            position: relative;
+            height: 100%;
+
+            .conversations-container, .friends-container {
+              padding: 0;
+
+              app-conversation-list, app-friend-list {
+                ul {
+                  margin: 0;
+
+                  .new-conversation, .new-friend {
+                    border-right: 0;
+                    border-right: none;
+                    color: #449d44;
+
+                    &:hover {
+                      color: white;
+                    }
+                  }
+
+                  app-conversation-item, app-friend-item {
+                    .notification {
+                      border: 1px solid red;
+                    }
+
+                    li {
+                      cursor: pointer;
+                      position: relative;
+                      border-radius: 0;
+                      border-right: none;
+                    }
+
+                    li:hover {
+                      opacity: 0.7;
+                    }
+
+                    li.activated {
+                      border: 1px solid #449d44;
+                    }
+
+                    li {
+                      span {
+                        cursor: pointer;
+
+                        &.pending {
+                          position: absolute;
+                          bottom: 2px;
+                          right: 12px;
+                        }
+                      }
+
+                      p {
+                        width: 85%;
+                        word-wrap: break-word;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          app-notification-sound {
+
+          }
+        }
+      }
+
+      .messages-container {
+        height: 100%;
+        padding: 0;
+
+        app-messages {
+          .messages {
+            padding: 0;
+            overflow-y: scroll;
+            position: relative;
+
+            .message-list-container {
+              position: absolute;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              left: 0;
+
+              app-message-list {
+                h3 {
+                  word-break: break-word;
+                }
+
+                ul {
+                  app-message-item {
+                    .clearfix {
+                      &:hover {
+                        .new-reaction {
+                          display: inline-block;
+                        }
+                      }
+
+                      li {
+                        position: relative;
+                        max-width: 50%;
+
+                        &.owner {
+                          color: white;
+                          background-color: #449d44;
+                        }
+
+                        &.stranger {
+                          min-height: 55px;
+                          padding-bottom: 0;
+                        }
+
+                        p {
+                          font-size: 18px;
+                          word-break: break-word;
+                        }
+
+                        .user-tag {
+                          margin-top: -3px;
+                        }
+
+                        .delete {
+                          color: black;
+                          position: absolute;
+                          top: -3px;
+                          right: 5px;
+                          font-size: 24px;
+                          opacity: 0.5;
+
+                          &:hover {
+                            opacity: 0.7;
+                          }
+                        }
+
+                        .edit {
+                          cursor: pointer;
+                          color: black;
+                          position: absolute;
+                          bottom: 2px;
+                          top: auto;
+                          right: 5px;
+                          font-size: 16px;
+                        }
+
+                        .reactions {
+                          cursor: pointer;
+
+                          span {
+                            font-size: 16px;
+                          }
+                        }
+
+                        app-media {
+                          img {
+                            background-color: white;
+                          }
+
+                          video {
+                            width: 100%;
+                          }
+                        }
+                      }
+
+                      .new-reaction {
+                        display: none;
+                        font-size: 20px;
+                        margin: 10px;
+
+                        span {
+                          cursor: pointer;
+                        }
+
+                        button {
+                          padding: 0;
+                          font-size: inherit;
+                          width: 32px;
+                          height: 32px;
+                        }
+
+                        app-reaction-picker {
+                          button {
+                            padding: 0;
+                            font-size: inherit;
+                          }
+                        }
+                      }
+
+                      .reactionShow {
+                        display: inline-block;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          .message-edit-container {
+            padding: 0;
+
+            app-message-edit {
+              .col-xs-12 {
+                padding: 0;
+
+                .form-group {
+                  margin: 0;
+                  position: relative;
+
+                  textarea.form-control {
+                    border-radius: 0;
+                    border-left: 0;
+                    resize: none;
+                  }
+
+                  .emoji-picker-container {
+                    position: absolute;
+                    right: 0;
+                    bottom: 0;
+
+                    app-emoji-picker {
+                      .emoji-picker {
+                        width: 204px;
+                        height: 200px;
+                        background-color: white;
+                        border: solid 1px #ccc;
+                        margin-right: 3px;
+
+                        .emoji-header {
+                          cursor: pointer;
+                        }
+
+                        hr {
+                          margin: 6px 0;
+                        }
+
+                        .picker-body {
+                          height: 153px;
+                          overflow-y: scroll;
+
+                          .selection {
+                            padding: 0;
+                            font-size: inherit;
+                            cursor: pointer;
+                            margin: 2px 1px;
+
+                            .emoji {
+                              width: 25px;
+                            }
+                          }
+                        }
+                      }
+
+                      .emoji-toggle {
+                        padding: 0;
+                        font-size: inherit;
+                        cursor: pointer;
+                        width: 32px;
+                        height: 32px;
+                      }
+                    }
+                  }
+                }
+
+                .submit {
+                  font-family: arial, Segoe UI Symbol;
+                }
+
+                .file-picker {
+                  span {
+                    font-size: 16px;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        app-typing {
+
+        }
+      }
+    }
+
+    app-conversation-edit, app-friend-edit, app-reaction {
+      .container {
+        position: absolute;
+        top: 10%;
+        margin: auto;
+        left: 50%;
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+        z-index: 2;
+      } 
+
+      .participant {
+        position: relative;
+      }
+
+      .container .close {
+        font-size: 50px;
+        position: absolute;
+        top: -5px;
+        right: 18px;
+      }
+
+      .participant .close {
+        font-size: 30px;
+        position: absolute;
+        top: -5px;
+        right: 18px;
+      }
+
+      .greyout {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(128,128,128,0.5);
+      }
+
+      @media only screen and (max-width: 768px) {
+        .container {
+          width: 100%;
+          left: 0;
+          -webkit-transform: none;
+          transform: none;
+        }
+      }
+    }
+  }
+
+  app-settings {
+    /* The switch - the box around the slider */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {display:none;}
+
+    /* The slider */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  }
+}
 html,
 body {
   height: 100vh;
@@ -40,7 +501,6 @@ app-messenger, app-messages, app-message-list {
 }
 
 .selection .emoji {
-  width: 25px;
 }
 
 .emoji {

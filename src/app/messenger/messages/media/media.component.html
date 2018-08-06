@@ -1,13 +1,11 @@
 <img
   class="img-responsive"
-  style="background-color: white;"
   *ngIf="media.mime.indexOf( 'image' ) !== -1"
   [src]="'/api/media/' + media._id"
   (load)="loadEmit()"
   [ngStyle]="{ height: loaded || !media.size ? 'auto' : media.size.height + 'px' }"
   alt="">
 <video
-  style="width: 100%;"
   class="img-responsive"
   [ngStyle]="{ 'padding-top': ( loaded ? '' : '7%' ) }"
   *ngIf="media.mime.indexOf( 'video' ) !== -1"

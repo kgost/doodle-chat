@@ -1,11 +1,8 @@
 <h4 class="text-center">Conversations</h4>
-<ul
-  style="margin: 0;"
-  class="list-group">
-  <li 
+<ul class="list-group">
+  <li
     (click)="onNew()"
-    style="border-radius: 0; border-right: none;"
-    class="list-group-item btn btn-success">New</li>
+    class="list-group-item btn btn-success new-conversation">New</li>
   <app-conversation-item
     *ngFor="let conversation of conversations"
     [conversation]="conversation"></app-conversation-item>

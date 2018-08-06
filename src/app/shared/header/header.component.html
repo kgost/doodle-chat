@@ -1,5 +1,4 @@
 <nav
-  style="margin: 0;"
   class="navbar navbar-default">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -21,34 +20,29 @@
         <li routerLinkActive="active" *ngIf="isSignedin()">
           <a
             routerLink="/messenger"
-            (click)="onNavigate()"
-            style="cursor: pointer;">Messenger</a>
+            (click)="onNavigate()">Messenger</a>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li routerLinkActive="active" *ngIf="isSignedin()">
           <a 
             (click)="onNavigate()"
-            routerLink="/settings"
-            style="cursor: pointer;">Settings</a>
+            routerLink="/settings">Settings</a>
         </li>
         <li routerLinkActive="active" *ngIf="isSignedin()">
           <a 
-            (click)="onSignout()"
-            style="cursor: pointer;">Sign Out</a>
+            (click)="onSignout()">Sign Out</a>
         </li>
         <ng-template [ngIf]="!isSignedin()">
           <li routerLinkActive="active">
             <a 
               (click)="onNavigate()"
-              routerLink="/signup"
-              style="cursor: pointer;">Sign Up</a>
+              routerLink="/signup">Sign Up</a>
           </li>
           <li routerLinkActive="active">
             <a 
               (click)="onNavigate()"
-              routerLink="/signin"
-              style="cursor: pointer;">Sign In</a>
+              routerLink="/signin">Sign In</a>
           </li>
         </ng-template>
       </ul>

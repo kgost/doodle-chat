@@ -1,51 +1,43 @@
 <div class="clearfix" #clearfix>
   <li 
-    style="position: relative;"
     [ngStyle]="{ padding: message.media ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) ? '50%' : '' }"
     [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
     class="list-group-item">
     <p
       *ngIf="message.text !== undefined && message.text !== ''"
       [ngStyle]="{ 'padding-right': owner ? '15px' : '' }"
-      [innerHtml]="message.text | dcrypt: key | decode8 | link | emojify | normalize"
-      style="font-size: 18px; word-break: break-word;"></p>
+      [innerHtml]="message.text | dcrypt: key | decode8 | link | emojify | normalize"></p>
     <app-media
       *ngIf="message.media"
       [media]="message.media"></app-media>
-    <div style="margin-top: -3px;" *ngIf="!owner">
+    <div class="user-tag" *ngIf="!owner">
       <span
-        class="pull-left"
         class="small">{{ message.username + ' ' + getDate() }}</span>
     </div>
     <button 
       (click)="onDelete()"
       *ngIf="owner"
       type="button" 
-      style="color: black; position: absolute; top: -3px; right: 5px; font-size: 24px;"
-      class="close" 
+      class="close delete" 
       aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
     <span 
       (click)="onEdit()"
       *ngIf="owner && !message.media"
-      class="glyphicon glyphicon-edit" 
-      style="cursor: pointer; color: black; position: absolute; bottom: 2px; top: auto; right: 5px; font-size: 16px;"
+      class="glyphicon glyphicon-edit edit" 
       aria-hidden="true"></span>
-    <div style="cursor: pointer;" (click)="onCheckReactions()">
+    <div class="reactions" (click)="onCheckReactions()">
       <span
         *ngFor="let reaction of message.reactions"
-        [innerHtml]="reaction.text | dcrypt: key | decode8 | emojify"
-        style="font-size: 16px;"></span>
+        [innerHtml]="reaction.text | dcrypt: key | decode8 | emojify"></span>
     </div>
   </li>
   <div
     [ngClass]="{ reactionShow: editReaction }"
-    style="font-size: 20px; margin: 10px;"
     *ngIf="!owner"
-    class="pull-left reaction">
+    class="pull-left new-reaction">
     <span
-      style="cursor: pointer;"
       *ngIf="!editReaction"
       [innerHtml]="'🤔' | emojify"
       (click)="toggleReaction()"></span>
@@ -56,7 +48,6 @@
       *ngIf="editReaction"
       (click)="editReaction = false"
       type="button"
-      style="padding: 0; font-size: inherit; width: 32px; height: 32px;"
       class="btn btn-default pull-left">X</button>
   </div>
 </div>

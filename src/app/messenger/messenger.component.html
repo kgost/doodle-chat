@@ -1,22 +1,20 @@
-<div style="height: 100%; position: relative;">
+<div class="messenger">
   <span
     (click)="toggleMessages()"
     *ngIf="showMessages"
-    class="glyphicon glyphicon-plus"></span>
+    class="glyphicon glyphicon-plus toggle"></span>
   <span
     (click)="toggleMessages()"
     *ngIf="!showMessages"
-    class="glyphicon glyphicon-minus"></span>
+    class="glyphicon glyphicon-minus toggle"></span>
   <div
-    style="height: 100%; border-right: 1px solid #ddd;"
     [ngClass]="{ toggled: showMessages }"
-    class="col-xs-12 col-sm-3 col-md-2">
+    class="sidebar-container col-xs-12 col-sm-3 col-md-2">
     <app-sidebar class="box"></app-sidebar>
   </div>
   <div
-    style="height: 100%; padding: 0;"
     [ngClass]="{ toggled: !showMessages }"
-    class="col-xs-12 col-sm-9 col-md-10">
+    class="messages-container col-xs-12 col-sm-9 col-md-10">
     <div class="box">
       <app-messages></app-messages>
       <app-typing></app-typing>
