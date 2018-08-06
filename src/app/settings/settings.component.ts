@@ -22,7 +22,6 @@ export class SettingsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log( this.authService.getCurrentUser() );
     if ( this.authService.getCurrentUser().pushSub ) {
       this.toggle = true;
     }
@@ -48,6 +47,7 @@ export class SettingsComponent implements OnInit {
         console.error( 'could not subscribe' );
         console.error( err );
         this.alertService.alertSubject.next( { message: err.toString(), mode: 'danger' } );
+        this.toggle = false;
       } );
   }
 

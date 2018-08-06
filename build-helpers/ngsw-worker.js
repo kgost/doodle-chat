@@ -12,7 +12,8 @@
                     var client = clientList[i];
                     if ( client.navigate ) {
                       client.focus();
-                      return client.navigate( '/messenger' + event.notification.data.url );
+                      return client.postMessage( '/messenger' + event.notification.data.url );
+                      //return client.navigate( '/messenger' + event.notification.data.url );
                     }
                   }
 

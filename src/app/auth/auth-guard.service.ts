@@ -27,7 +27,6 @@ export class AuthGuard {
           .then( ( result ) => {
             if ( !result ) {
               this.alertService.alertSubject.next( { message: 'For Security Reasons, You Must Sign Back In', mode: 'danger' }   );
-              console.log( 'success' );
               this.authService.signout( true );
             }
 

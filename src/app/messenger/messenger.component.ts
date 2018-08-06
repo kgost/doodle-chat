@@ -42,21 +42,24 @@ export class MessengerComponent implements OnInit, OnDestroy {
         ( params ) => {
           if ( this.router.url.indexOf( 'conversations' ) !== -1 ) {
             if ( this.sidebarService.initialLoad ) {
-              this.showMessages = true;
               this.conversationService.forceSelect( params['id'] );
             } else {
               this.conversationService.loadMessages( params['id'] );
             }
+
+            this.showMessages = true;
           } else if ( this.router.url.indexOf( 'friends' ) !== -1 ) {
             if ( this.sidebarService.initialLoad ) {
-              this.showMessages = true;
               this.friendService.forceSelect( params['id'] );
             } else {
               this.friendService.loadMessages( params['id'] );
             }
+
+            this.showMessages = true;
           } else {
             delete this.sidebarService.activeConversationId;
             delete this.sidebarService.activeFriendshipId;
+            this.showMessages = false;
           }
 
           this.sidebarService.initialLoad = false;
@@ -96,6 +99,13 @@ export class MessengerComponent implements OnInit, OnDestroy {
       ) );
 
     this.socketIoService.signin( this.authService.getCurrentUser()._id );
+
+    navigator.serviceWorker.addEventListener( 'message', ( event ) => {
+      if ( !event.data.PUSH ) {
+        this.sidebarService.initialLoad = true;
+        this.router.navigate([event.data]);
+      }
+    } );
   }
 
   ngOnDestroy() {
