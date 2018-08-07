@@ -32,6 +32,7 @@ export class MessageService {
   loadMore = false;
   allowScrollBottom = true;
   scrollPrevious = false;
+  rootRoute = false;
 
   constructor(
     private authService: AuthService,

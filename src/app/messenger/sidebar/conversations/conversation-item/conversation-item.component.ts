@@ -65,11 +65,13 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
     return this.authService.getCurrentUser();
   }
 
-  onEdit() {
+  onEdit( e ) {
+    e.stopPropagation();
     this.conversationService.editChange.next( this.conversation );
   }
 
-  onLeave() {
+  onLeave( e ) {
+    e.stopPropagation();
     this.conversationService.leaveConversation( this.conversation._id );
   }
 

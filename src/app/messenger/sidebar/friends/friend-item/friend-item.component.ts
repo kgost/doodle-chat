@@ -89,11 +89,13 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
     return false;
   }
 
-  onAccept() {
+  onAccept( e ) {
+    e.stopPropagation();
     this.friendService.updateFriendship( this.friendship._id, this.friendship );
   }
 
-  onRemove() {
+  onRemove( e ) {
+    e.stopPropagation();
     this.friendService.removeFriendship( this.friendship._id );
   }
 

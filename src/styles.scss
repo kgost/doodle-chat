@@ -96,17 +96,18 @@ app-root {
                       position: relative;
                       border-radius: 0;
                       border-right: none;
-                    }
+                      padding-right: 5px;
 
-                    li:hover {
-                      opacity: 0.7;
-                    }
+                      &:hover {
+                        p {
+                          opacity: 0.7;
+                        }
+                      }
 
-                    li.activated {
-                      border: 1px solid #449d44;
-                    }
+                      &.activated {
+                        border: 1px solid #449d44;
+                      }
 
-                    li {
                       span {
                         cursor: pointer;
 
@@ -115,11 +116,29 @@ app-root {
                           bottom: 2px;
                           right: 12px;
                         }
+
+                        &.glyphicon {
+                          font-size: 25px;
+                          margin-right: 3px;
+
+                          &.glyphicon-ok {
+                            color: #59ABE3;
+                          }
+
+                          &.glyphicon-remove{
+                            color: #D91E18;
+                          }
+
+                          &:hover {
+                            opacity: 0.6;
+                          }
+                        }
                       }
 
                       p {
                         width: 85%;
                         word-wrap: break-word;
+                        padding-right: 8px;
                       }
                     }
                   }

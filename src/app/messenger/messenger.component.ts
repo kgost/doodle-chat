@@ -63,6 +63,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
             delete this.sidebarService.activeConversationId;
             delete this.sidebarService.activeFriendshipId;
             this.showMessages = false;
+            this.messageService.rootRoute = true;
           }
 
           this.sidebarService.initialLoad = false;

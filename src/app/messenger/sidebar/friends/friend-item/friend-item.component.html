@@ -3,11 +3,11 @@
   [ngClass]="{ notification: notification, activated: active }"
   class="list-group-item">
   <span
-    (click)="onRemove()"
+    (click)="onRemove($event)"
     class="pull-right glyphicon glyphicon-remove"></span>
   <span
     *ngIf="isRequest()"
-    (click)="onAccept()"
+    (click)="onAccept($event)"
     class="pull-right glyphicon glyphicon-ok"></span>
   <span
     *ngIf="isPending()"

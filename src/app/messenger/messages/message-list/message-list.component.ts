@@ -80,6 +80,10 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
           this.loading = loading;
         }
       ) );
+
+    if ( this.messageService.rootRoute ) {
+      this.loading = false;
+    }
   }
 
   ngAfterViewChecked() {
