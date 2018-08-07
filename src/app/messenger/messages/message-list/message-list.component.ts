@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, OnInit, OnDestroy, AfterViewChecked, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Message } from '../message.model';
@@ -9,7 +9,6 @@ import { MessageService } from '../message.service';
   selector: 'app-message-list',
   templateUrl: './message-list.component.html',
   styleUrls: ['./message-list.component.css'],
-  providers: [ApplicationRef]
 })
 export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('list') list: ElementRef;
@@ -17,13 +16,13 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
   title: string;
   messages: Message[];
   initial = true;
+  loading = true;
   loaded = 0;
   paginate = false;
   edit = false;
 
   constructor(
     private messageService: MessageService,
-    private appref: ApplicationRef
   ) { }
 
   ngOnInit() {
@@ -53,7 +52,7 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
         this.messages = messages;
         this.title = this.messageService.getTitle();
 
-        this.appref.tick();
+        this.loading = false;
       } ) );
 
     this.subscriptions.push( this.messageService.loadEmitter
@@ -72,6 +71,13 @@ export class MessageListComponent implements OnInit, OnDestroy, AfterViewChecked
         () => {
           this.initial = true;
           this.loaded = 0 - this.messages.length;
+        }
+      ) );
+
+    this.subscriptions.push( this.messageService.loadingSubject
+      .subscribe(
+        ( loading ) => {
+          this.loading = loading;
         }
       ) );
   }

@@ -152,6 +152,33 @@ app-root {
               left: 0;
 
               app-message-list {
+                .lds-dual-ring {
+                  margin: auto;
+                  margin-top: 40%;
+                  text-align: center;
+                  width: 64px;
+                  height: 64px;
+                }
+                .lds-dual-ring:after {
+                  content: " ";
+                  display: block;
+                  width: 92px;
+                  height: 92px;
+                  margin: 1px;
+                  border-radius: 50%;
+                  border: 5px solid #cef;
+                  border-color: #cef transparent #cef transparent;
+                  animation: lds-dual-ring 0.2s linear infinite;
+                }
+                @keyframes lds-dual-ring {
+                  0% {
+                    transform: rotate(0deg);
+                  }
+                  100% {
+                    transform: rotate(360deg);
+                  }
+                }
+
                 h3 {
                   word-break: break-word;
                 }
@@ -321,7 +348,7 @@ app-root {
 
                       app-emoji-picker {
                         .emoji-picker {
-                          width: 329px;
+                          width: 278px;
                           height: 325px;
                           background-color: white;
                           border: solid 1px #ccc;
@@ -330,16 +357,16 @@ app-root {
                             cursor: pointer;
 
                             .emoji {
-                              width: 53px;
+                              width: 45px;
                             }
                           }
 
                           hr {
-                            margin: 6px 0;
+                            margin: 6px 0 0 0;
                           }
 
                           .picker-body {
-                            height: 255px;
+                            height: 269px;
                             overflow-y: scroll;
 
                             .selection {
@@ -349,7 +376,8 @@ app-root {
                               margin: 2px 1px;
 
                               .emoji {
-                                width: 33px;
+                                width: 34px;
+                                margin: 1px;
                               }
                             }
                           }
@@ -499,7 +527,7 @@ app-root {
 }
 html,
 body {
-  height: 100vh;
+  height: 100%;
   margin: 0
 }
 

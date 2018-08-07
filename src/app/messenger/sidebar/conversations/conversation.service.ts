@@ -60,6 +60,7 @@ export class ConversationService {
   }
 
   forceSelect( id: string ) {
+    this.messageService.loadingSubject.next( true );
     this.socketIoService.joinConversation( id );
     this.currentConversation = this.getConversation( id );
     if ( this.loaded ) {
@@ -75,6 +76,7 @@ export class ConversationService {
   }
 
   loadMessages( id: string ) {
+    this.messageService.loadingSubject.next( true );
     this.sidebarService.getMessages( id )
       .subscribe(
         ( messages: Message[] ) => {

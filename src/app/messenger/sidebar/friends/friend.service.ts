@@ -62,6 +62,7 @@ export class FriendService {
   }
 
   loadMessages( id: string ) {
+    this.messageService.loadingSubject.next( true );
     this.sidebarService.getPrivateMessages( id )
       .subscribe(
         ( messages: Message[] ) => {
@@ -73,6 +74,7 @@ export class FriendService {
   }
 
   forceSelect( id: string ) {
+    this.messageService.loadingSubject.next( true );
     this.socketIoService.joinFriendship( id );
     this.currentFriendship = this.getFriendship( id );
     if ( this.loaded ) {

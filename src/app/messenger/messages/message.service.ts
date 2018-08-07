@@ -26,6 +26,7 @@ export class MessageService {
   removeEmitter = new EventEmitter<string>();
   editChange = new Subject<Message>();
   showReactions = new Subject<{ text: string, username: string }[]>();
+  loadingSubject = new Subject<boolean>();
   privateMode = false;
   key = '';
   loadMore = false;
@@ -54,29 +55,35 @@ export class MessageService {
   }
 
   loadPreviousMessages() {
-    if ( this.loadMore ) {
+    if ( this.loadMore && this.messages[0] ) {
       if ( this.privateMode && this.currentFriendship ) {
+        this.loadingSubject.next( true );
         this.sidebarService.getPreviousPrivateMessages( this.currentFriendship._id, this.messages[0]._id )
           .subscribe(
             ( messages: Message[] ) => {
               if ( messages.length < 20 ) {
                 this.loadMore = false;
               }
+
               this.messages = messages.concat( this.messages );
               this.scrollPrevious = true;
               this.changeEmitter.emit();
+              this.loadingSubject.next( false );
             }
           );
       } else if ( this.currentConversation ) {
+        this.loadingSubject.next( true );
         this.sidebarService.getPreviousMessages( this.currentConversation._id, this.messages[0]._id )
           .subscribe(
             ( messages: Message[] ) => {
               if ( messages.length < 20 ) {
                 this.loadMore = false;
               }
+
               this.messages = messages.concat( this.messages );
               this.scrollPrevious = true;
               this.changeEmitter.emit();
+              this.loadingSubject.next( false );
             }
           );
       }
@@ -98,6 +105,7 @@ export class MessageService {
 
     this.reloadEmitter.emit();
     this.changeEmitter.emit();
+    this.loadingSubject.next( false );
   }
 
   loadPrivateMessages( friendship: Friendship, messages: Message[] ) {
@@ -119,6 +127,7 @@ export class MessageService {
 
     this.reloadEmitter.emit();
     this.changeEmitter.emit();
+    this.loadingSubject.next( false );
   }
 
   loadMessage( message: Message ) {
