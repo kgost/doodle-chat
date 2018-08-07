@@ -258,28 +258,4 @@ export class SidebarService {
         return response.json().obj;
       } ) );
   }
-
-  addPushSubscriber( sub: any ) {
-    this.http.post( this.baseUrl + 'addSubscriber?token=' + this.authService.getToken(), sub )
-      .subscribe(
-        ( response: Response ) => {
-          console.log( response.json() );
-        },
-        ( error: Response ) => {
-          console.log( error.json() );
-        }
-      );
-  }
-
-  removePushSubscriber() {
-    this.http.delete( this.baseUrl + 'removeSubscriber?token=' + this.authService.getToken() )
-      .subscribe(
-        ( response: Response ) => {
-          console.log( response.json() );
-        },
-        ( error: Response ) => {
-          console.log( error.json() );
-        }
-      );
-  }
 }

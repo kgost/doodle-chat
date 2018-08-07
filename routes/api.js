@@ -304,30 +304,4 @@ router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
   } )
 } )
 
-router.post( '/addSubscriber', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  user.pushSub = req.body
-
-  User.findByIdAndUpdate( user._id, user, ( err ) => {
-    if ( err ) {
-      res.status( 500 ).json( err )
-    }
-
-    res.status( 201 ).json({ message: 'Subscription Object Added' })
-  } )
-} )
-
-router.delete( '/removeSubscriber', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
-  User.findByIdAndUpdate( user._id, { pushSub: null }, ( err ) => {
-    if ( err ) {
-      res.status( 500 ).json( err )
-    }
-
-    res.status( 201 ).json({ message: 'Subscription Object Removed' })
-  } )
-} )
-
 module.exports = router

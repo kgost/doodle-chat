@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
 
-import { SidebarService } from '../messenger/sidebar/sidebar.service';
 import { AuthService } from '../auth/auth.service';
 import { AlertService } from '../alert.service';
 
@@ -17,19 +16,19 @@ export class SettingsComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private alertService: AlertService,
-    private sidebarService: SidebarService,
     private swPush: SwPush,
   ) { }
 
   ngOnInit() {
-    if ( this.authService.getCurrentUser().pushSub ) {
-      this.toggle = true;
-    }
+    this.swPush.subscription.subscribe( ( pushSub ) => {
+      if ( pushSub ) {
+        this.toggle = true;
+      }
+    } );
   }
 
   onToggle() {
     this.toggle = !this.toggle;
-    this.authService.setPushSub( this.toggle );
 
     if ( this.toggle ) {
       this.onSubscribe();
@@ -38,11 +37,15 @@ export class SettingsComponent implements OnInit {
     }
   }
 
+  isEnabled() {
+    return this.swPush.isEnabled;
+  }
+
   onSubscribe() {
     this.swPush.requestSubscription({
       serverPublicKey: this.VAPID_PUBLIC_KEY
     })
-      .then( sub => this.sidebarService.addPushSubscriber( sub ) )
+      .then( sub => this.authService.addPushSubscriber( sub ) )
       .catch( err => {
         console.error( 'could not subscribe' );
         console.error( err );
@@ -52,7 +55,15 @@ export class SettingsComponent implements OnInit {
   }
 
   unSubscribe() {
-    this.sidebarService.removePushSubscriber();
+    this.swPush.unsubscribe()
+      .then( () => {
+        this.authService.removePushSubscriber();
+      } )
+      .catch( err => {
+        console.error( 'could not unsubscribe' );
+        console.error( err );
+        this.alertService.alertSubject.next( { message: err.toString(), mode: 'danger' } );
+        this.toggle = true;
+      } );
   }
-
 }

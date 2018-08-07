@@ -18,7 +18,7 @@ const express       = require('express'),
   */
 router.post('/signin', (req, res) => {
   //Finds user in database
-  User.findOne( { username: req.body.username }, 'username password publicKey privateKey pushSub' ).lean().exec( ( err, user ) => {
+  User.findOne( { username: req.body.username }, 'username password publicKey privateKey' ).lean().exec( ( err, user ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -40,7 +40,6 @@ router.post('/signin', (req, res) => {
       userId: user._id,
       publicKey: user.publicKey,
       privateKey: user.privateKey,
-      pushSub: user.pushSub
     } )
   })
 } )
@@ -89,7 +88,6 @@ router.post('/signup', (req, res) => {
         message: 'Successfully Signed In',
         token: jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, {expiresIn : 7200}),
         userId: user._id,
-        pushSub: user.pushSub
       })
     } )
   })
@@ -136,6 +134,30 @@ router.get( '/consumeNonce', middleware.authenticate, ( req, res ) => {
       nonce: nonce,
       oldNonce: user.nonce
     })
+  } )
+} )
+
+router.post( '/addSubscriber', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  User.findByIdAndUpdate( user._id, { pushSub: req.body }, ( err ) => {
+    if ( err ) {
+      res.status( 500 ).json( err )
+    }
+
+    res.status( 201 ).json({ message: 'Subscription Object Added' })
+  } )
+} )
+
+router.delete( '/removeSubscriber', middleware.authenticate, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  User.findByIdAndUpdate( user._id, { pushSub: null }, ( err ) => {
+    if ( err ) {
+      res.status( 500 ).json( err )
+    }
+
+    res.status( 201 ).json({ message: 'Subscription Object Removed' })
   } )
 } )
 

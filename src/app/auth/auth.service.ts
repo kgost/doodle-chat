@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Router } from '@angular/router';
+import { SwPush } from '@angular/service-worker';
 import { map } from 'rxjs/operators';
 import * as forge from 'node-forge';
 
@@ -14,8 +15,6 @@ export class AuthService {
   currentUser = new User(
     localStorage.getItem( 'username' ),
     localStorage.getItem( 'userId' ),
-    null,
-    JSON.parse( localStorage.getItem( 'pushSub' ) )
   );
   private privateKey: any;
   private publicKey: any;
@@ -25,6 +24,7 @@ export class AuthService {
     private router: Router,
     private socketIoService: SocketIoService,
     private alertService: AlertService,
+    private swPush: SwPush,
   ) {
   }
 
@@ -40,12 +40,9 @@ export class AuthService {
               localStorage.setItem( 'token', data.token );
               localStorage.setItem( 'userId', data.userId );
               localStorage.setItem( 'username', username );
-              localStorage.setItem( 'pushSub', JSON.stringify( data.pushSub ) );
               this.currentUser = new User(
                 localStorage.getItem( 'username' ),
                 localStorage.getItem( 'userId' ),
-                '',
-                data.pushSub
               );
               this.socketIoService.signin( this.currentUser._id );
               this.alertService.alertSubject.next( { message: 'Successfully Signed Up!', mode: 'success' } );
@@ -70,12 +67,9 @@ export class AuthService {
           localStorage.setItem( 'token', data.token );
           localStorage.setItem( 'userId', data.userId );
           localStorage.setItem( 'username', username );
-          localStorage.setItem( 'pushSub', JSON.stringify( data.pushSub ) );
           this.currentUser = new User(
             localStorage.getItem( 'username' ),
             localStorage.getItem( 'userId' ),
-            '',
-            data.pushSub
           );
           this.socketIoService.signin( this.currentUser._id );
           this.publicKey = this.getPublicKeyFromString( data.publicKey );
@@ -83,6 +77,12 @@ export class AuthService {
           this.router.navigate(['/messenger']);
 
           this.storePrivateKey();
+
+          if ( this.swPush.isEnabled ) {
+            this.swPush.subscription.subscribe( ( sub ) => {
+              this.addPushSubscriber( sub );
+            } ) ;
+          }
         },
         ( response: Response ) => {
           const error = response.json();
@@ -116,7 +116,6 @@ export class AuthService {
     localStorage.removeItem( 'token' );
     localStorage.removeItem( 'userId' );
     localStorage.removeItem( 'username' );
-    localStorage.removeItem( 'pushSub' );
     if ( signin ) {
       this.router.navigate( ['/signin'] );
     } else {
@@ -181,10 +180,6 @@ export class AuthService {
     return '';
   }
 
-  setPushSub( value: boolean ) {
-    this.currentUser.pushSub = value;
-  }
-
   storePrivateKey(): Promise<boolean> {
     return new Promise<boolean>( ( resolve, reject ) => {
       this.http.get( this.baseUrl + 'consumeNonce?token=' + this.getToken() )
@@ -209,6 +204,30 @@ export class AuthService {
           }
         );
     } ) ;
+  }
+
+  addPushSubscriber( sub: any ) {
+    this.http.post( this.baseUrl + 'addSubscriber?token=' + this.getToken(), sub )
+      .subscribe(
+        ( response: Response ) => {
+          console.log( response.json() );
+        },
+        ( error: Response ) => {
+          console.log( error.json() );
+        }
+      );
+  }
+
+  removePushSubscriber() {
+    this.http.delete( this.baseUrl + 'removeSubscriber?token=' + this.getToken() )
+      .subscribe(
+        ( response: Response ) => {
+          console.log( response.json() );
+        },
+        ( error: Response ) => {
+          console.log( error.json() );
+        }
+      );
   }
 
   private keyGen(): Promise<void> {
