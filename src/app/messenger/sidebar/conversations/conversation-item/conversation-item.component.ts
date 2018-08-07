@@ -105,6 +105,9 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
   ngAfterViewInit() {
     if ( this.conversation.forceSelect ) {
       this.onSelectConversation( true );
+    }
+
+    if ( this.active ) {
       this.sidebarService.scrollSubject
         .next( { height: this.container.nativeElement.offsetTop, conversations: true } );
     }

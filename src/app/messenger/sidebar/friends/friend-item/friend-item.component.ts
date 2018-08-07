@@ -131,6 +131,9 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     if ( this.friendship.forceSelect ) {
       this.onSelectFriendship( true );
+    }
+
+    if ( this.active ) {
       this.sidebarService.scrollSubject
         .next( { height: this.container.nativeElement.offsetTop, conversations: false } );
     }

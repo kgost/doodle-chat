@@ -18,6 +18,7 @@ export class AuthService {
   );
   private privateKey: any;
   private publicKey: any;
+  private previousRoute = localStorage.getItem( `${ this.currentUser._id }:previousRoute` );
 
   constructor(
     private http: Http,
@@ -74,7 +75,7 @@ export class AuthService {
           this.socketIoService.signin( this.currentUser._id );
           this.publicKey = this.getPublicKeyFromString( data.publicKey );
           this.privateKey = this.getPrivateKeyFromString( this.decryptAes( data.privateKey, this.getKeyFromString( password ) ) );
-          this.router.navigate(['/messenger']);
+          this.router.navigate([this.previousRoute || '/messenger']);
 
           this.storePrivateKey();
 
@@ -228,6 +229,15 @@ export class AuthService {
           console.log( error.json() );
         }
       );
+  }
+
+  getPreviousRoute() {
+    return this.previousRoute;
+  }
+
+  setPreviousRoute( route: string ) {
+    this.previousRoute = route;
+    localStorage.setItem( `${ this.currentUser._id }:previousRoute`, route );
   }
 
   private keyGen(): Promise<void> {

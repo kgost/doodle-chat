@@ -31,4 +31,12 @@ export class HeaderComponent implements OnInit {
   onNavigate() {
     this.showNav = false;
   }
+
+  getMessengerRoute() {
+    if ( this.authService.getPreviousRoute() ) {
+      return this.authService.getPreviousRoute();
+    } else {
+      return '/messenger';
+    }
+  }
 }

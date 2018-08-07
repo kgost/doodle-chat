@@ -51,6 +51,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
             }
 
             this.showMessages = true;
+            this.authService.setPreviousRoute( '/messenger/conversations/' + params['id'] );
           } else if ( this.router.url.indexOf( 'friends' ) !== -1 ) {
             if ( this.sidebarService.initialLoad ) {
               this.friendService.forceSelect( params['id'] );
@@ -59,6 +60,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
             }
 
             this.showMessages = true;
+            this.authService.setPreviousRoute( '/messenger/friends/' + params['id'] );
           } else {
             delete this.sidebarService.activeConversationId;
             delete this.sidebarService.activeFriendshipId;
