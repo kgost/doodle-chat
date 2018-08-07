@@ -37,6 +37,9 @@ export class MessengerComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.socketIoService.leaveFriendship( this.socketIoService.joinedFriendship );
+    this.socketIoService.leaveConversation( this.socketIoService.joinedConversation );
+
     this.subscriptions.push( this.route.params
       .subscribe(
         ( params ) => {
