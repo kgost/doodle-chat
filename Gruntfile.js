@@ -2,10 +2,15 @@ module.exports = function( grunt ) {
   grunt.initConfig({
     insert: {
       options: {},
-      main: {
-        src: './build-helpers/ngsw-worker.js',
+      notification_click: {
+        src: './build-helpers/ngsw-worker-notification-click.js',
         dest: './dist/chat-front/ngsw-worker.js',
         match: '// The debugger generates debug pages in response to debugging requests.'
+      },
+      on_push: {
+        src: './build-helpers/ngsw-worker-onPush.js',
+        dest: './dist/chat-front/ngsw-worker.js',
+        match: 'msg.waitUntil(this.handlePush(msg.data.json()));'
       }
     }
   })

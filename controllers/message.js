@@ -202,12 +202,14 @@ async function create( req ) {
       const notificationPayload = {
         'notification': {
           'title': 'La Li Lu Le Lo',
-          'body': `New Secure Message From ${ name }`,
+          'body': `1 New Secure Message From ${ name }`,
           'icon': '/assets/images/active.jpg',
           'vibrate': [100, 50, 100],
           'data': {
             'dateOfArrival': Date.now(),
             'primaryKey': 1,
+            'count': 1,
+            'name': name
           }
         }
       }

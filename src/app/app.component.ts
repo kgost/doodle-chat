@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     navigator.serviceWorker.addEventListener( 'message', ( event ) => {
-      if ( !event.data.type ) {
+      if ( event.data.type !== 'PUSH' ) {
         this.sidebarService.initialLoad = true;
         this.router.navigate(['/messenger']);
         this.router.navigate([event.data]);
