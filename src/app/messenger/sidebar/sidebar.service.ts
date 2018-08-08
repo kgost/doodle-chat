@@ -9,6 +9,7 @@ import { Friendship } from './friends/friendship.model';
 import { map } from 'rxjs/operators';
 import { Message } from '../messages/message.model';
 import { Media } from '../messages/media/media.model';
+import { Poll } from '../messages/poll/poll.model';
 
 @Injectable()
 export class SidebarService {
@@ -200,9 +201,14 @@ export class SidebarService {
 
   private mapMessage( response: Response ) {
     const data = response.json();
+
     if ( data ) {
       if ( data.media ) {
         data.media = new Media( data.media.mime, null, data.media.id, data.media.size, data.media.externalSrc );
+      }
+
+      if ( data.poll ) {
+        data.poll = new Poll( data.poll.question, data.poll.answers, data._id );
       }
     }
 
@@ -216,6 +222,11 @@ export class SidebarService {
       if ( message.media ) {
         message.media = new Media( message.media.mime, null, message.media.id, message.media.size, message.media.externalSrc );
       }
+
+      if ( message.poll ) {
+        message.poll = new Poll( message.poll.question, message.poll.answers, message._id );
+      }
+
       return <Message>message;
     } );
 

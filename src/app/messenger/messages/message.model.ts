@@ -1,4 +1,5 @@
 import { Media } from './media/media.model';
+import { Poll } from './poll/poll.model';
 
 export class Message {
   constructor(
@@ -7,6 +8,7 @@ export class Message {
     public conversationId?: string,
     public friendshipId?: string,
     public media?: Media,
+    public poll?: Poll,
     public _id?: string,
     public username?: string,
     public scrollTop?: number,

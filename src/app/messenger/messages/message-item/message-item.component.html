@@ -5,14 +5,16 @@
     (contextmenu)="onPress($event)"
     class="list-group-item">
     <p
-      *ngIf="message.text !== undefined && message.text !== ''"
+      *ngIf="message.text !== undefined && message.text !== '' && !message.media && !message.poll"
       [innerHtml]="message.text | dcrypt: key | decode8 | link | emojify | normalize"></p>
     <app-media
       *ngIf="message.media"
       [media]="message.media"></app-media>
+    <app-poll
+      *ngIf="message.poll"
+      [poll]="message.poll"></app-poll>
     <div class="user-tag" *ngIf="!owner">
-      <span
-        class="small">{{ message.username + ' ' + getDate() }}</span>
+      <span class="small">{{ message.username + ' ' + getDate() }}</span>
     </div>
     <button 
       (click)="onDelete()"
@@ -24,7 +26,7 @@
     </button>
     <span 
       (click)="onEdit()"
-      *ngIf="owner && !message.media"
+      *ngIf="owner && !message.media && !message.poll"
       class="glyphicon glyphicon-edit edit" 
       aria-hidden="true"></span>
     <div class="reactions" (click)="onCheckReactions()">

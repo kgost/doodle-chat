@@ -285,6 +285,90 @@ router.get( '/media/:id', ( req, res ) => {
   } )
 } )
 
+router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Poll.find( { _id: req.params.pollId, conversation_id: req.params.conversationId }, ( err, poll ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    let match = false
+
+    for ( let i = 0; i < poll.answers.length; i++ ) {
+      for ( let j = 0; j < poll.answers[i].userIds.length; j++ ) {
+        if ( poll.answers[i].userIds[j] == user._id ) {
+          match = true
+          poll.answers[i].userIds[j].splice( j, 1 )
+          break
+        }
+      }
+
+      if ( match ) {
+        break
+      }
+    }
+
+    poll.answers[Number( req.params.index )].userIds.push( user._id )
+
+    poll.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 200 ).json(poll)
+    } )
+  } )
+} )
+
+router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
+  const user = jwt.decode(req.query.token).user
+
+  Poll.find( { _id: req.params.pollId, friendship_id: req.params.friendshipId }, ( err, poll ) => {
+    if ( err ) {
+      return res.status( 500 ).json({
+        title: 'An error occured',
+        error: err
+      })
+    }
+
+    let match = false
+
+    for ( let i = 0; i < poll.answers.length; i++ ) {
+      for ( let j = 0; j < poll.answers[i].userIds.length; j++ ) {
+        if ( poll.answers[i].userIds[j] == user._id ) {
+          match = true
+          poll.answers[i].userIds[j].splice( j, 1 )
+          break
+        }
+      }
+
+      if ( match ) {
+        break
+      }
+    }
+
+    poll.answers[Number( req.params.index )].userIds.push( user._id )
+
+    poll.save( ( err ) => {
+      if ( err ) {
+        return res.status( 500 ).json({
+          title: 'An error occured',
+          error: err
+        })
+      }
+
+      res.status( 200 ).json(poll)
+    } )
+  } )
+} )
+
 router.get( '/notifications', middleware.authenticate, notificationsController.index )
 
 router.delete( '/notifications/conversation/:conversationId', middleware.authenticate, notificationsController.destroy )

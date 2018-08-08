@@ -57,6 +57,7 @@ import { environment } from '../environments/environment';
 import { SettingsComponent } from './settings/settings.component';
 import { ReactionPickerComponent } from './messenger/reaction-picker/reaction-picker.component';
 import { CommandsPipe } from './messenger/messages/commands.pipe';
+import { PollComponent } from './messenger/messages/poll/poll.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -95,6 +96,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     SettingsComponent,
     ReactionPickerComponent,
     CommandsPipe,
+    PollComponent,
   ],
   imports: [
     BrowserModule,

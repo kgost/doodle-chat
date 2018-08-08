@@ -279,7 +279,7 @@ async function index( req ) {
     query['_id'] = { '$lt': req.query.id }
   }
 
-  [err, messages] = await to( Message.find( query ).populate( 'reactions' ).sort( '-createdAt' ).limit( 20 ).lean().exec() )
+  [err, messages] = await to( Message.find( query ).populate( 'reactions' ).populate( 'poll' ).sort( '-createdAt' ).limit( 20 ).lean().exec() )
   if ( err ) throw { status: 500, error: err }
 
   const result = []
@@ -295,7 +295,7 @@ async function index( req ) {
 async function show( req ) {
   let err, message
 
-  [err, message] = await to( Message.findById( req.params.messageId ).populate( 'reactions' ).lean().exec() )
+  [err, message] = await to( Message.findById( req.params.messageId ).populate( 'reactions' ).populate( 'poll' ).lean().exec() )
   if ( err ) throw { status: 500, error: err }
 
   if ( message ) {

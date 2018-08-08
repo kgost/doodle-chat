@@ -2,6 +2,7 @@
 //http://blog.slatepeak.com/creating-a-real-time-chat-api-with-node-express-socket-io-and-mongodb/
 const mongoose 	= require( 'mongoose' ),
   Media = require( './media' ),
+  Poll = require( './poll' ),
   Reactions = require( './reactions' )
 
 // define the message schema, must have a user and conversation that it belongs to
@@ -18,6 +19,7 @@ const messageSchema = new mongoose.Schema({
     externalSrc: String
   },
   reactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Reactions' },
+  poll: { type: mongoose.Schema.Types.ObjectId, ref: 'Poll' }
 }, { timestamps: true } )
 
 messageSchema.post( 'remove', ( message ) => {
@@ -27,6 +29,12 @@ messageSchema.post( 'remove', ( message ) => {
     if ( message.media ) {
       Media.findByIdAndRemove( message.media.id, ( err ) => {
         if ( err ) throw err
+
+        if ( message.poll ) {
+          Poll.findByIdAndRemove( message.poll.id, ( err ) => {
+            if ( err ) throw err
+          } )
+        }
       } )
     }
   } )
