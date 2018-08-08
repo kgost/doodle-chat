@@ -202,7 +202,7 @@ export class SidebarService {
     const data = response.json();
     if ( data ) {
       if ( data.media ) {
-        data.media = new Media( data.media.mime, null, data.media.id, data.media.size );
+        data.media = new Media( data.media.mime, null, data.media.id, data.media.size, data.media.externalSrc );
       }
     }
 
@@ -210,11 +210,11 @@ export class SidebarService {
   }
 
   private mapMessages( response: Response ) {
-    const messages = response.json().obj;
+    let messages = response.json().obj;
 
-    messages.map( ( message: any ) => {
+    messages = messages.map( ( message: any ) => {
       if ( message.media ) {
-        message.media = new Media( message.media.mime, null, message.media.id, message.media.size );
+        message.media = new Media( message.media.mime, null, message.media.id, message.media.size, message.media.externalSrc );
       }
       return <Message>message;
     } );

@@ -14,7 +14,8 @@ const messageSchema = new mongoose.Schema({
   media: {
     mime: String,
     size: { width: Number, height: Number },
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' }
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    externalSrc: String
   },
   reactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Reactions' },
 }, { timestamps: true } )

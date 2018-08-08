@@ -28,10 +28,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
             this.conversations.nativeElement.offsetTop :
             this.friends.nativeElement.offsetTop;
 
-          console.log( obj.height + parentOffset );
-          console.log( obj.height + parentOffset );
-          console.log( this.container.nativeElement.scrollTop );
-          console.log( this.container.nativeElement.offsetHeight );
           if ( obj.height + parentOffset > this.container.nativeElement.scrollTop + this.container.nativeElement.offsetHeight ) {
             this.scrollBottom( obj.height + parentOffset );
           }

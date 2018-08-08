@@ -6,6 +6,7 @@ export class Media {
     public size?: {
       width: number,
       height: number
-    }
+    },
+    public externalSrc?: string,
   ) {}
 }

@@ -120,10 +120,14 @@ async function create( req ) {
   }
 
   if ( req.body.media ) {
-    [err, media] = await to( Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime } ) )
-    if ( err ) throw { status: 500, error: err }
+    if ( req.body.media.data ) {
+      [err, media] = await to( Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime } ) )
+      if ( err ) throw { status: 500, error: err }
 
-    message.media = { mime: req.body.media.mime, id: media._id }
+      message.media = { mime: req.body.media.mime, id: media._id }
+    } else if ( req.body.media.externalSrc ) {
+      message.media = { mime: req.body.media.mime, externalSrc: req.body.media.externalSrc }
+    }
 
     if ( req.body.media.size ) {
       message.media.size = req.body.media.size

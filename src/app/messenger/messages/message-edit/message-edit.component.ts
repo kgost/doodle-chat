@@ -5,15 +5,19 @@ import { Buffer } from 'buffer';
 
 import { Media } from '../media/media.model';
 import { Message } from '../message.model';
+
 import { MessageService } from '../message.service';
 import { AuthService } from '../../../auth/auth.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
 import { AlertService } from '../../../alert.service';
 
+import { CommandsPipe } from '../commands.pipe';
+
 @Component({
   selector: 'app-message-edit',
   templateUrl: './message-edit.component.html',
-  styleUrls: ['./message-edit.component.css']
+  styleUrls: ['./message-edit.component.css'],
+  providers: [CommandsPipe]
 })
 export class MessageEditComponent implements OnInit, OnDestroy {
   @ViewChild('f') messageEdit: NgForm;
@@ -27,7 +31,8 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private authService: AuthService,
     private socketIoService: SocketIoService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private commandPipe: CommandsPipe
   ) { }
 
   ngOnInit() {
@@ -71,22 +76,20 @@ export class MessageEditComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if ( this.messageEdit.valid ) {
-      let message;
-      const encodeing = unescape( encodeURIComponent( this.messageEdit.value.text ) );
+      let message = new Message(
+        this.authService.getCurrentUser()._id,
+        this.messageEdit.value.text,
+      );
+
       if ( this.messageService.privateMode ) {
-        message = new Message(
-          this.authService.getCurrentUser()._id,
-          this.authService.encryptAes( encodeing, this.messageService.getKey() ),
-          undefined,
-          this.messageService.getCurrentFriendship()._id,
-        );
+        message.friendshipId = this.messageService.getCurrentFriendship()._id;
       } else {
-        message = new Message(
-          this.authService.getCurrentUser()._id,
-          this.authService.encryptAes( encodeing, this.messageService.getKey() ),
-          this.messageService.getCurrentConversation()._id,
-        );
+        message.conversationId = this.messageService.getCurrentConversation()._id;
       }
+
+      message = this.commandPipe.transform( message );
+      const encodeing = unescape( encodeURIComponent( message.text ) );
+      message.text = this.authService.encryptAes( encodeing, this.messageService.getKey() );
 
       if ( this.editMode ) {
         message._id = this.editId;

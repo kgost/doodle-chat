@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { Media } from './media.model';
 import { MessageService } from '../message.service';
@@ -8,7 +8,7 @@ import { MessageService } from '../message.service';
   templateUrl: './media.component.html',
   styleUrls: ['./media.component.css']
 })
-export class MediaComponent implements OnInit, AfterViewInit {
+export class MediaComponent implements OnInit {
   @Input() media: Media;
   loaded = false;
 
@@ -17,13 +17,12 @@ export class MediaComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-  }
-
-  ngAfterViewInit() {
     this.messageService.loadEmitter.emit();
+    this.loaded = true;
   }
 
   loadEmit() {
-    this.loaded = true;
+    console.log( 'feff' );
+    this.messageService.loadEmitter.emit();
   }
 }
