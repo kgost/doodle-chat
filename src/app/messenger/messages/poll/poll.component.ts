@@ -21,7 +21,6 @@ export class PollComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loaded = true;
-    console.log( this.poll.answers[0] );
   }
 
   ngAfterViewInit() {
@@ -34,5 +33,15 @@ export class PollComponent implements OnInit, AfterViewInit {
 
   inAnswer( answer: any ) {
     return answer.userIds.indexOf( this.authService.getCurrentUser()._id ) !== -1;
+  }
+
+  progressX( index: number ) {
+    let count = 0;
+
+    for ( let i = 0; i < this.poll.answers.length; i++ ) {
+      count += this.poll.answers[i].userIds.length;
+    }
+
+    return this.poll.answers[index].userIds.length / count * 100;
   }
 }

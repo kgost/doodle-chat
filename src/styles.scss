@@ -294,6 +294,23 @@ app-root {
                             width: 100%;
                           }
                         }
+
+                        app-poll {
+                          h2 {
+                            margin-top: 0;
+                          }
+
+                          .radio {
+                            position: relative;
+                            background-color: #449d44;
+                            background-size: 100% 100%;
+                            background-repeat: no-repeat;
+
+                            label {
+                              font-size: 18px;
+                            }
+                          }
+                        }
                       }
 
                       .options {

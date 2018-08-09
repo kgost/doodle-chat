@@ -1,7 +1,7 @@
 <div class="clearfix" #clearfix>
   <li 
-    [ngStyle]="{ padding: message.media ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) ? '50%' : '' }"
-    [ngClass]="{ stranger: !owner, owner: owner, 'pull-left': !owner, 'pull-right': owner }"
+    [ngStyle]="{ padding: message.media ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) || message.poll ? '50%' : '' }"
+    [ngClass]="{ stranger: !owner || message.poll, owner: owner && !message.poll, 'pull-left': !owner, 'pull-right': owner }"
     (contextmenu)="onPress($event)"
     class="list-group-item">
     <p
