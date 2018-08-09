@@ -112,7 +112,7 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if ( !this.message.media ) {
+    if ( !this.message.media && !this.message.poll ) {
       this.messageService.loadEmitter.emit();
     }
   }

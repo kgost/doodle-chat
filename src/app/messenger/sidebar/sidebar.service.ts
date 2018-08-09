@@ -208,7 +208,11 @@ export class SidebarService {
       }
 
       if ( data.poll ) {
-        data.poll = new Poll( data.poll.question, data.poll.answers, data._id );
+        if ( data.poll.conversationId ) {
+          data.poll = new Poll( data.poll.question, data.poll.answers, data.poll.conversationId, null, data.poll._id );
+        } else {
+          data.poll = new Poll( data.poll.question, data.poll.answers, null, data.poll.friendshipId, data.poll._id );
+        }
       }
     }
 
@@ -224,7 +228,11 @@ export class SidebarService {
       }
 
       if ( message.poll ) {
-        message.poll = new Poll( message.poll.question, message.poll.answers, message._id );
+        if ( message.poll.conversationId ) {
+          message.poll = new Poll( message.poll.question, message.poll.answers, message.poll.conversationId, null, message.poll._id );
+        } else {
+          message.poll = new Poll( message.poll.question, message.poll.answers, null, message.poll.friendshipId, message.poll._id );
+        }
       }
 
       return <Message>message;
@@ -267,6 +275,20 @@ export class SidebarService {
     return this.http.post( this.baseUrl + 'publicKeys?token=' + this.authService.getToken(), usernames )
       .pipe( map( ( response: Response ) => {
         return response.json().obj;
+      } ) );
+  }
+
+  pollVote( poll: Poll, index: number ) {
+    let route;
+    if ( poll.conversationId ) {
+      route = `conversations/${ poll.conversationId }/poll/${ poll._id }/${ index }/`;
+    } else {
+      route = `friendships/${ poll.friendshipId }/poll/${ poll._id }/${ index }/`;
+    }
+
+    return this.http.get( this.baseUrl + route + `?token=${ this.authService.getToken() }` )
+      .pipe( map( ( response: Response ) => {
+        return response.json();
       } ) );
   }
 }

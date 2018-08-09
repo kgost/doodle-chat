@@ -4,6 +4,7 @@ const
   streamifier  = require( 'streamifier' ),
   jwt          = require( 'jsonwebtoken' ),
   Media        = require( '../models/media' ),
+  Poll         = require( '../models/poll' ),
   User         = require( '../models/user' ),
   middleware   = require( '../functions/middleware' ),
   messageController = require( '../controllers/message' ),
@@ -288,7 +289,7 @@ router.get( '/media/:id', ( req, res ) => {
 router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
-  Poll.find( { _id: req.params.pollId, conversation_id: req.params.conversationId }, ( err, poll ) => {
+  Poll.findOne( { _id: req.params.pollId, conversationId: req.params.conversationId }, ( err, poll ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -302,7 +303,7 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
       for ( let j = 0; j < poll.answers[i].userIds.length; j++ ) {
         if ( poll.answers[i].userIds[j] == user._id ) {
           match = true
-          poll.answers[i].userIds[j].splice( j, 1 )
+          poll.answers[i].userIds.splice( j, 1 )
           break
         }
       }
@@ -330,7 +331,7 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
 router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
 
-  Poll.find( { _id: req.params.pollId, friendship_id: req.params.friendshipId }, ( err, poll ) => {
+  Poll.find( { _id: req.params.pollId, friendshipId: req.params.friendshipId }, ( err, poll ) => {
     if ( err ) {
       return res.status( 500 ).json({
         title: 'An error occured',
@@ -344,7 +345,7 @@ router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authent
       for ( let j = 0; j < poll.answers[i].userIds.length; j++ ) {
         if ( poll.answers[i].userIds[j] == user._id ) {
           match = true
-          poll.answers[i].userIds[j].splice( j, 1 )
+          poll.answers[i].userIds.splice( j, 1 )
           break
         }
       }

@@ -12,7 +12,8 @@
       [media]="message.media"></app-media>
     <app-poll
       *ngIf="message.poll"
-      [poll]="message.poll"></app-poll>
+      [poll]="message.poll"
+      [messageId]="message._id"></app-poll>
     <div class="user-tag" *ngIf="!owner">
       <span class="small">{{ message.username + ' ' + getDate() }}</span>
     </div>

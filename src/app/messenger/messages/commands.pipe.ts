@@ -53,7 +53,11 @@ export class CommandsPipe implements PipeTransform {
       return { text: answer, userIds: [] };
     } );
 
-    message.poll = new Poll( args[0], answers );
+    if ( message.conversationId ) {
+      message.poll = new Poll( args[0], answers, message.conversationId, null );
+    } else {
+      message.poll = new Poll( args[0], answers, null, message.friendshipId );
+    }
 
     return message;
   }

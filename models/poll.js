@@ -9,6 +9,8 @@ const pollSchema = new mongoose.Schema({
     text: String,
     userIds: [String]
   }],
+  conversationId: String,
+  friendshipId: String,
 })
 
 module.exports = mongoose.model( 'Poll' , pollSchema )

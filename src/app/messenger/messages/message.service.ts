@@ -5,6 +5,7 @@ import { Message } from './message.model';
 import { Conversation } from '../sidebar/conversations/conversation.model';
 import { Friendship } from '../sidebar/friends/friendship.model';
 import { User } from '../../auth/user.model';
+import { Poll } from './poll/poll.model';
 import { AuthService } from '../../auth/auth.service';
 import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from '../sidebar/sidebar.service';
@@ -211,6 +212,19 @@ export class MessageService {
             this.socketIoService.changePrivateMessage( this.currentFriendship._id, id );
           } else {
             this.socketIoService.changeMessage( this.currentConversation._id, id );
+          }
+        }
+      );
+  }
+
+  pollVote( poll: Poll, index: number, messageId ) {
+    this.sidebarService.pollVote( poll, index )
+      .subscribe(
+        ( data: any ) => {
+          if ( this.privateMode ) {
+            this.socketIoService.changePrivateMessage( this.currentFriendship._id, messageId );
+          } else {
+            this.socketIoService.changeMessage( this.currentConversation._id, messageId );
           }
         }
       );

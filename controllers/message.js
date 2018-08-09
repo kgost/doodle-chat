@@ -8,6 +8,7 @@ const
   Media = require( '../models/media' ),
   Message = require( '../models/message' ),
   Reactions = require( '../models/reactions' ),
+  Poll = require( '../models/poll' ),
   Conversation = require( '../models/conversation' ),
   Friendship = require( '../models/friendship' ),
   Notifier = require( '../models/notifier' )
@@ -100,7 +101,7 @@ const syncActions = {
 }
 
 async function create( req ) {
-  let err, media, msg, conversation, friendship
+  let err, media, poll, msg, conversation, friendship
 
   const user = jwt.decode(req.query.token).user
   const reactionsId = mongoose.Types.ObjectId()
@@ -132,6 +133,13 @@ async function create( req ) {
     if ( req.body.media.size ) {
       message.media.size = req.body.media.size
     }
+  }
+
+  if ( req.body.poll ) {
+    [err, poll] = await to( Poll.create( req.body.poll ) )
+    if ( err ) throw { status: 500, error: err }
+
+    message.poll = poll._id
   }
 
   [err, msg] = await to( Message.create( message ) )
@@ -225,7 +233,7 @@ async function create( req ) {
       }
 
       notifiers.forEach( ( notifier ) => {
-        if ( notifier.user.pushSub ) {
+        if ( notifier.user.pushSub && Object.keys( notifier.user.pushSub ).length ) {
           webpush.sendNotification(
             notifier.user.pushSub,
             JSON.stringify( notificationPayload )

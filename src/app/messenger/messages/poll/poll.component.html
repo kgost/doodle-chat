@@ -2,5 +2,7 @@
 <div
   *ngFor="let answer of poll.answers; let i = index"
   class="radio">
-  <label (click)="onVote(i)"><input type="radio" name="answer">{{ answer.text }}</label>
+  <label (click)="onVote(i)">
+    <input type="radio" name="answer" [checked]="inAnswer( answer )">{{ answer.text }}: {{ answer.userIds.length }}
+  </label>
 </div>
