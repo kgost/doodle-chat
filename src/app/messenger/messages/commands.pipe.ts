@@ -29,6 +29,8 @@ export class CommandsPipe implements PipeTransform {
         return this.setWebm( message, args );
       case 'poll':
         return this.setPoll( message, args );
+      case 'youtube':
+        return this.setYoutube( message, args );
       default:
         return message;
     }
@@ -58,6 +60,20 @@ export class CommandsPipe implements PipeTransform {
     } else {
       message.poll = new Poll( args[0], answers, null, message.friendshipId );
     }
+
+    return message;
+  }
+
+  private setYoutube( message: Message, args: string[] ): Message {
+    let id;
+
+    if ( args[0].match( /v=[A-z0-9]*/ ) ) {
+      id = args[0].match( /v=[A-z0-9]*/ )[0].slice( 2 );
+    } else if ( args[0].match( /youtu.be\/[A-z0-9]*/ ) ) {
+      id = args[0].match( /youtu.be\/[A-z0-9]*/ )[0].slice( 9 );
+    }
+
+    message.youtubeId = id;
 
     return message;
   }

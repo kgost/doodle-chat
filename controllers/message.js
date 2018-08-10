@@ -111,7 +111,8 @@ async function create( req ) {
     text: req.body.text,
     user: user._id,
     username: user.username,
-    reactions: reactionsId
+    reactions: reactionsId,
+    youtubeId: req.body.youtubeId
   }
 
   if ( req.params.conversationId ) {

@@ -18,6 +18,7 @@ const messageSchema = new mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     externalSrc: String
   },
+  youtubeId: String,
   reactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Reactions' },
   poll: { type: mongoose.Schema.Types.ObjectId, ref: 'Poll' }
 }, { timestamps: true } )

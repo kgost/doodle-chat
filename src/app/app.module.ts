@@ -58,6 +58,8 @@ import { SettingsComponent } from './settings/settings.component';
 import { ReactionPickerComponent } from './messenger/reaction-picker/reaction-picker.component';
 import { CommandsPipe } from './messenger/messages/commands.pipe';
 import { PollComponent } from './messenger/messages/poll/poll.component';
+import { YoutubeEmbeddedComponent } from './messenger/messages/youtube-embedded/youtube-embedded.component';
+import { SafePipe } from './messenger/messages/safe.pipe';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -97,6 +99,8 @@ const config: SocketIoConfig = { url: '/', options: {} };
     ReactionPickerComponent,
     CommandsPipe,
     PollComponent,
+    YoutubeEmbeddedComponent,
+    SafePipe,
   ],
   imports: [
     BrowserModule,

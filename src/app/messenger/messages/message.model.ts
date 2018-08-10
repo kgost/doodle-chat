@@ -13,6 +13,7 @@ export class Message {
     public username?: string,
     public scrollTop?: number,
     public reactions?: { username: string, text: string }[],
+    public youtubeId?: string,
     public createdAt?: Date,
     public updatedAt?: Date
   ) {}
