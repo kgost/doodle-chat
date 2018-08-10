@@ -255,6 +255,7 @@ app-root {
                           right: 5px;
                           font-size: 24px;
                           opacity: 0.5;
+                          user-select: none;
 
                           &:hover {
                             opacity: 0.7;

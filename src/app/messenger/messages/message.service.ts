@@ -149,7 +149,7 @@ export class MessageService {
     if ( message ) {
       this.messages[this.getMessageIndex( id )] = message;
 
-      if ( message.text === this.messages[this.getMessageIndex( id )].text ) {
+      if ( message.text === this.messages[this.getMessageIndex( id )].text && !message.poll ) {
         this.reactionSubject.next( { id: id, reactions: message.reactions } );
       } else {
         this.changeEmitter.emit();
