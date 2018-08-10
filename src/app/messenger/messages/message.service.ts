@@ -28,6 +28,7 @@ export class MessageService {
   editChange = new Subject<Message>();
   showReactions = new Subject<{ text: string, username: string }[]>();
   loadingSubject = new Subject<boolean>();
+  reactionSubject = new Subject<{ id: string, reactions: { username: string, text: string }[] }>();
   privateMode = false;
   key = '';
   loadMore = false;
@@ -147,11 +148,18 @@ export class MessageService {
   changeMessage( id: string, message: Message ) {
     if ( message ) {
       this.messages[this.getMessageIndex( id )] = message;
+
+      if ( message.text === this.messages[this.getMessageIndex( id )].text ) {
+        this.reactionSubject.next( { id: id, reactions: message.reactions } );
+      } else {
+        this.changeEmitter.emit();
+      }
+
       this.typingService.stopTyping.emit( message.username );
     } else {
       this.messages.splice( this.getMessageIndex( id ), 1 );
+      this.changeEmitter.emit();
     }
-    this.changeEmitter.emit();
   }
 
   addMessage( message: Message ) {
