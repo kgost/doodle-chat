@@ -2,7 +2,6 @@ const
   env = require( 'node-env-file' ),
   mongoose = require( 'mongoose' ),
   to = require( 'await-to-js' ).to,
-  jwt = require( 'jsonwebtoken' ),
   webpush = require('web-push'),
   responseHelper = require( '../functions/responseHelper' ),
   Media = require( '../models/media' ),
@@ -103,14 +102,13 @@ const syncActions = {
 async function create( req ) {
   let err, media, poll, msg, conversation, friendship
 
-  const user = jwt.decode(req.query.token).user
   const reactionsId = mongoose.Types.ObjectId()
 
   // Save new message with corresponding conversationId
   let message = {
     text: req.body.text,
-    user: user._id,
-    username: user.username,
+    user: req.user._id,
+    username: req.user.username,
     reactions: reactionsId,
     youtubeId: req.body.youtubeId
   }
@@ -158,7 +156,7 @@ async function create( req ) {
     if ( err ) throw { status: 500, error: err }
 
     users = conversation.participants.map( ( usr ) => {
-      if ( usr.id != user._id ) {
+      if ( usr.id != req.user._id ) {
         return mongoose.Types.ObjectId( usr.id )
       }
     } )
@@ -183,7 +181,7 @@ async function create( req ) {
     if ( err ) throw { status: 500, error: err }
 
     users = friendship.users.map( ( usr ) => {
-      if ( usr.id != user._id ) {
+      if ( usr.id != req.user._id ) {
         return mongoose.Types.ObjectId( usr.id )
       }
     } )
@@ -202,7 +200,7 @@ async function create( req ) {
       '$push': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) }
     }
 
-    name = user.username
+    name = req.user.username
   }
 
   [err] = await to( Notifier.update( notifierQuery, notifierObject, { multi: true } ).exec() )
@@ -252,27 +250,25 @@ async function create( req ) {
 async function createReaction( req ) {
   let err, reactions
 
-  const user = jwt.decode(req.query.token).user
-
   ;[err, reactions] = await to( Reactions.findOne( { message: req.params.messageId } ).lean().exec() )
   if ( err ) throw { status: 500, error: err }
 
   let i
   for ( i = 0; i < reactions.reactions.length; i++ ) {
-    if ( user.username === reactions.reactions[i].username ) {
+    if ( req.user.username === reactions.reactions[i].username ) {
       reactions.reactions[i].text = req.body.reaction
       break
     }
   }
 
   if ( !reactions.reactions.length || ( i && i === reactions.reactions.length ) ) {
-    reactions.reactions.push({ username: user.username, text: req.body.reaction })
+    reactions.reactions.push({ username: req.user.username, text: req.body.reaction })
   }
 
   [err] = await to( Reactions.findByIdAndUpdate( reactions._id, reactions ).exec() )
   if ( err ) throw { status: 500, error: err }
 
-  return { status: 201, data: { _id: req.params.messageId, user: user._id, text: '' } }
+  return { status: 201, data: { _id: req.params.messageId, user: req.user._id, text: '' } }
 }
 
 async function index( req ) {

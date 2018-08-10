@@ -33,7 +33,7 @@ router.post('/signin', (req, res) => {
       })
     }
     //Sign the JWT and return success
-    const token = jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, { expiresIn: 7200 } )  //TODO: change 'my nama jeff' to a environment variable
+    const token = jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, { expiresIn: 7200 } )
     res.status( 200 ).json( {
       message: 'Successfully Signed In',
       token: token,

@@ -1,6 +1,5 @@
 const
   mongoose       = require( 'mongoose' ),
-  jwt            = require( 'jsonwebtoken' ),
   to             = require( 'await-to-js' ).to,
   responseHelper = require( '../functions/responseHelper' ),
   User           = require( '../models/user' ),
@@ -61,13 +60,12 @@ const syncActions = {
 async function create( req ) {
   let err, usr
 
-  const user = jwt.decode(req.query.token).user
   let key1 = ''
   let key2 = ''
   let otherUsername = ''
 
   for ( let i = 0; i < req.body.users.length; i++ ) {
-    if ( req.body.users[i].id.username != user.username ) {
+    if ( req.body.users[i].id.username != req.user.username ) {
       otherUsername = req.body.users[i].id.username
       key2 = req.body.users[i].accessKey
     } else {
@@ -89,7 +87,7 @@ async function create( req ) {
     Friendship.create(
       {
         users: [
-          { id: user._id, accessKey: key1, accepted: true },
+          { id: req.user._id, accessKey: key1, accepted: true },
           { id: usr._id, accessKey: key2, accepted: false }
         ]
       }
@@ -100,7 +98,7 @@ async function create( req ) {
   return {
     status: 201,
     data: { users: [
-      { id: { _id: user._id, username: user.username }, accepted: true },
+      { id: { _id: req.user._id, username: req.user.username }, accepted: true },
       { id: { _id: usr._id, username: usr.username }, accepted: false }
     ] }
   }
@@ -109,10 +107,8 @@ async function create( req ) {
 async function index( req ) {
   let err, friendships
 
-  const user = jwt.decode(req.query.token).user
-
   ;[err, friendships] = await to(
-    Friendship.find({ 'users.id': mongoose.Types.ObjectId( user._id ) })
+    Friendship.find({ 'users.id': mongoose.Types.ObjectId( req.user._id ) })
       .populate( 'users.id', 'username' )
       .lean()
       .exec()
@@ -125,13 +121,11 @@ async function index( req ) {
 async function update( req ) {
   let err, friendship
 
-  const user = jwt.decode(req.query.token).user
-
   ;[err, friendship] = await to( Friendship.findById( req.params.friendshipId ).exec() )
   if ( err ) throw { status: 500, error: err }
 
   for ( let i = 0; i < friendship.users.length; i++ ) {
-    if ( friendship.users[i].id == user._id ) {
+    if ( friendship.users[i].id == req.user._id ) {
       friendship.users[i].accepted = true
     }
   }

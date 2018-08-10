@@ -2,7 +2,6 @@ const
   express      = require('express'),
   router       = express.Router(),
   streamifier  = require( 'streamifier' ),
-  jwt          = require( 'jsonwebtoken' ),
   Media        = require( '../models/media' ),
   Poll         = require( '../models/poll' ),
   User         = require( '../models/user' ),
@@ -287,8 +286,6 @@ router.get( '/media/:id', ( req, res ) => {
 } )
 
 router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
   Poll.findOne( { _id: req.params.pollId, conversationId: req.params.conversationId }, ( err, poll ) => {
     if ( err ) {
       return res.status( 500 ).json({
@@ -301,7 +298,7 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
 
     for ( let i = 0; i < poll.answers.length; i++ ) {
       for ( let j = 0; j < poll.answers[i].userIds.length; j++ ) {
-        if ( poll.answers[i].userIds[j] == user._id ) {
+        if ( poll.answers[i].userIds[j] == req.user._id ) {
           match = true
           poll.answers[i].userIds.splice( j, 1 )
           break
@@ -313,7 +310,7 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
       }
     }
 
-    poll.answers[Number( req.params.index )].userIds.push( user._id )
+    poll.answers[Number( req.params.index )].userIds.push( req.user._id )
 
     poll.save( ( err ) => {
       if ( err ) {
@@ -329,8 +326,6 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
 } )
 
 router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
-
   Poll.find( { _id: req.params.pollId, friendshipId: req.params.friendshipId }, ( err, poll ) => {
     if ( err ) {
       return res.status( 500 ).json({
@@ -343,7 +338,7 @@ router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authent
 
     for ( let i = 0; i < poll.answers.length; i++ ) {
       for ( let j = 0; j < poll.answers[i].userIds.length; j++ ) {
-        if ( poll.answers[i].userIds[j] == user._id ) {
+        if ( poll.answers[i].userIds[j] == req.user._id ) {
           match = true
           poll.answers[i].userIds.splice( j, 1 )
           break
@@ -355,7 +350,7 @@ router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authent
       }
     }
 
-    poll.answers[Number( req.params.index )].userIds.push( user._id )
+    poll.answers[Number( req.params.index )].userIds.push( req.user._id )
 
     poll.save( ( err ) => {
       if ( err ) {

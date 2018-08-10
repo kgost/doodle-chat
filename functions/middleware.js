@@ -1,5 +1,4 @@
 const jwt      = require( 'jsonwebtoken' ),
-  mongoose     = require( 'mongoose' ),
   User         = require( '../models/user' ),
   Conversation = require( '../models/conversation' ),
   Friendship = require( '../models/friendship' ),
@@ -27,28 +26,15 @@ const actions = {
     }
 
     // decode the token using the jwt library
-    const decoded = jwt.decode(req.query.token)
+    let decoded
+    try {
+      decoded = jwt.verify(req.query.token, process.env.JWTKEY)
+    } catch ( err ) {
+      return res.status(401).json(err)
+    }
 
-    // find a user with the id of the decoded token
-    User.findById(decoded.user._id, (err, user) => {
-      // if an error occured respond with the error
-      if (err) {
-        return res.status(500).json({
-          title: 'An error occurred',
-          error: err
-        })
-      }
-
-      // no user was found then the token is invalid and respond with an error
-      if (!user) {
-        return res.status(401).json({
-          title: 'User not logged in.',
-          error: {message: 'Invalid JWT to server.'}
-        })
-      }
-
-      return next()
-    })
+    req.user = decoded.user
+    return next()
   },
 
   /**
@@ -78,15 +64,10 @@ const actions = {
         })
       }
 
-      // it is assumed the user is authenticated, decode their token
-      const decoded = jwt.decode(req.query.token)
-
-      // if the user is not in the participants list, respond with a 401 error
-
       let found = false
 
       for ( let i = 0; i < conversation.participants.length; i++ ) {
-        if ( conversation.participants[i].id == decoded.user._id ) {
+        if ( conversation.participants[i].id == req.user._id ) {
           found = true
           break
         }
@@ -130,11 +111,8 @@ const actions = {
         })
       }
 
-      // it is assumed the user is authenticated, decode their token
-      const decoded = jwt.decode(req.query.token)
-
       // if the user is not in the participants list, respond with a 401 error
-      if ( friendship.users[0].id != decoded.user._id && friendship.users[1].id != decoded.user._id ) {
+      if ( friendship.users[0].id != req.user._id && friendship.users[1].id != req.user._id ) {
         return res.status( 401 ).json({
           title: 'Unauthorized User.',
           error: {message: 'You are not in this friendship.'}
@@ -146,10 +124,8 @@ const actions = {
   },
 
   validSentFriendship: ( req, res, next ) => {
-    const decoded = jwt.decode(req.query.token)
-
     if ( !req.body || !req.body.users || !req.body.users[0] || !req.body.users[1] ||
-         ( req.body.users[0].id.username != decoded.user.username && req.body.users[1].id.username != decoded.user.username ) ) {
+         ( req.body.users[0].id.username != req.user.username && req.body.users[1].id.username != req.user.username ) ) {
       return res.status( 401 ).json({
         userMessage: 'You are not in this friendship'
       })
@@ -218,11 +194,8 @@ const actions = {
         })
       }
 
-      // it is assumed the user is authenticated, decode their token
-      const decoded = jwt.decode(req.query.token)
-
       // if the user is not the owner then return a 401 error
-      if ( conversation.owner != decoded.user._id ) {
+      if ( conversation.owner != req.user._id ) {
         return res.status( 401 ).json({
           title: 'Unauthorized User.',
           error: {message: 'You are not the owner of this conversation.'}
@@ -240,6 +213,7 @@ const actions = {
         error: {message: 'Invalid message id sent to server.'}
       })
     }
+
     Message.findById( req.params.id, ( err, message) => {
       if ( !message ) {
         return res.status(404).json({
@@ -248,9 +222,7 @@ const actions = {
         })
       }
 
-      const decoded = jwt.decode(req.query.token)
-
-      if ( message.user != decoded.user._id ) {
+      if ( message.user != req.user._id ) {
         return res.status( 401 ).json({
           title: 'Unauthorized User.',
           error: {message: 'You are not the owner of this message.'}

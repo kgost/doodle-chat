@@ -1,6 +1,5 @@
 const
   mongoose = require( 'mongoose' ),
-  jwt = require( 'jsonwebtoken' ),
   to = require( 'await-to-js' ).to,
   responseHelper = require( '../functions/responseHelper' ),
   User = require( '../models/user' ),
@@ -73,7 +72,6 @@ const syncActions = {
 async function createOrUpdate( req, update ) {
   let err, users, conversation
 
-  const user = jwt.decode(req.query.token).user //Pull user from the JWT
   const convo = pruneUsers( req.body )
 
   const usernames = {}
@@ -104,7 +102,7 @@ async function createOrUpdate( req, update ) {
     data: {
       _id: conversation._id,
       name: convo.name,
-      owner: { _id: user._id, username: user.username },
+      owner: { _id: req.user._id, username: req.user.username },
       participants: convo.participants
     }
   }
@@ -113,11 +111,9 @@ async function createOrUpdate( req, update ) {
 async function index( req ) {
   let err, conversations
 
-  const user = jwt.decode(req.query.token).user
-
   ;[err, conversations] =
     await to(
-      Conversation.find({ 'participants.id': mongoose.Types.ObjectId( user._id ) }, '_id name participants owner' )
+      Conversation.find({ 'participants.id': mongoose.Types.ObjectId( req.user._id ) }, '_id name participants owner' )
         .populate('participants.id', 'username')
         .populate( 'owner', 'username' )
         .exec()
@@ -157,21 +153,19 @@ async function destroy( req ) {
 async function leave( req ) {
   let err, conversation
 
-  const user = jwt.decode(req.query.token).user //Pull user from the JWT
-
   ;[err, conversation] = await to( Conversation.findById( req.params.id ).lean().exec() )
   if ( err ) throw { status: 500, error: err }
 
   ;[err] = await to(
     Notifier.update(
-      { user: mongoose.Types.ObjectId( user._id ) },
+      { user: mongoose.Types.ObjectId( req.user._id ) },
       { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }
     ).exec()
   )
   if ( err ) throw { status: 500, error: err }
 
   for ( let i = 0; i < conversation.participants.length; i++ ) {
-    if ( conversation.participants[i].id == user._id ) {
+    if ( conversation.participants[i].id == req.user._id ) {
       conversation.participants.splice( i, 1 )
       break
     }

@@ -1,7 +1,6 @@
 const
   mongoose       = require( 'mongoose' ),
   to             = require( 'await-to-js' ).to,
-  jwt            = require( 'jsonwebtoken' ),
   responseHelper = require( '../functions/responseHelper' ),
   Notifier       = require( '../models/notifier' )
 
@@ -34,11 +33,9 @@ const syncActions = {
 async function index( req ) {
   let err, notifier
 
-  const user = jwt.decode(req.query.token).user
-
   ;[err, notifier] =
     await to(
-      Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) } )
+      Notifier.findOne({ user: mongoose.Types.ObjectId( req.user._id ) } )
         .lean()
         .exec()
     )
@@ -50,9 +47,7 @@ async function index( req ) {
 async function destroy( req ) {
   let err, notifier
 
-  const user = jwt.decode(req.query.token).user
-
-  ;[err, notifier] = await to( Notifier.findOne({ user: mongoose.Types.ObjectId( user._id ) } ) )
+  ;[err, notifier] = await to( Notifier.findOne({ user: mongoose.Types.ObjectId( req.user._id ) } ) )
   if ( err ) throw { status: 500, error: err }
 
   if ( req.params.conversationId ) {
