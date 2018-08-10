@@ -31,7 +31,7 @@ messageSchema.post( 'remove', ( message ) => {
         if ( err ) throw err
 
         if ( message.poll ) {
-          Poll.findByIdAndRemove( message.poll.id, ( err ) => {
+          Poll.findByIdAndRemove( message.poll, ( err ) => {
             if ( err ) throw err
           } )
         }

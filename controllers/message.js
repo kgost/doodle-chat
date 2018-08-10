@@ -326,7 +326,7 @@ async function update( req ) {
 async function destroy( req ) {
   let err, message
 
-  [err, message] = await to( Message.findById( req.params.id, 'media reactions' ).exec() )
+  [err, message] = await to( Message.findById( req.params.id, 'media poll reactions' ).exec() )
   if ( err ) throw { status: 500, error: err }
 
   ;[err] = await to( message.remove() )

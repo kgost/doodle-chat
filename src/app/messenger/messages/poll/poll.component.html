@@ -1,9 +1,18 @@
 <h2 class="text-center">{{ poll.question }}</h2>
+<hr>
 <div
-  [ngStyle]="{ 'background-size': progressX(i) + '% 100%' }"
+  (click)="onVote(i)"
   *ngFor="let answer of poll.answers; let i = index"
-  class="radio progress">
-  <label (click)="onVote(i)">
-    <input class="hidden" type="radio" name="answer" [checked]="inAnswer( answer )">{{ answer.text }}: {{ answer.userIds.length }}
+  class="answer">
+  <label
+    [ngClass]="{ selected: inAnswer( answer ) }">
+    <input class="hidden" type="radio" name="answer" [checked]="inAnswer( answer )">{{ answer.text }}
   </label>
+  <div class="radio progress">
+    <div
+      [ngStyle]="{ 'width': progressX(i) }"
+      class="progressBar text-center">
+      <span *ngIf="answer.userIds.length">{{ answer.userIds.length }} Votes</span>
+    </div>
+  </div>
 </div>

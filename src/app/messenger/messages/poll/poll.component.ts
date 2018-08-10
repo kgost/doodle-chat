@@ -42,6 +42,10 @@ export class PollComponent implements OnInit, AfterViewInit {
       count += this.poll.answers[i].userIds.length;
     }
 
-    return this.poll.answers[index].userIds.length / count * 100;
+    if ( count === 0 ) {
+      return '0%';
+    }
+
+    return this.poll.answers[index].userIds.length / count * 100 + '%';
   }
 }

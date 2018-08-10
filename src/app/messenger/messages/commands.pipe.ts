@@ -15,8 +15,8 @@ export class CommandsPipe implements PipeTransform {
     }
 
     const funcEnd = message.text.match( /\ |$/ )[0];
-    const func = message.text.slice( 1, message.text.indexOf( funcEnd ) );
-    const args = message.text.slice( message.text.indexOf( funcEnd ) + 1 ).split( ',' );
+    const func = message.text.slice( 1, message.text.indexOf( funcEnd ) ).toLowerCase();
+    const args = message.text.slice( message.text.indexOf( funcEnd ) + 1 ).split( '|' );
 
     return this.call( func, args, message );
   }
