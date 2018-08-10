@@ -1,4 +1,4 @@
-<h2 class="text-center">{{ poll.question }}</h2>
+<h2 class="text-center">{{ poll.question | dcrypt: key | decode8 | link | emojify }}</h2>
 <hr>
 <div
   (click)="onVote(i)"
@@ -6,7 +6,7 @@
   class="answer">
   <label
     [ngClass]="{ selected: inAnswer( answer ) }">
-    <input class="hidden" type="radio" name="answer" [checked]="inAnswer( answer )">{{ answer.text }}
+    <input class="hidden" type="radio" name="answer" [checked]="inAnswer( answer )">{{ answer.text | dcrypt: key | decode8 | link | emojify }}
   </label>
   <div class="radio progress">
     <div

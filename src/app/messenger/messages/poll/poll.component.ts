@@ -12,6 +12,7 @@ import { AuthService } from '../../../auth/auth.service';
 export class PollComponent implements OnInit, AfterViewInit {
   @Input() poll: Poll;
   @Input() messageId: string;
+  key = '';
   loaded = false;
 
   constructor(
@@ -21,6 +22,7 @@ export class PollComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loaded = true;
+    this.key = this.messageService.getKey();
   }
 
   ngAfterViewInit() {

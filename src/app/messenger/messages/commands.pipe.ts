@@ -4,10 +4,17 @@ import { Message } from '../messages/message.model';
 import { Media } from '../messages/media/media.model';
 import { Poll } from '../messages/poll/poll.model';
 
+import { AuthService } from '../../auth/auth.service';
+import { MessageService } from './message.service';
+
 @Pipe({
   name: 'commands'
 })
 export class CommandsPipe implements PipeTransform {
+  constructor(
+    private messageService: MessageService,
+    private authService: AuthService,
+  ) {}
 
   transform( message: Message ): Message {
     if ( message.text.indexOf( '!' ) !== 0 ) {
@@ -52,13 +59,35 @@ export class CommandsPipe implements PipeTransform {
 
   private setPoll( message: Message, args: string[] ): Message {
     const answers = args.slice( 1 ).map( ( answer ) => {
-      return { text: answer, userIds: [] };
+      return {
+        text: this.authService.encryptAes(
+          unescape( encodeURIComponent( answer ) ),
+          this.messageService.getKey()
+        ),
+        userIds: []
+      };
     } );
 
     if ( message.conversationId ) {
-      message.poll = new Poll( args[0], answers, message.conversationId, null );
+      message.poll = new Poll(
+        this.authService.encryptAes(
+          unescape( encodeURIComponent( args[0] ) ),
+          this.messageService.getKey()
+        ),
+        answers,
+        message.conversationId,
+        null
+      );
     } else {
-      message.poll = new Poll( args[0], answers, null, message.friendshipId );
+      message.poll = new Poll(
+        this.authService.encryptAes(
+          unescape( encodeURIComponent( args[0] ) ),
+          this.messageService.getKey()
+        ),
+        answers,
+        null,
+        message.friendshipId
+      );
     }
 
     return message;

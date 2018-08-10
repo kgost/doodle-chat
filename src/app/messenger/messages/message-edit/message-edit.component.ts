@@ -89,7 +89,10 @@ export class MessageEditComponent implements OnInit, OnDestroy {
 
       message = this.commandPipe.transform( message );
       const encodeing = unescape( encodeURIComponent( message.text ) );
-      message.text = this.authService.encryptAes( encodeing, this.messageService.getKey() );
+      message.text = this.authService.encryptAes(
+        encodeing,
+        this.messageService.getKey()
+      );
 
       if ( this.editMode ) {
         message._id = this.editId;
