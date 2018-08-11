@@ -74,14 +74,8 @@ async function create( req ) {
   }
 
   [err, usr] = await to( User.findOne( { username: otherUsername }, '_id username' ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
-  if ( !usr || !usr._id ) throw {
-    status: 400,
-    data: {
-      title: 'Invalid friendship request',
-      error: { message: 'The Friendship Request Was Invalid' }
-    }
-  }
+  if ( err ) throw err
+  if ( !usr || !usr._id ) throw { status: 400, userMessage: 'Invalid Friendship Sent.' }
 
   ;[err] = await to(
     Friendship.create(
@@ -93,7 +87,7 @@ async function create( req ) {
       }
     )
   )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return {
     status: 201,
@@ -113,7 +107,7 @@ async function index( req ) {
       .lean()
       .exec()
   )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: { obj: friendships } }
 }
@@ -122,7 +116,7 @@ async function update( req ) {
   let err, friendship
 
   ;[err, friendship] = await to( Friendship.findById( req.params.friendshipId ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   for ( let i = 0; i < friendship.users.length; i++ ) {
     if ( friendship.users[i].id == req.user._id ) {
@@ -131,7 +125,7 @@ async function update( req ) {
   }
 
   [err] = await to( friendship.save() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
       
   return { status: 201, data: friendship }
 }
@@ -140,7 +134,7 @@ async function destroy( req ) {
   let err, messages
 
   [err] = await to( Friendship.findByIdAndRemove( req.params.friendshipId ) )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   ;[err] = await to(
     Notifier.update(
@@ -150,12 +144,12 @@ async function destroy( req ) {
   )
 
   ;[err, messages] = await to( Message.find( { friendship_id: req.params.friendshipId }, 'media reactions' ) )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   await Promise.all(
     messages.map( async ( message ) => {
       [err] = await to( message.remove() )
-      if ( err ) throw { status: 500, error: err }
+      if ( err ) throw err
     } )
   )
 
