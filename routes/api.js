@@ -2,14 +2,15 @@ const
   express      = require('express'),
   router       = express.Router(),
   streamifier  = require( 'streamifier' ),
-  Media        = require( '../models/media' ),
-  Poll         = require( '../models/poll' ),
-  User         = require( '../models/user' ),
   middleware   = require( '../functions/middleware' ),
+  responseHelper   = require( '../functions/responseHelper' ),
   messageController = require( '../controllers/message' ),
   conversationController = require( '../controllers/conversation' ),
   friendshipController = require( '../controllers/friendship' ),
-  notificationsController = require( '../controllers/notifications' )
+  notificationsController = require( '../controllers/notifications' ),
+  Media        = require( '../models/media' ),
+  Poll         = require( '../models/poll' ),
+  User         = require( '../models/user' )
 
 //Conversation Routes
 
@@ -236,17 +237,11 @@ router.delete(
 router.get( '/media/:id', ( req, res ) => {
   Media.findById( req.params.id, ( err, file ) => {
     if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
+      return responseHelper.handleError( err, res )
     }
 
     if ( !file || !file.data ) {
-      return res.status( 404 ).json({
-        title: 'An error occured',
-        error: { message: 'No media found' }
-      })
+      return responseHelper.handleError( { status: 404, userMessage: 'No Media Found.' }, res )
     }
 
     if ( file.mime.indexOf( 'video' ) !== -1 ) {
@@ -288,10 +283,7 @@ router.get( '/media/:id', ( req, res ) => {
 router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   Poll.findOne( { _id: req.params.pollId, conversationId: req.params.conversationId }, ( err, poll ) => {
     if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
+      return responseHelper.handleError( err )
     }
 
     let match = false
@@ -314,10 +306,7 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
 
     poll.save( ( err ) => {
       if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
+        return responseHelper.handleError( err )
       }
 
       res.status( 200 ).json(poll)
@@ -328,10 +317,7 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
 router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
   Poll.find( { _id: req.params.pollId, friendshipId: req.params.friendshipId }, ( err, poll ) => {
     if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
+      return responseHelper.handleError( err )
     }
 
     let match = false
@@ -354,10 +340,7 @@ router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authent
 
     poll.save( ( err ) => {
       if ( err ) {
-        return res.status( 500 ).json({
-          title: 'An error occured',
-          error: err
-        })
+        return responseHelper.handleError( err )
       }
 
       res.status( 200 ).json(poll)
@@ -374,10 +357,7 @@ router.delete( '/notifications/friendship/:friendshipId', middleware.authenticat
 router.post( '/publicKeys', middleware.authenticate, ( req, res ) => {
   User.find( { username: { '$in': req.body } }, 'username publicKey', ( err, users ) => {
     if ( err ) {
-      return res.status( 500 ).json({
-        title: 'An error occured',
-        error: err
-      })
+      return responseHelper.handleError( err )
     }
 
     res.status( 200 ).json({ obj: users })
