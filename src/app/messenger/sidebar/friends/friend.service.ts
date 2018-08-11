@@ -57,6 +57,9 @@ export class FriendService {
           this.friendships = friendships;
           this.changeEmitter.emit();
           this.loadEmitter.emit();
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -69,6 +72,9 @@ export class FriendService {
           this.socketIoService.joinFriendship( id );
           this.currentFriendship = this.getFriendship( id );
           this.messageService.loadPrivateMessages( this.getFriendship( id ), messages );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -94,6 +100,9 @@ export class FriendService {
       .subscribe(
         ( message: Message ) => {
           this.messageService.loadMessage( message );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -103,6 +112,9 @@ export class FriendService {
       .subscribe(
         ( message: Message ) => {
           this.messageService.changeMessage( id, message );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -140,11 +152,13 @@ export class FriendService {
                   this.socketIoService.addFriendship( newFriendship.users[i].id._id );
                 }
               },
-              ( response: Response ) => {
-                const error = response.json();
-                this.alertService.alertSubject.next( { message: error.userMessage, mode: 'danger' } );
+              ( err: Response ) => {
+                this.alertService.handleError( err );
               }
             );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -154,6 +168,9 @@ export class FriendService {
       .subscribe(
         ( newFriendship: Friendship ) => {
           this.socketIoService.updateFriendship( newFriendship._id );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -163,6 +180,9 @@ export class FriendService {
       .subscribe(
         ( data: any ) => {
           this.socketIoService.updateFriendship( id );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }

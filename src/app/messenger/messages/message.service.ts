@@ -10,6 +10,7 @@ import { AuthService } from '../../auth/auth.service';
 import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { TypingService } from './typing.service';
+import { AlertService } from '../../alert.service';
 
 @Injectable()
 export class MessageService {
@@ -41,6 +42,7 @@ export class MessageService {
     private sidebarService: SidebarService,
     private socketIoService: SocketIoService,
     private typingService: TypingService,
+    private alertService: AlertService,
   ) { }
 
   getTitle() {
@@ -72,6 +74,9 @@ export class MessageService {
               this.scrollPrevious = true;
               this.changeEmitter.emit();
               this.loadingSubject.next( false );
+            },
+            ( err: Response ) => {
+              this.alertService.handleError( err );
             }
           );
       } else if ( this.currentConversation ) {
@@ -87,6 +92,9 @@ export class MessageService {
               this.scrollPrevious = true;
               this.changeEmitter.emit();
               this.loadingSubject.next( false );
+            },
+            ( err: Response ) => {
+              this.alertService.handleError( err );
             }
           );
       }
@@ -168,6 +176,9 @@ export class MessageService {
         .subscribe(
           ( newMessage: Message ) => {
             this.socketIoService.newMessage( this.currentConversation._id, newMessage._id );
+          },
+          ( err: Response ) => {
+            this.alertService.handleError( err );
           }
         );
     } else {
@@ -175,6 +186,9 @@ export class MessageService {
         .subscribe(
           ( newMessage: Message ) => {
             this.socketIoService.newPrivateMessage( this.currentFriendship._id, newMessage._id );
+          },
+          ( err: Response ) => {
+            this.alertService.handleError( err );
           }
         );
     }
@@ -186,6 +200,9 @@ export class MessageService {
         .subscribe(
           ( newMessage: Message ) => {
             this.socketIoService.changeMessage( this.currentConversation._id, newMessage._id );
+          },
+          ( err: Response ) => {
+            this.alertService.handleError( err );
           }
         );
     } else {
@@ -193,6 +210,9 @@ export class MessageService {
         .subscribe(
           ( newMessage: Message ) => {
             this.socketIoService.changePrivateMessage( this.currentFriendship._id, newMessage._id );
+          },
+          ( err: Response ) => {
+            this.alertService.handleError( err );
           }
         );
     }
@@ -207,6 +227,9 @@ export class MessageService {
           } else {
             this.socketIoService.changeMessage( this.currentConversation._id, id );
           }
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -221,6 +244,9 @@ export class MessageService {
           } else {
             this.socketIoService.changeMessage( this.currentConversation._id, id );
           }
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -234,6 +260,9 @@ export class MessageService {
           } else {
             this.socketIoService.changeMessage( this.currentConversation._id, messageId );
           }
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }

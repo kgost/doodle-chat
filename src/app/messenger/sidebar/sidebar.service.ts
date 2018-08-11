@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
 import { AuthService } from '../../auth/auth.service';
@@ -29,7 +30,7 @@ export class SidebarService {
   /**
    *  CONVERSATIONS
    */
-  createConversation( conversation: Conversation ) {
+  createConversation( conversation: Conversation ): Observable<Conversation> {
     return this.http.post( this.baseUrl + 'conversations?token=' + this.authService.getToken(), conversation )
       .pipe( map( this.mapConversation ) );
   }

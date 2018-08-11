@@ -51,9 +51,8 @@ export class AuthService {
 
               this.storePrivateKey();
             },
-            ( response: Response ) => {
-              const error = response.json();
-              console.log( error );
+            ( err: Response ) => {
+              this.alertService.handleError( err );
             }
           );
       }
@@ -85,9 +84,8 @@ export class AuthService {
             } ) ;
           }
         },
-        ( response: Response ) => {
-          const error = response.json();
-          this.alertService.alertSubject.next( { message: error.userMessage, mode: 'danger' } );
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -202,6 +200,9 @@ export class AuthService {
             }
 
             return resolve( false );
+          },
+          ( err: Response ) => {
+            this.alertService.handleError( err );
           }
         );
     } ) ;
@@ -213,8 +214,8 @@ export class AuthService {
         ( response: Response ) => {
           console.log( response.json() );
         },
-        ( error: Response ) => {
-          console.log( error.json() );
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -225,8 +226,8 @@ export class AuthService {
         ( response: Response ) => {
           console.log( response.json() );
         },
-        ( error: Response ) => {
-          console.log( error.json() );
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }

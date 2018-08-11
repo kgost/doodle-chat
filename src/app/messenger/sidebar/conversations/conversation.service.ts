@@ -5,6 +5,7 @@ import { AuthService } from '../../../auth/auth.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
 import { SidebarService } from '../sidebar.service';
 import { NotificationService } from '../notification.service';
+import { AlertService } from '../../../alert.service';
 import { MessageService } from '../../messages/message.service';
 import { User } from '../../../auth/user.model';
 import { Conversation } from './conversation.model';
@@ -25,7 +26,8 @@ export class ConversationService {
     private messageService: MessageService,
     private authService: AuthService,
     private socketIoService: SocketIoService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private alertService: AlertService,
   ) {
     this.notificationService.conversationEmitter
       .subscribe(
@@ -55,6 +57,9 @@ export class ConversationService {
           this.conversations = conversations;
           this.changeEmitter.emit();
           this.loadEmitter.emit();
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -83,6 +88,9 @@ export class ConversationService {
           this.socketIoService.joinConversation( id );
           this.currentConversation = this.getConversation( id );
           this.messageService.loadMessages( this.getConversation( id ), messages );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -92,6 +100,9 @@ export class ConversationService {
       .subscribe(
         ( message: Message ) => {
           this.messageService.loadMessage( message );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -101,6 +112,9 @@ export class ConversationService {
       .subscribe(
         ( message: Message ) => {
           this.messageService.changeMessage( id, message );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -137,8 +151,14 @@ export class ConversationService {
                 for ( let i = 0; i < newConversation.participants.length; i++ ) {
                   this.socketIoService.addConversation( newConversation.participants[i].id._id );
                 }
+              },
+              ( err: Response ) => {
+                this.alertService.handleError( err );
               }
             );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -166,8 +186,14 @@ export class ConversationService {
                 for ( let i = 0; i < newConversation.participants.length; i++ ) {
                   this.socketIoService.addConversation( newConversation.participants[i].id._id );
                 }
+              },
+              ( err: Response ) => {
+                this.alertService.handleError( err );
               }
             );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -177,6 +203,9 @@ export class ConversationService {
       .subscribe(
         ( data: any ) => {
           this.socketIoService.updateConversation( id );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
@@ -189,6 +218,9 @@ export class ConversationService {
             delete this.currentConversation;
           }
           this.socketIoService.updateConversation( id );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
         }
       );
   }
