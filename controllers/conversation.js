@@ -81,7 +81,7 @@ async function createOrUpdate( req, update ) {
   }
 
   [err, users] = await to( User.find( { username: { '$in': Object.keys( usernames ) } }, '_id username' ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   convo.participants = users.map( ( usr ) => {
     return { id: { _id: usr._id, username: usr.username }, accessKey: usernames[usr.username] }
@@ -91,10 +91,10 @@ async function createOrUpdate( req, update ) {
 
   if( update ) {
     [err, conversation] = await to( Conversation.findByIdAndUpdate( req.params.id, convo ).exec() )
-    if ( err ) throw { status: 500, error: err }
+    if ( err ) throw err
   } else {
     [err, conversation] = await to( Conversation.create( convo ) )
-    if ( err ) throw { status: 500, error: err }
+    if ( err ) throw err
   }
 
   return {
@@ -118,7 +118,7 @@ async function index( req ) {
         .populate( 'owner', 'username' )
         .exec()
     )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: { obj: conversations } }
 }
@@ -127,7 +127,7 @@ async function destroy( req ) {
   let err, messages
 
   [err] = await to( Conversation.remove( { _id: req.params.id } ) )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   ;[err] = await to(
     Notifier.update(
@@ -135,15 +135,15 @@ async function destroy( req ) {
       { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }
     ).exec()
   )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   ;[err, messages] = await to( Message.find( { conversation_id: req.params.id }, 'media reactions' ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   await Promise.all(
     messages.map( async ( message ) => {
       [err] = await to( message.remove() )
-      if ( err ) throw { status: 500, error: err }
+      if ( err ) throw err
     } )
   )
 
@@ -154,7 +154,7 @@ async function leave( req ) {
   let err, conversation
 
   ;[err, conversation] = await to( Conversation.findById( req.params.id ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   ;[err] = await to(
     Notifier.update(
@@ -162,7 +162,7 @@ async function leave( req ) {
       { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }
     ).exec()
   )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   for ( let i = 0; i < conversation.participants.length; i++ ) {
     if ( conversation.participants[i].id == req.user._id ) {
@@ -172,7 +172,7 @@ async function leave( req ) {
   }
 
   [err] = await to( Conversation.findByIdAndUpdate( conversation._id, conversation ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: { message: 'Left Converrsation' } }
 }
