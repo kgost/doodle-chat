@@ -39,7 +39,7 @@ async function index( req ) {
         .lean()
         .exec()
     )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: notifier }
 }
@@ -48,7 +48,7 @@ async function destroy( req ) {
   let err, notifier
 
   ;[err, notifier] = await to( Notifier.findOne({ user: mongoose.Types.ObjectId( req.user._id ) } ) )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   if ( req.params.conversationId ) {
     for ( let i = 0; i < notifier.conversations.length; i++ ) {
@@ -67,7 +67,7 @@ async function destroy( req ) {
   }
 
   [err] = await to( notifier.save() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: { message: 'Notification Removed' } }
 }
