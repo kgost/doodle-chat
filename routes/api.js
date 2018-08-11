@@ -314,8 +314,8 @@ router.get( '/conversations/:conversationId/poll/:pollId/:index', middleware.aut
   } )
 } )
 
-router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authenticate, middleware.inConversation, ( req, res ) => {
-  Poll.find( { _id: req.params.pollId, friendshipId: req.params.friendshipId }, ( err, poll ) => {
+router.get( '/friendships/:friendshipId/poll/:pollId/:index', middleware.authenticate, middleware.inFriendship, ( req, res ) => {
+  Poll.findOne( { _id: req.params.pollId, friendshipId: req.params.friendshipId }, ( err, poll ) => {
     if ( err ) {
       return responseHelper.handleError( err )
     }

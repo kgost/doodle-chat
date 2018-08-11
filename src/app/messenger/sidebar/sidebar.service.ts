@@ -281,6 +281,7 @@ export class SidebarService {
 
   pollVote( poll: Poll, index: number ) {
     let route;
+
     if ( poll.conversationId ) {
       route = `conversations/${ poll.conversationId }/poll/${ poll._id }/${ index }/`;
     } else {
