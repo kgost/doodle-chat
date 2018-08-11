@@ -4,12 +4,13 @@ const actions = {
   },
 
   handleError: ( err, res ) => {
+    console.log( err )
+
     if ( !err.status ) {
-      console.log( err )
       return res.status( 500 ).json({ userMessage: 'An error occured' })
     }
 
-    res.status( err.status ).json( err.error )
+    res.status( err.status ).json({ userMessage: err.userMessage })
   },
 }
 

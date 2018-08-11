@@ -1,4 +1,6 @@
-const jwt      = require( 'jsonwebtoken' ),
+const
+  jwt      = require( 'jsonwebtoken' ),
+  responseHelper = require( './responseHelper' ),
   User         = require( '../models/user' ),
   Conversation = require( '../models/conversation' ),
   Friendship = require( '../models/friendship' ),
@@ -19,22 +21,29 @@ const actions = {
   authenticate: (req, res, next) => {
     // if no token was sent under query or the token was null then respond with the error
     if (!req.query.token || req.query.token == 'null') {
-      return res.status(401).json({
-        title: 'User not logged in.',
-        error: {message: 'Invalid JWT to server.'}
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'You Must Login.' }, res )
     }
 
     // decode the token using the jwt library
-    let decoded
-    try {
-      decoded = jwt.verify(req.query.token, process.env.JWTKEY)
-    } catch ( err ) {
-      return res.status(401).json(err)
-    }
+    jwt.verify( req.query.token, process.env.JWTKEY, ( err, decoded ) => {
+      if ( err ) {
+        if ( err.name === 'TokenExpiredError' ) {
+          err.userMessage = 'Session Expired, Please Login.'
+          err.status = 401
+        } else if ( err.message === 'invalid signature' ) {
+          err.userMessage = 'Invalid Login.'
+          err.status = 401
+        } else {
+          err.userMessage = 'Authentication Error Has Occured.'
+          err.status = 500
+        }
 
-    req.user = decoded.user
-    return next()
+        return responseHelper.handleError( err, res )
+      }
+
+      req.user = decoded.user
+      return next()
+    } )
   },
 
   /**
@@ -48,20 +57,14 @@ const actions = {
   inConversation: ( req, res, next ) => {
     // if no id was sent under params or the id was null then respond with the error
     if ( !req.params.conversationId || req.params.conversationId == 'null' ) {
-      return res.status(400).json({
-        title: 'No conversation provided.',
-        error: {message: 'Invalid conversation id sent to server.'}
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'Invalid Conversation.' }, res )
     }
 
     // find the conversation with the provided id
     Conversation.findById( req.params.conversationId, ( err, conversation ) => {
       // if no conversation was found respond with the invalid resource error
       if ( !conversation._id ) {
-        return res.status(404).json({
-          title: 'No conversation found.',
-          error: {message: 'Invalid conversation id sent to server.'}
-        })
+        return responseHelper.handleError( { status: 404, userMessage: 'Conversation Not Found.' }, res )
       }
 
       let found = false
@@ -74,10 +77,7 @@ const actions = {
       }
 
       if ( !found ) {
-        return res.status( 401 ).json({
-          title: 'Unauthorized User.',
-          error: {message: 'You are not in this conversation.'}
-        })
+        return responseHelper.handleError( { status: 403, userMessage: 'You Are Not In This Conversation.' }, res )
       }
 
       return next()
@@ -95,28 +95,19 @@ const actions = {
   inFriendship: ( req, res, next ) => {
     // if no id was sent under params or the id was null then respond with the error
     if ( !req.params.friendshipId || req.params.friendshipId == 'null' ) {
-      return res.status(400).json({
-        title: 'No friendship provided.',
-        error: {message: 'Invalid friendship id sent to server.'}
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'Invalid Friendship.' }, res )
     }
 
     // find the conversation with the provided id
     Friendship.findById( req.params.friendshipId, ( err, friendship ) => {
       // if no conversation was found respond with the invalid resource error
       if ( !friendship || !friendship._id ) {
-        return res.status(404).json({
-          title: 'No friendship provided.',
-          error: {message: 'Invalid friendship id sent to server.'}
-        })
+        return responseHelper.handleError( { status: 404, userMessage: 'Friendship Not Found.' }, res )
       }
 
       // if the user is not in the participants list, respond with a 401 error
       if ( friendship.users[0].id != req.user._id && friendship.users[1].id != req.user._id ) {
-        return res.status( 401 ).json({
-          title: 'Unauthorized User.',
-          error: {message: 'You are not in this friendship.'}
-        })
+        return responseHelper.handleError( { status: 403, userMessage: 'You Are Not In This Friendship.' }, res )
       }
 
       return next()
@@ -126,22 +117,16 @@ const actions = {
   validSentFriendship: ( req, res, next ) => {
     if ( !req.body || !req.body.users || !req.body.users[0] || !req.body.users[1] ||
          ( req.body.users[0].id.username != req.user.username && req.body.users[1].id.username != req.user.username ) ) {
-      return res.status( 401 ).json({
-        userMessage: 'You are not in this friendship'
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'Invalid Friendship Sent.' }, res )
     }
 
     if ( req.body.users[0].id.username === req.body.users[1].id.username ) {
-      return res.status( 400 ).json({
-        userMessage: 'You Cannot Be Friends With Yourself, That\'s Just Sad'
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'You Cannot Be Friends With Yourself, That\'s Just Sad' }, res )
     }
 
     User.find( { username: { '$in': [req.body.users[0].id.username, req.body.users[1].id.username] } }, '_id', ( err, users ) => {
       if ( !users || users.length < 2 ) {
-        return res.status( 400 ).json({
-          userMessage: 'Invalid Friendship Sent To Server'
-        })
+        return responseHelper.handleError( { status: 400, userMessage: 'Invalid Friendship Sent.' }, res )
       }
 
       const ids = users.map( ( user ) => {
@@ -156,9 +141,7 @@ const actions = {
 
           if ( friendshipIds.indexOf( ids[0].toString() ) !== -1 &&
             friendshipIds.indexOf( ids[1].toString() ) !== -1 ) {
-            return res.status( 400 ).json({
-              userMessage: 'Friendship Already Exists'
-            })
+            return responseHelper.handleError( { status: 400, userMessage: 'Friendship Already Exists' }, res )
           }
         }
 
@@ -178,28 +161,19 @@ const actions = {
   isConversationOwner: (req, res, next) => {
     // if no id was sent or the id is null then return with an input error
     if ( !req.params.id || req.params.id == 'null' ) {
-      return res.status(400).json({
-        title: 'No conversation provided.',
-        error: {message: 'Invalid conversation id sent to server.'}
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'Invalid Conversation.' }, res )
     }
 
     // find the conversation with the given id
     Conversation.findById( req.params.id, ( err, conversation ) => {
       // if no conversation was found then return an invalid resource error
       if ( !conversation ) {
-        return res.status(404).json({
-          title: 'No conversation found.',
-          error: {message: 'Invalid conversation id sent to server.'}
-        })
+        return responseHelper.handleError( { status: 404, userMessage: 'Conversation Not Found.' }, res )
       }
 
       // if the user is not the owner then return a 401 error
       if ( conversation.owner != req.user._id ) {
-        return res.status( 401 ).json({
-          title: 'Unauthorized User.',
-          error: {message: 'You are not the owner of this conversation.'}
-        })
+        return responseHelper.handleError( { status: 403, userMessage: 'You Are Not The Owner Of This Conversation.' }, res )
       }
 
       return next()
@@ -208,25 +182,16 @@ const actions = {
 
   isMessageOwner: (req, res, next) => {
     if ( !req.params.id || req.params.id == 'null' ) {
-      return res.status(400).json({
-        title: 'No message provided.',
-        error: {message: 'Invalid message id sent to server.'}
-      })
+      return responseHelper.handleError( { status: 400, userMessage: 'Invalid Message.' }, res )
     }
 
     Message.findById( req.params.id, ( err, message) => {
       if ( !message ) {
-        return res.status(404).json({
-          title: 'No message found.',
-          error: {message: 'Invalid message id sent to server.'}
-        })
+        return responseHelper.handleError( { status: 404, userMessage: 'Message Not Found.' }, res )
       }
 
       if ( message.user != req.user._id ) {
-        return res.status( 401 ).json({
-          title: 'Unauthorized User.',
-          error: {message: 'You are not the owner of this message.'}
-        })
+        return responseHelper.handleError( { status: 403, userMessage: 'You Are Not The Owner Of This Message.' }, res )
       }
       return next()
     })
