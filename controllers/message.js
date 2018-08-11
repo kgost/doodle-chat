@@ -122,7 +122,7 @@ async function create( req ) {
   if ( req.body.media ) {
     if ( req.body.media.data ) {
       [err, media] = await to( Media.create( { data: new Buffer( req.body.media.data ), mime: req.body.media.mime } ) )
-      if ( err ) throw { status: 500, error: err }
+      if ( err ) throw err
 
       message.media = { mime: req.body.media.mime, id: media._id }
     } else if ( req.body.media.externalSrc ) {
@@ -136,24 +136,24 @@ async function create( req ) {
 
   if ( req.body.poll ) {
     [err, poll] = await to( Poll.create( req.body.poll ) )
-    if ( err ) throw { status: 500, error: err }
+    if ( err ) throw err
 
     message.poll = poll._id
   }
 
   [err, msg] = await to( Message.create( message ) )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   message._id = msg._id
 
   ;[err] = await to( Reactions.create( { _id: reactionsId, message: message._id, reactions: [] } ) )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   let notifierQuery, notifierObject, users, pushQuery, name
 
   if ( req.params.conversationId ) {
     [err, conversation] = await to( Conversation.findById( req.params.conversationId, 'name participants' ).lean().exec() )
-    if ( err ) throw { status: 500, error: err }
+    if ( err ) throw err
 
     users = conversation.participants.map( ( usr ) => {
       if ( usr.id != req.user._id ) {
@@ -178,7 +178,7 @@ async function create( req ) {
     name = conversation.name
   } else {
     [err, friendship] = await to( Friendship.findById( req.params.friendshipId, 'users' ).lean().exec() )
-    if ( err ) throw { status: 500, error: err }
+    if ( err ) throw err
 
     users = friendship.users.map( ( usr ) => {
       if ( usr.id != req.user._id ) {
@@ -204,7 +204,7 @@ async function create( req ) {
   }
 
   [err] = await to( Notifier.update( notifierQuery, notifierObject, { multi: true } ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   name = ( name.length > 10 ) ? ( name.slice( 0, 10 ) + '...' ) : name
 
@@ -251,7 +251,7 @@ async function createReaction( req ) {
   let err, reactions
 
   ;[err, reactions] = await to( Reactions.findOne( { message: req.params.messageId } ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   let i
   for ( i = 0; i < reactions.reactions.length; i++ ) {
@@ -266,7 +266,7 @@ async function createReaction( req ) {
   }
 
   [err] = await to( Reactions.findByIdAndUpdate( reactions._id, reactions ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 201, data: { _id: req.params.messageId, user: req.user._id, text: '' } }
 }
@@ -285,7 +285,7 @@ async function index( req ) {
   }
 
   [err, messages] = await to( Message.find( query ).populate( 'reactions' ).populate( 'poll' ).sort( '-createdAt' ).limit( 20 ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   const result = []
 
@@ -301,7 +301,7 @@ async function show( req ) {
   let err, message
 
   [err, message] = await to( Message.findById( req.params.messageId ).populate( 'reactions' ).populate( 'poll' ).lean().exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   if ( message ) {
     const reactions = message.reactions.reactions
@@ -315,7 +315,7 @@ async function update( req ) {
   let err
 
   [err] = await to( Message.findByIdAndUpdate( req.params.id, req.body ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: { message: 'Reply Successful' } }
 }
@@ -324,10 +324,10 @@ async function destroy( req ) {
   let err, message
 
   [err, message] = await to( Message.findById( req.params.id, 'media poll reactions' ).exec() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   ;[err] = await to( message.remove() )
-  if ( err ) throw { status: 500, error: err }
+  if ( err ) throw err
 
   return { status: 200, data: { message: 'Message deleted' } }
 }
