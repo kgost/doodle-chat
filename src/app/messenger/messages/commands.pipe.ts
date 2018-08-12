@@ -38,6 +38,8 @@ export class CommandsPipe implements PipeTransform {
         return this.setPoll( message, args );
       case 'youtube':
         return this.setYoutube( message, args );
+      case 'roll':
+        return this.setRoll( message, args );
       default:
         return message;
     }
@@ -103,6 +105,19 @@ export class CommandsPipe implements PipeTransform {
     }
 
     message.youtubeId = id;
+
+    return message;
+  }
+
+  private setRoll( message: Message, args: string[] ): Message {
+    const max = Number( args[0] );
+
+    if ( !max || max <= 1 ) {
+      return message;
+    }
+
+    message.system = true;
+    message.text = `${ this.authService.getCurrentUser().username } rolled a ${ Math.floor(Math.random() * (max - 1 + 1)) + 1 }`;
 
     return message;
   }

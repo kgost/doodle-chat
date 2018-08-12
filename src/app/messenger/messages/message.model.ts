@@ -9,6 +9,7 @@ export class Message {
     public friendshipId?: string,
     public media?: Media,
     public poll?: Poll,
+    public system?: boolean,
     public _id?: string,
     public username?: string,
     public scrollTop?: number,

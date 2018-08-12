@@ -110,7 +110,8 @@ async function create( req ) {
     user: req.user._id,
     username: req.user.username,
     reactions: reactionsId,
-    youtubeId: req.body.youtubeId
+    youtubeId: req.body.youtubeId,
+    system: req.body.system
   }
 
   if ( req.params.conversationId ) {

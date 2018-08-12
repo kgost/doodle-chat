@@ -20,7 +20,8 @@ const messageSchema = new mongoose.Schema({
   },
   youtubeId: String,
   reactions: { type: mongoose.Schema.Types.ObjectId, ref: 'Reactions' },
-  poll: { type: mongoose.Schema.Types.ObjectId, ref: 'Poll' }
+  poll: { type: mongoose.Schema.Types.ObjectId, ref: 'Poll' },
+  system: Boolean
 }, { timestamps: true } )
 
 messageSchema.post( 'remove', ( message ) => {

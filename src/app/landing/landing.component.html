@@ -25,15 +25,33 @@
   <p>Finally, when you send messages in a conversation, it decrypts your version of
   the AES key and then encrypts and decrypts all messages using that AES key. This way
   we can take advantage of the speed and convenience of a single AES key but still
-  keep all keys completely hidden.</p>
+  keep that key completely hidden.</p>
 
-  <h2>The Fun</h2>
+  <h2>The Function</h2>
 
   <p>In addition to being secure, La Li Lu Le Lo also has many of the features
   expected from a proprietary messaging service. Using the
   <a href="https://github.com/twitter/twemoji">twemoji</a> package, La Li Lu Le Lo has
-  support for emojis. It also allows for media, images and videos including the webm,
+  full support for emojis. It also allows for media, images and videos including the webm,
   mp4, jpg, png and gif formats, to be shared through the service.</p>
+
+  <h3>Commands</h3>
+
+  <p>La Li Lu Le Lo has several commands that allow you to embed media, take polls and
+  generate random numbers for fun.</p>
+
+  <p><strong>!img &lt;image url&gt;</strong> will allow you to embed external images.</p>
+
+  <p><strong>!webm &lt;webm url&gt;</strong> will allow you to embed external webms.</p>
+
+  <p><strong>!youtube &lt;youtube url&gt;</strong> will allow you to embed external youtube videos.</p>
+
+  <p><strong>!poll &lt;question&gt;|&lt;answer1&gt;|&lt;answer2&gt;|&lt;answer3&gt;...</strong>
+  will allow you to take a poll with any number of answers that anyone in the conversation can answer.
+  The question and answer choices to this poll are also encrypted so only those in the conversation will
+  ever know the contents.</p>
+
+  <p><strong>!roll &lt;maximum&gt;</strong> will generate a number between 1 and the maximum number and send it to the chat.</p>
 
   <h2>The Message Behind The Messaging</h2>
 
