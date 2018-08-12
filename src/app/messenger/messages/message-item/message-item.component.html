@@ -20,7 +20,7 @@
     <app-youtube-embedded
       *ngIf="message.youtubeId"
       [youtubeId]="message.youtubeId"></app-youtube-embedded>
-    <div class="user-tag" *ngIf="!owner">
+    <div class="user-tag" *ngIf="!owner && !message.system">
       <span class="small">{{ message.username + ' ' + getDate() }}</span>
     </div>
     <button 
