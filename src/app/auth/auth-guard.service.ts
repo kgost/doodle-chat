@@ -37,7 +37,8 @@ export class AuthGuard {
           } );
       } );
     }
-    this.router.navigate( ['/'] );
+    this.alertService.alertSubject.next({ message: 'You Must Sign Back In.', mode: 'warning' });
+    this.router.navigate( ['/signin'] );
     return false;
   }
 }

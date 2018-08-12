@@ -97,8 +97,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   onContainerScroll() {
-    if ( this.container.nativeElement.scrollHeight - this.container.nativeElement.scrollTop ===
-      this.container.nativeElement.offsetHeight ) {
+    if ( this.container.nativeElement.scrollHeight - this.container.nativeElement.scrollTop <=
+      this.container.nativeElement.offsetHeight + 50 ) {
       this.messageService.allowScrollBottom = true;
     } else {
       this.messageService.allowScrollBottom = false;
