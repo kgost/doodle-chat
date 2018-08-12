@@ -109,7 +109,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
 
     if ( this.active ) {
       this.sidebarService.scrollSubject
-        .next( { height: this.container.nativeElement.offsetTop, conversations: true } );
+        .next( { height: this.container.nativeElement.offsetTop + this.container.nativeElement.offsetHeight, conversations: true } );
     }
   }
 

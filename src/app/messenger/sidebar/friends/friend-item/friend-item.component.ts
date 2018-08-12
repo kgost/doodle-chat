@@ -135,7 +135,7 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if ( this.active ) {
       this.sidebarService.scrollSubject
-        .next( { height: this.container.nativeElement.offsetTop, conversations: false } );
+        .next( { height: this.container.nativeElement.offsetTop + this.container.nativeElement.offsetHeight, conversations: false } );
     }
   }
 

@@ -19,19 +19,21 @@ export class AuthGuard {
 
   canActivate( route: ActivatedRouteSnapshot, state: RouterStateSnapshot ): Observable<boolean>|boolean {
     if ( this.authService.isSignedin() && this.authService.keysSet() ) {
-      console.log( 'success' );
       return true;
     } else if ( this.authService.isSignedin() ) {
       return Observable.create( ( observer ) => {
         this.authService.storePrivateKey()
           .then( ( result ) => {
             if ( !result ) {
-              this.alertService.alertSubject.next( { message: 'For Security Reasons, You Must Sign Back In', mode: 'danger' }   );
               this.authService.signout( true );
             }
 
             observer.next( result );
             observer.complete();
+          } )
+          .catch( ( err ) => {
+            console.log( err );
+            this.router.navigate( ['/signin'] );
           } );
       } );
     }

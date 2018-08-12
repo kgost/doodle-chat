@@ -43,11 +43,11 @@
     </div>
   </li>
   <div
-    *ngIf="owner && showOptions"
+    *ngIf="owner && showOptions && !message.system"
     class="pull-right options">
     <button
       (click)="onEdit()"
-      *ngIf="!message.media && !message.youtubeId && !message.system"
+      *ngIf="!message.media && !message.youtubeId"
       type="button"
       class="btn btn-default">
       <span 

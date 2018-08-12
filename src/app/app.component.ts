@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from './auth/auth.service';
@@ -9,7 +9,11 @@ import { SidebarService } from './messenger/sidebar/sidebar.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
+  @ViewChild('container') container: ElementRef;
+  @ViewChild('header') header: ElementRef;
+  @ViewChild('body') body: ElementRef;
+  bodyHeight: number;
   title = 'app';
 
   constructor(
@@ -26,5 +30,17 @@ export class AppComponent implements OnInit {
         this.router.navigate([event.data]);
       }
     } );
+
+    window.addEventListener( 'resize', () => {
+      this.container.nativeElement.style.height = '100%';
+      this.bodyHeight = this.container.nativeElement.offsetHeight - this.header.nativeElement.offsetHeight;
+      this.body.nativeElement.style.height = this.bodyHeight;
+    } );
+  }
+
+  ngAfterViewInit() {
+    this.container.nativeElement.style.height = '100%';
+    this.bodyHeight = this.container.nativeElement.offsetHeight - this.header.nativeElement.offsetHeight;
+    this.body.nativeElement.style.height = this.bodyHeight;
   }
 }

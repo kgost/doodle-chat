@@ -22,7 +22,12 @@ export class MediaComponent implements OnInit {
   }
 
   loadEmit() {
-    console.log( 'feff' );
-    this.messageService.loadEmitter.emit();
+    if ( this.media ) {
+      setTimeout( () => {
+        this.messageService.loadEmitter.emit();
+      }, 100 );
+    } else {
+      this.messageService.loadEmitter.emit();
+    }
   }
 }

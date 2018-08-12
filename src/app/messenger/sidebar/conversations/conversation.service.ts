@@ -1,4 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { AuthService } from '../../../auth/auth.service';
@@ -28,6 +29,7 @@ export class ConversationService {
     private socketIoService: SocketIoService,
     private notificationService: NotificationService,
     private alertService: AlertService,
+    private router: Router,
   ) {
     this.notificationService.conversationEmitter
       .subscribe(
@@ -69,12 +71,21 @@ export class ConversationService {
     this.socketIoService.joinConversation( id );
     this.currentConversation = this.getConversation( id );
     if ( this.loaded ) {
-      this.conversations[this.getConversationIndex( id )].forceSelect = true;
-      this.changeEmitter.emit();
-    } else {
-      const sub = this.loadEmitter.subscribe( () => {
+      if ( !this.exists( id ) ) {
+        this.router.navigate(['/messenger']);
+      } else {
         this.conversations[this.getConversationIndex( id )].forceSelect = true;
         this.changeEmitter.emit();
+      }
+    } else {
+      const sub = this.loadEmitter.subscribe( () => {
+        if ( !this.exists( id ) ) {
+          this.router.navigate(['/messenger']);
+        } else {
+          this.conversations[this.getConversationIndex( id )].forceSelect = true;
+          this.changeEmitter.emit();
+        }
+
         sub.unsubscribe();
       } );
     }
@@ -225,6 +236,10 @@ export class ConversationService {
       );
   }
 
+  exists( id: string ) {
+    return this.getConversationIndex( id ) !== -1;
+  }
+
   checkNotification( id: string ) {
     return this.notificationService.getConversationStatus( id );
   }
@@ -252,6 +267,8 @@ export class ConversationService {
         return i;
       }
     }
+
+    return -1;
   }
 
   private updateSocket( conversations: Conversation[] ) {

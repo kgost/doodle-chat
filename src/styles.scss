@@ -391,6 +391,7 @@ app-root {
                       border-radius: 0;
                       border-left: 0;
                       resize: none;
+                      height: 55px;
                     }
 
                     .emoji-picker-container {
@@ -428,7 +429,7 @@ app-root {
                               margin: 2px 1px;
 
                               .emoji {
-                                width: 34px;
+                                width: 33px;
                                 margin: 1px;
                               }
                             }
@@ -462,7 +463,11 @@ app-root {
         }
 
         app-typing {
-
+          position: absolute;
+          bottom: 56px;
+          left: 0;
+          background-color: white;
+          z-index: 1;
         }
       }
     }
@@ -589,23 +594,15 @@ body {
   height: 100%;
 }
 
-.box .row {
-}
-
-.box .clearfix.header {
+.box .header {
   flex: 0 1 auto;
-  /* The above is shorthand for:
-  flex-grow: 0,
-  flex-shrink: 1,
-  flex-basis: auto
-  */
 }
 
-.box .clearfix.content {
+.box .content {
   flex: 1 1 auto;
 }
 
-.box .clearfix.footer {
+.box .footer {
   flex: 0 1 55px;
 }
 
@@ -653,9 +650,4 @@ a.linkified {
 }
 
 app-typing {
-  position: absolute;
-  bottom: 90px;
-  left: 0;
-  background-color: white;
-  z-index: 1;
 }

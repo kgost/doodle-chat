@@ -110,11 +110,15 @@ export class AuthService {
   }
 
   signout( signin = false ) {
-    this.socketIoService.signout( this.currentUser._id );
+    if ( this.currentUser ) {
+      this.socketIoService.signout( this.currentUser._id );
+    }
+
     delete this.currentUser;
     localStorage.removeItem( 'token' );
     localStorage.removeItem( 'userId' );
     localStorage.removeItem( 'username' );
+
     if ( signin ) {
       this.router.navigate( ['/signin'] );
     } else {
@@ -127,7 +131,8 @@ export class AuthService {
   }
 
   private getPrivateKeyString() {
-    return forge.asn1.toDer( forge.pki.privateKeyToAsn1( this.privateKey ) ).data;
+    const key = forge.asn1.toDer( forge.pki.privateKeyToAsn1( this.privateKey ) );
+    return key.data;
   }
 
   decryptAccessKey( key: string ) {
@@ -193,16 +198,27 @@ export class AuthService {
               return resolve( true );
             } else if ( localStorage.getItem( 'privateKey' ) ) {
               decryptedPrivateKey = this.decryptAes( localStorage.getItem( 'privateKey' ), data.oldNonce );
+              try {
+                this.privateKey = this.getPrivateKeyFromString( decryptedPrivateKey );
+              } catch( err ) {
+                this.alertService.alertSubject.next({ message: 'You Must Sign Back In.', mode: 'warning' });
+                localStorage.removeItem( 'privateKey' );
+                return resolve( false );
+              }
               encryptedPrivateKey = this.encryptAes( decryptedPrivateKey, data.nonce );
               localStorage.setItem( 'privateKey', encryptedPrivateKey );
-              this.privateKey = this.getPrivateKeyFromString( decryptedPrivateKey );
               return resolve( true );
             }
 
             return resolve( false );
           },
           ( err: Response ) => {
+            if ( err.status === 401 ) {
+              this.signout();
+            }
             this.alertService.handleError( err );
+
+            return resolve( false );
           }
         );
     } ) ;

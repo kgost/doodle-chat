@@ -1,5 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Response } from '@angular/http';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { AuthService } from '../../../auth/auth.service';
@@ -29,6 +29,7 @@ export class FriendService {
     private messageService: MessageService,
     private socketIoService: SocketIoService,
     private notificationService: NotificationService,
+    private router: Router,
   ) {
     this.notificationService.friendshipEmitter
       .subscribe(
@@ -84,12 +85,21 @@ export class FriendService {
     this.socketIoService.joinFriendship( id );
     this.currentFriendship = this.getFriendship( id );
     if ( this.loaded ) {
-      this.friendships[this.getFriendshipIndex( id )].forceSelect = true;
-      this.changeEmitter.emit();
-    } else {
-      const sub = this.loadEmitter.subscribe( () => {
+      if ( !this.exists( id ) ) {
+        this.router.navigate(['/messenger']);
+      } else {
         this.friendships[this.getFriendshipIndex( id )].forceSelect = true;
         this.changeEmitter.emit();
+      }
+    } else {
+      const sub = this.loadEmitter.subscribe( () => {
+        if ( !this.exists( id ) ) {
+          this.router.navigate(['/messenger']);
+        } else {
+          this.friendships[this.getFriendshipIndex( id )].forceSelect = true;
+          this.changeEmitter.emit();
+        }
+
         sub.unsubscribe();
       } );
     }
@@ -187,6 +197,10 @@ export class FriendService {
       );
   }
 
+  exists( id: string ) {
+    return this.getFriendshipIndex( id ) !== -1;
+  }
+
   checkNotification( id: string ) {
     return this.notificationService.getFriendshipStatus( id );
   }
@@ -214,6 +228,8 @@ export class FriendService {
         return i;
       }
     }
+
+    return -1;
   }
 
   private updateSocket( friendships: Friendship[] ) {

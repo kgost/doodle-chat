@@ -71,7 +71,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     setTimeout( () => {
       this.messageService.allowScrollBottom = true;
       this.messageService.containerEmitter.emit();
-    }, 300 );
+    }, 500 );
   }
 
   onSubmit() {

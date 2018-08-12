@@ -1,5 +1,5 @@
 <div>
-  <span *ngFor="let username of usernamesArray; let i = index">
+  <em *ngFor="let username of usernamesArray; let i = index">
     {{ username + ( i !== usernamesArray.length - 1 ? ',' : ' ...' ) }}
-  </span>
+  </em>
 </div>

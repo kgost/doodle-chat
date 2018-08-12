@@ -29,6 +29,7 @@ router.post('/signin', (req, res) => {
     if ( !user || !bcrypt.compareSync( req.body.password, user.password ) ) {
       return responseHelper.handleError( { status: 400, userMessage: 'Invalid Login Credentials' }, res )
     }
+
     //Sign the JWT and return success
     const token = jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, { expiresIn: 7200 } )
     res.status( 200 ).json( {
@@ -38,7 +39,7 @@ router.post('/signin', (req, res) => {
       publicKey: user.publicKey,
       privateKey: user.privateKey,
     } )
-  })
+  } )
 } )
 
 
@@ -79,7 +80,7 @@ router.post('/signup', (req, res) => {
         userId: user._id,
       })
     } )
-  })
+  } )
 } )
 
 /**
@@ -103,9 +104,9 @@ router.get('/usernameTaken/:username', (req, res) => {
     }
     res.status( 200 ).json( {
       obj: true
-    })
-  })
-})
+    } )
+  } )
+} )
 
 router.get( '/consumeNonce', middleware.authenticate, ( req, res ) => {
   const user = jwt.decode(req.query.token).user
@@ -119,7 +120,7 @@ router.get( '/consumeNonce', middleware.authenticate, ( req, res ) => {
     res.status( 200 ).json({
       nonce: nonce,
       oldNonce: user.nonce
-    })
+    } )
   } )
 } )
 
