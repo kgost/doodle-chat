@@ -1,6 +1,6 @@
 {
   "name": "doodle-chat",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "a web app for messaging and sending drawing",
   "main": "app.js",
   "scripts": {
