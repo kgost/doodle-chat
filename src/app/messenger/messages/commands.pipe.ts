@@ -117,7 +117,7 @@ export class CommandsPipe implements PipeTransform {
     }
 
     message.system = true;
-    message.text = `${ this.authService.getCurrentUser().username } rolled a ${ Math.floor(Math.random() * (max - 1 + 1)) + 1 }`;
+    message.text = `${ this.authService.getCurrentUser().username } rolled a ${ Math.floor(Math.random() * (max - 1 + 1)) + 1 } out of ${ max }`;
 
     return message;
   }
