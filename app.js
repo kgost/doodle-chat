@@ -46,7 +46,7 @@ app.get('/*', (req, res, next) => {
   // Just send the index.html for other files to support HTML5Mode
   if ( req.originalUrl.match( /\./ ) === null ) {
     console.log( req.originalUrl )
-    return res.sendFile( 'index.html', { root: __dirname + '/dist/chat-front' })
+    return res.sendFile( 'index.html', { root: __dirname + '/dist/lalilulelo' })
   } else {
     return next()
   }
@@ -54,7 +54,7 @@ app.get('/*', (req, res, next) => {
 })
 
 //Pathing to our static files, css/js etc...
-app.use( express.static(__dirname + '/dist/chat-front') )
+app.use( express.static(__dirname + '/dist/lalilulelo') )
 
 //Starts up sockets
 socketController( io )
