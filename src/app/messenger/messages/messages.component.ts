@@ -102,7 +102,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       this.messageService.allowScrollBottom = true;
     } else {
       this.messageService.allowScrollBottom = false;
-      console.log( 'feff' );
     }
 
     if ( this.container.nativeElement.scrollTop === 0 ) {
@@ -112,7 +111,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   private scrollBottom( height: number = this.container.nativeElement.scrollHeight ) {
     if ( this.messageService.allowScrollBottom || this.messageService.scrollPrevious ) {
-      console.log( 'feff' );
       if ( this.messageService.scrollPrevious ) {
         this.messageService.scrollPrevious = false;
       }
