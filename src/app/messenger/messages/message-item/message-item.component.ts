@@ -43,6 +43,9 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
         ( data: { id: string, reactions: { username: string, text: string }[] } ) => {
           if ( data.id === this.message._id ) {
             this.message.reactions = data.reactions;
+            setTimeout( () => {
+              this.messageService.containerEmitter.emit();
+            }, 200 );
           }
         }
       ));
