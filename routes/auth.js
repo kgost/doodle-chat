@@ -109,18 +109,13 @@ router.get('/usernameTaken/:username', (req, res) => {
 } )
 
 router.get( '/consumeNonce', middleware.authenticate, ( req, res ) => {
-  const user = jwt.decode(req.query.token).user
+  const decoded = jwt.decode(req.query.token)
   const nonce = forge.random.getBytesSync(32)
 
-  User.findByIdAndUpdate( user._id, { nonce: nonce }, ( err, user ) => {
-    if ( err ) {
-      return responseHelper.handleError( err, res )
-    }
-
-    res.status( 200 ).json({
-      nonce: nonce,
-      oldNonce: user.nonce
-    } )
+  res.status( 200 ).json({
+    nonce: nonce,
+    oldNonce: decoded.nonce,
+    token: jwt.sign( { user: { _id: req.user._id, username: req.user.username }, nonce: nonce }, process.env.JWTKEY, { expiresIn: 7200 } )
   } )
 } )
 

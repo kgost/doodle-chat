@@ -117,7 +117,10 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
       try {
         this.container.nativeElement.scrollTop = height;
-      } catch (err) { }
+        console.log( 'scrolled' );
+      } catch (err) {
+        console.log( err );
+      }
     }
   }
 }

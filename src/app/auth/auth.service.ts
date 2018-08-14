@@ -46,7 +46,7 @@ export class AuthService {
                 localStorage.getItem( 'userId' ),
               );
               this.socketIoService.signin( this.currentUser._id );
-              this.alertService.alertSubject.next( { message: 'Successfully Signed Up!', mode: 'success' } );
+              this.alertService.alertSubject.next({ message: 'Successfully Signed Up!', mode: 'success' });
               this.router.navigate(['/messenger']);
 
               this.storePrivateKey();
@@ -192,21 +192,30 @@ export class AuthService {
             const data = response.json();
             let encryptedPrivateKey;
             let decryptedPrivateKey;
+
+            console.log( data );
+            localStorage.setItem( 'token', data.token );
+
             if ( this.keysSet() ) {
               encryptedPrivateKey = this.encryptAes( this.getPrivateKeyString(), data.nonce );
               localStorage.setItem( 'privateKey', encryptedPrivateKey );
+
               return resolve( true );
             } else if ( localStorage.getItem( 'privateKey' ) ) {
               decryptedPrivateKey = this.decryptAes( localStorage.getItem( 'privateKey' ), data.oldNonce );
+
               try {
                 this.privateKey = this.getPrivateKeyFromString( decryptedPrivateKey );
               } catch( err ) {
                 this.alertService.alertSubject.next({ message: 'You Must Sign Back In.', mode: 'warning' });
                 localStorage.removeItem( 'privateKey' );
+
                 return resolve( false );
               }
+
               encryptedPrivateKey = this.encryptAes( decryptedPrivateKey, data.nonce );
               localStorage.setItem( 'privateKey', encryptedPrivateKey );
+
               return resolve( true );
             }
 
