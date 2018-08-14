@@ -13,7 +13,7 @@ export class EmojiPickerComponent implements OnInit, AfterViewInit {
     { emoji: '🐱', title: 'Animals And Drink' },
     { emoji: '🍆', title: 'Food And Drink' },
     { emoji: '🏋️', title: 'Sports' },
-    { emoji: '🧕', title: 'Objects' },
+    { emoji: '⌚️', title: 'Objects' },
     { emoji: '🇮🇪', title: 'Borders' },
   ];
   emojis = [
