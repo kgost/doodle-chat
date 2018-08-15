@@ -27,6 +27,7 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   editMode = false;
   editId: string;
   sendTyping = true;
+  media = false;
 
   constructor(
     private messageService: MessageService,
@@ -38,6 +39,8 @@ export class MessageEditComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.media = this.webSqlService.supported;
+
     this.subscriptions.push( this.messageService.editChange
       .subscribe(
         ( message: Message ) => {

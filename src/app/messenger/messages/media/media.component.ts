@@ -61,6 +61,8 @@ export class MediaComponent implements OnInit, OnDestroy {
     this.webSqlService.getMedia( this.messageId )
       .then( ( data ) => {
         if ( !data ) {
+          this.loadEmit();
+
           const payload = { messageId: this.messageId, friendshipId: null, conversationId: null };
 
           if ( this.messageService.privateMode ) {
