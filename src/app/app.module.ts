@@ -44,6 +44,7 @@ import { AuthService } from './auth/auth.service';
 import { AuthGuard } from './auth/auth-guard.service';
 import { SocketIoService } from './shared/socket-io.service';
 import { TypingService } from './messenger/messages/typing.service';
+import { WebSqlService } from './messenger/web-sql.service';
 
 import { LinkPipe } from './messenger/messages/link.pipe';
 import { DcryptPipe } from './messenger/messages/dcrypt.pipe';
@@ -123,6 +124,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     Decode8Pipe,
     NotificationService,
     TypingService,
+    WebSqlService,
     {
       provide: Favicons,
       useClass: BrowserFavicons

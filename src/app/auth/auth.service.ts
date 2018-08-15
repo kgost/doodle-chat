@@ -193,7 +193,6 @@ export class AuthService {
             let encryptedPrivateKey;
             let decryptedPrivateKey;
 
-            console.log( data );
             localStorage.setItem( 'token', data.token );
 
             if ( this.keysSet() ) {
@@ -206,7 +205,7 @@ export class AuthService {
 
               try {
                 this.privateKey = this.getPrivateKeyFromString( decryptedPrivateKey );
-              } catch( err ) {
+              } catch ( err ) {
                 this.alertService.alertSubject.next({ message: 'You Must Sign Back In.', mode: 'warning' });
                 localStorage.removeItem( 'privateKey' );
 

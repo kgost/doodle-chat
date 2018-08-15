@@ -1,17 +1,17 @@
 <img
   class="img-responsive"
   *ngIf="media.mime.indexOf( 'image' ) !== -1"
-  [src]="media.externalSrc ? media.externalSrc : '/api/media/' + media._id"
+  [src]="media.externalSrc ? media.externalSrc : media.data"
   (load)="loadEmit()"
   [ngStyle]="{ height: loaded || !media.size ? 'auto' : media.size.height + 'px' }"
   alt="">
-<video
+<video #video
   (loadeddata)="loadEmit()"
   class="img-responsive"
   [ngStyle]="{ 'padding-top': ( loaded ? '' : '7%' ) }"
-  *ngIf="media.mime.indexOf( 'video' ) !== -1"
+  *ngIf="media.mime.indexOf( 'video' ) !== -1 && media.data"
   controls>
   <source
-    [src]="media.externalSrc ? media.externalSrc : '/api/media/' + media._id"
+    [src]="media.externalSrc ? media.externalSrc : media.data"
     [type]="media.mime">
 </video>

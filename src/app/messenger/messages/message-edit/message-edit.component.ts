@@ -131,7 +131,8 @@ export class MessageEditComponent implements OnInit, OnDestroy {
           const message = new Message(
             this.authService.getCurrentUser()._id,
             '', '', '',
-            new Media( file.type, new Buffer( reader.result ), null, { width: image.width, height: image.height } ) );
+            new Media( file.type, reader.result,
+            null, { width: image.width, height: image.height } ) );
           this.messageService.addMessage( message );
         };
 
@@ -140,12 +141,12 @@ export class MessageEditComponent implements OnInit, OnDestroy {
         const message = new Message(
           this.authService.getCurrentUser()._id,
           '', '', '',
-          new Media( file.type, new Buffer( reader.result ) ) );
+          new Media( file.type, reader.result ) );
         this.messageService.addMessage( message );
       }
     };
 
-    reader.readAsArrayBuffer( file );
+    reader.readAsDataURL( file );
   }
 
   onSelectEmoji( emoji ) {

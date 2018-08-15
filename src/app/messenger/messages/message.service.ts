@@ -6,11 +6,13 @@ import { Conversation } from '../sidebar/conversations/conversation.model';
 import { Friendship } from '../sidebar/friends/friendship.model';
 import { User } from '../../auth/user.model';
 import { Poll } from './poll/poll.model';
+
 import { AuthService } from '../../auth/auth.service';
 import { SocketIoService } from '../../shared/socket-io.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { TypingService } from './typing.service';
 import { AlertService } from '../../alert.service';
+import { WebSqlService } from '../web-sql.service';
 
 @Injectable()
 export class MessageService {
@@ -34,6 +36,7 @@ export class MessageService {
   key = '';
   loadMore = false;
   allowScrollBottom = true;
+  mediaLock = false;
   scrollPrevious = false;
   rootRoute = false;
 
@@ -43,6 +46,7 @@ export class MessageService {
     private socketIoService: SocketIoService,
     private typingService: TypingService,
     private alertService: AlertService,
+    private webSqlService: WebSqlService,
   ) { }
 
   getTitle() {
@@ -117,6 +121,7 @@ export class MessageService {
     this.reloadEmitter.emit();
     this.changeEmitter.emit();
     this.loadingSubject.next( false );
+    this.clearMedia();
   }
 
   loadPrivateMessages( friendship: Friendship, messages: Message[] ) {
@@ -139,6 +144,7 @@ export class MessageService {
     this.reloadEmitter.emit();
     this.changeEmitter.emit();
     this.loadingSubject.next( false );
+    this.clearMedia();
   }
 
   loadMessage( message: Message ) {
@@ -167,6 +173,8 @@ export class MessageService {
     } else {
       this.messages.splice( this.getMessageIndex( id ), 1 );
       this.changeEmitter.emit();
+
+      this.webSqlService.removeMedia( id );
     }
   }
 
@@ -175,6 +183,10 @@ export class MessageService {
       this.sidebarService.createMessage( this.currentConversation._id, message )
         .subscribe(
           ( newMessage: Message ) => {
+            if ( message.media && message.media.data ) {
+              this.webSqlService.addMedia( newMessage._id, message.media.data, new Date().setDate( new Date().getDate() + 3 ) );
+            }
+
             this.socketIoService.newMessage( this.currentConversation._id, newMessage._id );
           },
           ( err: Response ) => {
@@ -185,6 +197,10 @@ export class MessageService {
       this.sidebarService.createPrivateMessage( this.currentFriendship._id, message )
         .subscribe(
           ( newMessage: Message ) => {
+            if ( message.media && message.media.data ) {
+              this.webSqlService.addMedia( newMessage._id, message.media.data, new Date().setDate( new Date().getDate() + 3 ) );
+            }
+
             this.socketIoService.newPrivateMessage( this.currentFriendship._id, newMessage._id );
           },
           ( err: Response ) => {
@@ -314,5 +330,16 @@ export class MessageService {
         return friendship.users[i].accessKey;
       }
     }
+  }
+
+  private clearMedia() {
+    this.webSqlService.getExpirations()
+      .then( ( rows ) => {
+        for ( let i = 0; i < rows.length; i++ ) {
+          if ( rows.item( i ).expiration <= new Date().getTime()  ) {
+            this.webSqlService.removeMedia( rows.item( i ).messageId );
+          }
+        }
+      } );
   }
 }

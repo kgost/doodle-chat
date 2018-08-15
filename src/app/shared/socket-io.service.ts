@@ -1,9 +1,12 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { Subject } from 'rxjs/Subject';
 
 import { User } from '../auth/user.model';
 import { Conversation } from '../messenger/sidebar/conversations/conversation.model';
+
 import { AlertService } from '../alert.service';
+import { WebSqlService } from '../messenger/web-sql.service';
 
 @Injectable()
 export class SocketIoService {
@@ -19,9 +22,10 @@ export class SocketIoService {
   notifyFriendship = new EventEmitter<string>();
   reconnectEmitter = new EventEmitter<void>();
   userTyping = new EventEmitter<string>();
+  mediaSubject = new Subject<{ messageId: string, mediaData: string }>();
   reconnect = false;
 
-  constructor( private socket: Socket, private alertService: AlertService ) {
+  constructor( private socket: Socket, private alertService: AlertService, private webSqlService: WebSqlService ) {
     this.socket.on( 'connect', ( data: any ) => {
       if ( this.reconnect ) {
         this.alertService.alertSubject.next(
@@ -71,6 +75,30 @@ export class SocketIoService {
 
     this.socket.on( 'user-typing', ( username ) => {
       this.userTyping.emit( username );
+    } );
+
+    this.socket.on( 'request-media', ( payload: { messageId: string, conversationId?: string, friendshipId?: string } ) => {
+      this.webSqlService.getMedia( payload.messageId )
+        .then( ( data ) => {
+          if ( data ) {
+            this.socket.emit( 'send-media', {
+              messageId: payload.messageId,
+              conversationId: payload.conversationId,
+              friendshipId: payload.friendshipId,
+              mediaData: data
+            } );
+          }
+        } );
+    } );
+
+    this.socket.on( 'receive-media', ( payload: { messageId: string, mediaData: string } ) => {
+      this.webSqlService.getMedia( payload.messageId )
+        .then( ( data ) => {
+          if ( !data ) {
+            this.webSqlService.addMedia( payload.messageId, payload.mediaData, new Date().setDate( new Date().getDate() + 7 ) );
+            this.mediaSubject.next( payload );
+          }
+        } );
     } );
   }
 
@@ -163,5 +191,9 @@ export class SocketIoService {
 
   showTypingFriendship( username: string, friendshipId: string ) {
     this.socket.emit( 'user-typing-send', { friendshipId: friendshipId, username: username } );
+  }
+
+  getSocketMedia( payload: { messageId: string, conversationId?: string, friendshipId?: string } ) {
+    this.socket.emit( 'initial-request-media', payload );
   }
 }

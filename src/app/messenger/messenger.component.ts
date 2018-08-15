@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { Conversation } from './sidebar/conversations/conversation.model';
 import { Friendship } from './sidebar/friends/friendship.model';
+
 import { SidebarService } from './sidebar/sidebar.service';
 import { ConversationService } from './sidebar/conversations/conversation.service';
 import { FriendService } from './sidebar/friends/friend.service';
@@ -11,6 +12,7 @@ import { MessageService } from './messages/message.service';
 import { AuthService } from '../auth/auth.service';
 import { AlertService } from '../alert.service';
 import { SocketIoService } from '../shared/socket-io.service';
+import { WebSqlService } from './web-sql.service';
 
 @Component({
   selector: 'app-messenger',
@@ -34,6 +36,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
     private socketIoService: SocketIoService,
     private router: Router,
     private route: ActivatedRoute,
+    private webSqlService: WebSqlService,
   ) { }
 
   ngOnInit() {
@@ -105,6 +108,10 @@ export class MessengerComponent implements OnInit, OnDestroy {
       ) );
 
     this.socketIoService.signin( this.authService.getCurrentUser()._id );
+
+    if ( !this.webSqlService.loaded ) {
+      this.webSqlService.init();
+    }
   }
 
   ngOnDestroy() {

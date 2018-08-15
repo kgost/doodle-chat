@@ -110,6 +110,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   private scrollBottom( height: number = this.container.nativeElement.scrollHeight ) {
+    if ( this.messageService.mediaLock ) {
+      this.messageService.allowScrollBottom = true;
+      this.messageService.mediaLock = false;
+    }
+
     if ( this.messageService.allowScrollBottom || this.messageService.scrollPrevious ) {
       if ( this.messageService.scrollPrevious ) {
         this.messageService.scrollPrevious = false;
@@ -117,7 +122,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
       try {
         this.container.nativeElement.scrollTop = height;
-        console.log( 'scrolled' );
       } catch (err) {
         console.log( err );
       }
