@@ -99,6 +99,22 @@ exports = module.exports = function( io ) {
       }
     } )
 
+    socket.on( 'initial-request-media', ( data ) => {
+      if ( data.conversationId ) {
+        io.sockets.in( 'listen-' + data.conversationId ).emit( 'request-media', data )
+      } else {
+        io.sockets.in( 'listen-' + data.friendshipId ).emit( 'request-media', data )
+      }
+    } )
+
+    socket.on( 'send-media', ( data ) => {
+      if ( data.conversationId ) {
+        io.sockets.in( 'listen-' + data.conversationId ).emit( 'receive-media', { messageId: data.messageId, mediaData: data.mediaData } )
+      } else {
+        io.sockets.in( 'listen-' + data.friendshipId ).emit( 'receive-media', { messageId: data.messageId, mediaData: data.mediaData } )
+      }
+    } )
+
     //Logs users disconnecting from any socket
     socket.on( 'disconnect', () => {
       console.log( 'user disconnected' )

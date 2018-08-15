@@ -10,6 +10,7 @@ import { MessageService } from '../message.service';
 import { AuthService } from '../../../auth/auth.service';
 import { SocketIoService } from '../../../shared/socket-io.service';
 import { AlertService } from '../../../alert.service';
+import { WebSqlService } from '../../web-sql.service';
 
 import { CommandsPipe } from '../commands.pipe';
 
@@ -32,7 +33,8 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private socketIoService: SocketIoService,
     private alertService: AlertService,
-    private commandPipe: CommandsPipe
+    private commandPipe: CommandsPipe,
+    private webSqlService: WebSqlService,
   ) { }
 
   ngOnInit() {

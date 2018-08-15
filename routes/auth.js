@@ -31,7 +31,7 @@ router.post('/signin', (req, res) => {
     }
 
     //Sign the JWT and return success
-    const token = jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, { expiresIn: 60 * 60 * 24 } )
+    const token = jwt.sign( { user: { _id: user._id, username: user.username } }, process.env.JWTKEY, { expiresIn: '1d' } )
     res.status( 200 ).json( {
       message: 'Successfully Signed In',
       token: token,

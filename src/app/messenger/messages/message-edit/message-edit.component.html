@@ -29,7 +29,7 @@
           (click)="onCancel($event)"
           type="button"
           class="btn btn-warning pull-right">X</button>
-        <button class="btn btn-default pull-right file-picker" (click)="fileInput.click()">
+        <button [disabled]="!webSqlService.supported" class="btn btn-default pull-right file-picker" (click)="fileInput.click()">
           <input
             class="hidden"
             type="file"
