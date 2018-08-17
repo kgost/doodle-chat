@@ -115,7 +115,7 @@ router.get( '/consumeNonce', middleware.authenticate, ( req, res ) => {
   res.status( 200 ).json({
     nonce: nonce,
     oldNonce: decoded.nonce,
-    token: jwt.sign( { user: { _id: req.user._id, username: req.user.username }, nonce: nonce }, process.env.JWTKEY, { expiresIn: 7200 } )
+    token: jwt.sign( { user: { _id: req.user._id, username: req.user.username }, nonce: nonce }, process.env.JWTKEY, { expiresIn: '1d' } )
   } )
 } )
 
