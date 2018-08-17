@@ -161,9 +161,10 @@ export class MessageService {
 
   changeMessage( id: string, message: Message ) {
     if ( message ) {
+      const lastText = this.messages[this.getMessageIndex( id )].text;
       this.messages[this.getMessageIndex( id )] = message;
 
-      if ( message.text === this.messages[this.getMessageIndex( id )].text && !message.poll ) {
+      if ( message.text === lastText && !message.poll ) {
         this.reactionSubject.next( { id: id, reactions: message.reactions } );
       } else {
         this.changeEmitter.emit();
