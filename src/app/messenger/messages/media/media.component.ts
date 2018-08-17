@@ -44,7 +44,19 @@ export class MediaComponent implements OnInit, OnDestroy {
         }
       ) );
 
-    this.getSocketMedia();
+    this.subscriptions.push( this.socketIoService.userTyping
+      .subscribe(
+        ( username: string ) => {
+          if ( !this.media.data && !this.media.externalSrc ) {
+            this.getSocketMedia();
+          }
+        }
+      ) );
+
+
+    if ( !this.media.externalSrc ) {
+      this.getSocketMedia();
+    }
   }
 
   loadEmit() {
@@ -61,7 +73,9 @@ export class MediaComponent implements OnInit, OnDestroy {
     this.webSqlService.getMedia( this.messageId )
       .then( ( data ) => {
         if ( !data ) {
-          this.loadEmit();
+          if ( !this.loaded ) {
+            this.loadEmit();
+          }
 
           const payload = { messageId: this.messageId, friendshipId: null, conversationId: null };
 

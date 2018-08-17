@@ -186,6 +186,8 @@ export class MessageService {
           ( newMessage: Message ) => {
             if ( message.media && message.media.data ) {
               this.webSqlService.addMedia( newMessage._id, message.media.data, new Date().setDate( new Date().getDate() + 3 ) );
+              this.socketIoService.sendMedia(
+                { messageId: newMessage._id, conversationId: this.currentConversation._id }, message.media.data );
             }
 
             this.socketIoService.newMessage( this.currentConversation._id, newMessage._id );
@@ -200,6 +202,7 @@ export class MessageService {
           ( newMessage: Message ) => {
             if ( message.media && message.media.data ) {
               this.webSqlService.addMedia( newMessage._id, message.media.data, new Date().setDate( new Date().getDate() + 3 ) );
+              this.socketIoService.sendMedia( { messageId: newMessage._id, friendshipId: this.currentFriendship._id }, message.media.data );
             }
 
             this.socketIoService.newPrivateMessage( this.currentFriendship._id, newMessage._id );

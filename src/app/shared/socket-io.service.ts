@@ -196,4 +196,13 @@ export class SocketIoService {
   getSocketMedia( payload: { messageId: string, conversationId?: string, friendshipId?: string } ) {
     this.socket.emit( 'initial-request-media', payload );
   }
+
+  sendMedia( payload: { messageId: string, conversationId?: string, friendshipId?: string }, data: string ) {
+    this.socket.emit( 'send-media', {
+      messageId: payload.messageId,
+      conversationId: payload.conversationId,
+      friendshipId: payload.friendshipId,
+      mediaData: data
+    } );
+  }
 }
