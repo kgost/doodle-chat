@@ -304,11 +304,14 @@ export class MessageService {
     this.keyEmitter.emit();
   }
 
-  reset() {
+  reset( justMessages = false ) {
+    if ( !justMessages ) {
+      delete this.currentFriendship;
+      delete this.currentFriendName;
+      delete this.currentConversation;
+    }
+
     this.messages = [];
-    delete this.currentFriendship;
-    delete this.currentFriendName;
-    delete this.currentConversation;
     this.changeEmitter.emit();
   }
 

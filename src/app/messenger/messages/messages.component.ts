@@ -98,7 +98,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   onContainerScroll() {
     if ( this.container.nativeElement.scrollHeight - this.container.nativeElement.scrollTop <=
-      this.container.nativeElement.offsetHeight + 80 ) {
+      this.container.nativeElement.offsetHeight + 40 ) {
       this.messageService.allowScrollBottom = true;
     } else {
       this.messageService.allowScrollBottom = false;
@@ -111,7 +111,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   private scrollBottom( height: number = this.container.nativeElement.scrollHeight ) {
     if ( this.messageService.mediaLock ) {
-      console.log( 'locked' );
       this.messageService.allowScrollBottom = true;
       this.messageService.mediaLock = false;
     }

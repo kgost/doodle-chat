@@ -2,10 +2,12 @@ import { Component, OnInit, OnDestroy, Input, AfterViewInit, ElementRef, ViewChi
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
+import { Conversation } from '../conversation.model';
+
 import { SidebarService } from '../../sidebar.service';
 import { ConversationService } from '../conversation.service';
+import { MessageService } from '../../../messages/message.service';
 import { FriendService } from '../../friends/friend.service';
-import { Conversation } from '../conversation.model';
 import { AuthService } from '../../../../auth/auth.service';
 import { NotificationService } from '../../notification.service';
 
@@ -25,6 +27,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
     private authService: AuthService,
     private conversationService: ConversationService,
     private friendService: FriendService,
+    private messageService: MessageService,
     private sidebarService: SidebarService,
     private notificationService: NotificationService,
     private router: Router,
@@ -82,6 +85,7 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
     }
 
     this.friendService.reset();
+    this.messageService.reset( true );
     this.sidebarService.activeConversationId = this.conversation._id;
     delete this.sidebarService.activeFriendshipId;
 
