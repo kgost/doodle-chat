@@ -24,6 +24,9 @@
 <app-conversation-edit
   [conversation]="conversation"
   *ngIf="conversation"></app-conversation-edit>
+<app-conversation-settings
+  [conversation]="conversationPart"
+  *ngIf="conversationPart"></app-conversation-settings>
 <app-friend-edit
   [friendship]="friendship"
   *ngIf="friendship"></app-friend-edit>

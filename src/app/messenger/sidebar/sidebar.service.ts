@@ -57,6 +57,11 @@ export class SidebarService {
       .pipe( map( this.mapConversation ) );
   }
 
+  changeNicknames( id: string, conversation: Conversation ) {
+    return this.http.put( this.baseUrl + 'conversations/' + id + '/changeNicknames?token=' + this.authService.getToken(), conversation )
+      .pipe( map( this.mapConversation ) );
+  }
+
   removeConversation( id: string ) {
     return this.http.delete( this.baseUrl + 'conversations/' + id + '?token=' + this.authService.getToken() )
       .pipe( map( ( response: Response ) => {

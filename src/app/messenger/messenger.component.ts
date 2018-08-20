@@ -22,6 +22,7 @@ import { WebSqlService } from './web-sql.service';
 export class MessengerComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   conversation: Conversation;
+  conversationPart: Conversation;
   friendship: Friendship;
   reactions: { text: string, username: string }[];
   showMessages = false;
@@ -79,6 +80,13 @@ export class MessengerComponent implements OnInit, OnDestroy {
       .subscribe(
         ( conversation: Conversation ) => {
           this.conversation = conversation;
+        }
+      ) );
+
+    this.subscriptions.push( this.conversationService.settingsChange
+      .subscribe(
+        ( conversation: Conversation ) => {
+          this.conversationPart = conversation;
         }
       ) );
 

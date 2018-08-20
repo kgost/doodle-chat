@@ -38,6 +38,10 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
       this.active = true;
     }
 
+    if ( this.active ) {
+      this.messageService.refreshConversation( this.conversation );
+    }
+
     this.reInit();
 
     this.subscriptions.push( this.conversationService.changeEmitter
@@ -45,11 +49,6 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
         () => {
           if ( this.conversation.forceSelect ) {
             this.onSelectConversation( true );
-          }
-
-          if ( this.active ) {
-            console.log( this.conversation );
-            this.messageService.refreshConversation( this.conversation );
           }
 
           this.reInit();
@@ -71,6 +70,15 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
 
   getCurrentUser() {
     return this.authService.getCurrentUser();
+  }
+
+  onSettings( e ) {
+    e.stopPropagation();
+    if ( this.conversation.owner._id === this.getCurrentUser()._id ) {
+      this.conversationService.editChange.next( this.conversation );
+    } else {
+      this.conversationService.settingsChange.next( this.conversation );
+    }
   }
 
   onEdit( e ) {

@@ -3,12 +3,15 @@
   [ngClass]="{ notification: notification, activated: active }"
   class="list-group-item">
   <span
-    (click)="onLeave($event)"
-    *ngIf="conversation.owner._id !== getCurrentUser()._id"
-    class="pull-right glyphicon glyphicon-remove"></span>
-  <span
-    (click)="onEdit($event)"
-    *ngIf="conversation.owner._id === getCurrentUser()._id"
+    (click)="onSettings($event)"
     class="pull-right glyphicon glyphicon-option-vertical"></span>
+  <!--<span-->
+    <!--(click)="onLeave($event)"-->
+    <!--*ngIf="conversation.owner._id !== getCurrentUser()._id"-->
+    <!--class="pull-right glyphicon glyphicon-remove"></span>-->
+  <!--<span-->
+    <!--(click)="onEdit($event)"-->
+    <!--*ngIf="conversation.owner._id === getCurrentUser()._id"-->
+    <!--class="pull-right glyphicon glyphicon-option-vertical"></span>-->
   <p>{{ conversation.name }}</p>
 </li>

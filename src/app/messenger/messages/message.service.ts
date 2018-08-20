@@ -292,9 +292,17 @@ export class MessageService {
   }
 
   getNickname( id ) {
-    for ( const participant of this.currentConversation.participants ) {
-      if ( participant.id._id === id ) {
-        return participant.nickname;
+    if ( this.currentConversation ) {
+      for ( const participant of this.currentConversation.participants ) {
+        if ( participant.id._id === id ) {
+          for ( const part of this.currentConversation.participants ) {
+            if ( part.id._id !== id && ( part.id.username === participant.nickname || part.nickname === participant.nickname ) ) {
+              return `${ participant.nickname } [${ participant.id.username }]`;
+            }
+          }
+
+          return participant.nickname;
+        }
       }
     }
   }

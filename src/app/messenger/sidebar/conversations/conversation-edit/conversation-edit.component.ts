@@ -78,10 +78,6 @@ export class ConversationEditComponent implements OnInit {
     if ( this.editForm.valid ) {
       const users: { id: User, nickname?: string, accessKey?: string }[] = [];
 
-      //for ( const username of this.editForm.value.participants ) {
-        //users.push( { id: new User( username ) } );
-      //}
-
       for ( let i = 0; i < this.editForm.value.participants.length; i++ ) {
         users.push( { id: new User( this.editForm.value.participants[i] ), nickname: this.editForm.value.nicknames[i] } );
       }

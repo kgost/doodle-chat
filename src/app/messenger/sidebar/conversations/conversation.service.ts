@@ -18,6 +18,7 @@ export class ConversationService {
   changeEmitter = new EventEmitter<void>();
   loadEmitter = new EventEmitter<void>();
   editChange = new Subject<Conversation>();
+  settingsChange = new Subject<Conversation>();
   conversations: Conversation[] = [];
   friendNames: string[] = [];
   loaded = false;
@@ -203,6 +204,18 @@ export class ConversationService {
                 this.alertService.handleError( err );
               }
             );
+        },
+        ( err: Response ) => {
+          this.alertService.handleError( err );
+        }
+      );
+  }
+
+  changeNicknames( id: string, conversation: Conversation ) {
+    this.sidebarService.changeNicknames( id, conversation )
+      .subscribe(
+        ( newConversation: Conversation ) => {
+          this.socketIoService.updateConversation( id );
         },
         ( err: Response ) => {
           this.alertService.handleError( err );

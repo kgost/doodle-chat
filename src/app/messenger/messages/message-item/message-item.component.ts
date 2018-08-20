@@ -57,7 +57,8 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
       if ( !nickname ) {
         this.from = this.message.username;
       } else {
-        this.from = `${ nickname } [${ this.message.username }]`;
+        //this.from = `${ nickname } [${ this.message.username }]`;
+        this.from = nickname;
       }
 
       this.subscriptions.push( this.messageService.changeEmitter
@@ -68,6 +69,7 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
             if ( !newNickname ) {
               this.from = this.message.username;
             } else {
+              //this.from = `${ newNickname } [${ this.message.username }]`;
               this.from = newNickname;
             }
           }
