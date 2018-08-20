@@ -192,12 +192,12 @@ async function leave( req ) {
 async function changeNicknames( req ) {
   let err, conversation
 
-  ;[err, conversation] = await to( Conversation.findById( req.params.id ).lean().exec() )
+  ;[err, conversation] = await to( Conversation.findById( req.params.conversationId ).lean().exec() )
   if ( err ) throw err
 
   for ( let i = 0; i < conversation.participants.length; i++ ) {
-    for ( let j = 0; j < req.body.participants; j++ ) {
-      if ( req.body.participants[j].id === conversation.participants[i].id ) {
+    for ( let j = 0; j < req.body.participants.length; j++ ) {
+      if ( req.body.participants[j].id._id == conversation.participants[i].id ) {
         conversation.participants[i].nickname = req.body.participants[j].nickname
       }
     }
@@ -206,7 +206,7 @@ async function changeNicknames( req ) {
   [err] = await to( Conversation.findByIdAndUpdate( conversation._id, conversation ).exec() )
   if ( err ) throw err
 
-  return { status: 200, data: { message: 'Nicknames Updated' } }
+  return { status: 200, data: conversation }
 }
 
 function pruneUsers( conversation ) {

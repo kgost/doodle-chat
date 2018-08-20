@@ -295,6 +295,10 @@ export class MessageService {
     if ( this.currentConversation ) {
       for ( const participant of this.currentConversation.participants ) {
         if ( participant.id._id === id ) {
+          if ( !participant.nickname ) {
+            return;
+          }
+
           for ( const part of this.currentConversation.participants ) {
             if ( part.id._id !== id && ( part.id.username === participant.nickname || part.nickname === participant.nickname ) ) {
               return `${ participant.nickname } [${ participant.id.username }]`;

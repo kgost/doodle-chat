@@ -58,6 +58,13 @@ router.put(
   conversationController.update
 )
 
+router.put(
+  '/conversations/:conversationId/changeNicknames',
+  middleware.authenticate,
+  middleware.inConversation,
+  conversationController.changeNicknames
+)
+
 /**
  * Destroy route for conversations:
  *    Deletes conversation and all associated messages in MongoDB
