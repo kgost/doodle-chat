@@ -19,6 +19,7 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   editReaction = false;
   showOptions = false;
   pressTimer: any;
+  from: string;
 
   constructor(
     private messageService: MessageService,
@@ -49,6 +50,31 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         }
       ));
+
+    if ( !this.messageService.privateMode ) {
+      const nickname = this.messageService.getNickname( this.message.user );
+
+      if ( !nickname ) {
+        this.from = this.message.username;
+      } else {
+        this.from = `${ nickname } [${ this.message.username }]`;
+      }
+
+      this.subscriptions.push( this.messageService.changeEmitter
+        .subscribe(
+          () => {
+            const newNickname = this.messageService.getNickname( this.message.user );
+
+            if ( !newNickname ) {
+              this.from = this.message.username;
+            } else {
+              this.from = newNickname;
+            }
+          }
+        ));
+    } else {
+      this.from = this.message.username;
+    }
   }
 
   onEdit() {
@@ -126,6 +152,13 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onCloseOptions() {
     this.showOptions = false;
+  }
+
+  getFrom() {
+    if ( !this.messageService.privateMode ) {
+    } else {
+      return this.message.username;
+    }
   }
 
   ngAfterViewInit() {

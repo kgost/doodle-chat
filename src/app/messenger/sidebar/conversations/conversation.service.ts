@@ -55,6 +55,7 @@ export class ConversationService {
           } else {
             this.updateSocket( conversations.slice() );
           }
+
           this.loaded = true;
           this.conversations = conversations;
           this.changeEmitter.emit();
@@ -153,7 +154,7 @@ export class ConversationService {
           const accessKeys = this.authService.generateAccessKeys( users );
           conversation.participants = conversation.participants.map(
             ( participant ) => {
-              return { id: participant.id, accessKey: accessKeys[participant.id.username] };
+              return { id: participant.id, nickname: participant.nickname, accessKey: accessKeys[participant.id.username] };
             }
           );
           this.sidebarService.createConversation( conversation )
@@ -186,7 +187,7 @@ export class ConversationService {
           const accessKeys = this.authService.generateAccessKeys( users, key );
           conversation.participants = conversation.participants.map(
             ( participant ) => {
-              return { id: participant.id, accessKey: accessKeys[participant.id.username] };
+              return { id: participant.id, nickname: participant.nickname, accessKey: accessKeys[participant.id.username] };
             }
           );
           this.sidebarService.updateConversation( id, conversation )

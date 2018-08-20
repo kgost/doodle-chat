@@ -291,6 +291,19 @@ export class MessageService {
     return this.currentConversation;
   }
 
+  getNickname( id ) {
+    for ( const participant of this.currentConversation.participants ) {
+      if ( participant.id._id === id ) {
+        return participant.nickname;
+      }
+    }
+  }
+
+  refreshConversation( conversation: Conversation ) {
+    this.currentConversation = conversation;
+    this.changeEmitter.emit();
+  }
+
   getCurrentFriendship() {
     return this.currentFriendship;
   }

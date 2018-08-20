@@ -67,6 +67,18 @@ const syncActions = {
         return next()
       } )
   },
+
+  changeNicknames: ( req, res, next ) => {
+    changeNicknames( req )
+      .then( ( result ) => {
+        responseHelper.handleResponse( result, res )
+        return next()
+      } )
+      .catch( ( err ) => {
+        responseHelper.handleError( err, res )
+        return next()
+      } )
+  },
 }
 
 async function createOrUpdate( req, update ) {
@@ -77,14 +89,14 @@ async function createOrUpdate( req, update ) {
   const usernames = {}
 
   for ( let participant of convo.participants ) {
-    usernames[participant.id.username] = participant.accessKey
+    usernames[participant.id.username] = { accessKey: participant.accessKey, nickname: participant.nickname }
   }
 
   [err, users] = await to( User.find( { username: { '$in': Object.keys( usernames ) } }, '_id username' ).lean().exec() )
   if ( err ) throw err
 
   convo.participants = users.map( ( usr ) => {
-    return { id: { _id: usr._id, username: usr.username }, accessKey: usernames[usr.username] }
+    return { id: { _id: usr._id, username: usr.username }, accessKey: usernames[usr.username].accessKey, nickname: usernames[usr.username].nickname }
   } )
 
   convo.name = req.sanitize( convo.name )
@@ -175,6 +187,26 @@ async function leave( req ) {
   if ( err ) throw err
 
   return { status: 200, data: { message: 'Left Converrsation' } }
+}
+
+async function changeNicknames( req ) {
+  let err, conversation
+
+  ;[err, conversation] = await to( Conversation.findById( req.params.id ).lean().exec() )
+  if ( err ) throw err
+
+  for ( let i = 0; i < conversation.participants.length; i++ ) {
+    for ( let j = 0; j < req.body.participants; j++ ) {
+      if ( req.body.participants[j].id === conversation.participants[i].id ) {
+        conversation.participants[i].nickname = req.body.participants[j].nickname
+      }
+    }
+  }
+
+  [err] = await to( Conversation.findByIdAndUpdate( conversation._id, conversation ).exec() )
+  if ( err ) throw err
+
+  return { status: 200, data: { message: 'Nicknames Updated' } }
 }
 
 function pruneUsers( conversation ) {

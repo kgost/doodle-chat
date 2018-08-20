@@ -47,6 +47,11 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
             this.onSelectConversation( true );
           }
 
+          if ( this.active ) {
+            console.log( this.conversation );
+            this.messageService.refreshConversation( this.conversation );
+          }
+
           this.reInit();
         }
       ) );
@@ -85,7 +90,11 @@ export class ConversationItemComponent implements OnInit, OnDestroy, AfterViewIn
     }
 
     this.friendService.reset();
-    this.messageService.reset( true );
+
+    if ( !this.active ) {
+      this.messageService.reset( true );
+    }
+
     this.sidebarService.activeConversationId = this.conversation._id;
     delete this.sidebarService.activeFriendshipId;
 

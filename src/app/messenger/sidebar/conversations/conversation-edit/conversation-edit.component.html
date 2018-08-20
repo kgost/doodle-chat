@@ -24,14 +24,9 @@
             <div
               formArrayName="participants"
               #participants
-              class="col-xs-12">
+              class="col-xs-6">
               <div class="row">
                 <h3>Participants
-                  <button
-                    (click)="onAddParticipant()"
-                    [disabled]="!editForm.get('participants').valid"
-                    type="button"
-                    class="btn btn-success pull-right">Add</button>
                 </h3>
                 <div
                   class="col-xs-12 participant"
@@ -56,6 +51,29 @@
                   <div
                     *ngIf="editForm.get('participants').get('' + i).pending || ( editForm.get('participants').get('' + i).invalid && ( editForm.get('participants').get('' + i).dirty || editForm.get('participants').get('' + i).touched ) && editForm.get('participants').get('' + i).errors['usernameInvalid'] )"
                     class="small">Username Invalid</div>
+                </div>
+              </div>
+            </div>
+            <div
+              formArrayName="nicknames"
+              #nicknames
+              class="col-xs-6">
+              <div class="row">
+                <h3>Nicknames
+                  <button
+                    (click)="onAddParticipant()"
+                    [disabled]="!editForm.get('participants').valid"
+                    type="button"
+                    class="btn btn-success pull-right">Add</button>
+                </h3>
+                <div
+                  class="col-xs-12 participant"
+                  [ngClass]="{ 'hide-auto': editForm.get('participants').controls[i].valid }"
+                  *ngFor="let participantCtrl of getParticipantsArray().controls; let i = index">
+                  <input
+                    [formControlName]="i + ''"
+                    class="form-control"
+                    type="text">
                 </div>
               </div>
             </div>

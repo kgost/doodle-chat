@@ -110,7 +110,11 @@ export class FriendItemComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       this.conversationService.reset();
-      this.messageService.reset( true );
+
+      if ( !this.active ) {
+        this.messageService.reset( true );
+      }
+
       this.sidebarService.activeFriendshipId = this.friendship._id;
       delete this.sidebarService.activeConversationId;
 

@@ -40,12 +40,14 @@ export class ConversationEditComponent implements OnInit {
   private initForm() {
     let conversationName = '';
     const participants = new FormArray([]);
+    const nicknames = new FormArray([]);
 
     if ( this.editMode ) {
       conversationName = this.conversation.name;
 
       for ( const participant of this.conversation.participants ) {
         participants.push( new FormControl( participant.id.username, Validators.required, this.usernameValid.bind( this ) ) );
+        nicknames.push( new FormControl( participant.nickname ) );
       }
     } else {
       participants.push( new FormControl( null, Validators.required, this.usernameValid.bind( this ) ) );
@@ -53,7 +55,8 @@ export class ConversationEditComponent implements OnInit {
 
     this.editForm = new FormGroup({
       'name': new FormControl( conversationName, Validators.required ),
-      'participants': participants
+      'participants': participants,
+      'nicknames': nicknames,
     });
   }
 
@@ -61,18 +64,26 @@ export class ConversationEditComponent implements OnInit {
     ( <FormArray> this.editForm.get( 'participants' ) ).push(
       new FormControl( null, Validators.required, this.usernameValid.bind( this ) )
     );
+    ( <FormArray> this.editForm.get( 'nicknames' ) ).push(
+      new FormControl( null )
+    );
   }
 
   onRemoveParticipant( index: number ) {
     ( <FormArray> this.editForm.get('participants') ).removeAt( index );
+    ( <FormArray> this.editForm.get('nicknames') ).removeAt( index );
   }
 
   onSubmit() {
     if ( this.editForm.valid ) {
-      const users: { id: User, accessKey?: string }[] = [];
+      const users: { id: User, nickname?: string, accessKey?: string }[] = [];
 
-      for ( const username of this.editForm.value.participants ) {
-        users.push( { id: new User( username ) } );
+      //for ( const username of this.editForm.value.participants ) {
+        //users.push( { id: new User( username ) } );
+      //}
+
+      for ( let i = 0; i < this.editForm.value.participants.length; i++ ) {
+        users.push( { id: new User( this.editForm.value.participants[i] ), nickname: this.editForm.value.nicknames[i] } );
       }
 
       let self = false;
