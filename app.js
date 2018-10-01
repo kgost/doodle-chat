@@ -44,13 +44,14 @@ app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 
 app.get('/*', (req, res, next) => {
   // Just send the index.html for other files to support HTML5Mode
-  if ( req.originalUrl.match( /\./ ) === null ) {
+  if ( req.originalUrl.match( /\./ ) === null &&
+    req.originalUrl.indexOf( '/api' ) !== 0 &&
+    req.originalUrl.indexOf( '/auth' ) !== 0 ) {
     console.log( req.originalUrl )
     return res.sendFile( 'index.html', { root: __dirname + '/dist/lalilulelo' })
   } else {
     return next()
   }
-
 })
 
 //Pathing to our static files, css/js etc...
