@@ -63,7 +63,7 @@ const actions = {
     // find the conversation with the provided id
     Conversation.findById( req.params.conversationId, ( err, conversation ) => {
       // if no conversation was found respond with the invalid resource error
-      if ( !conversation._id ) {
+      if ( !conversation || !conversation._id ) {
         return responseHelper.handleError( { status: 404, userMessage: 'Conversation Not Found.' }, res )
       }
 

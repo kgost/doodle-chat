@@ -15,7 +15,7 @@ const
 env( __dirname + '/.env', { raise: false } )
 
 const mongooseUrl = ( process.env.MNPASS ) ?
-  'mongodb://doodle:' + process.env.MNPASS + '@159.89.94.171:27017/doodle_chat?authSource=doodle_chat' :
+  'mongodb://chat_app_admin:' + process.env.MNPASS + '@ci.mtuopensource.club:27017/chat_app?authSource=chat_app' :
   'mongodb://127.0.0.1:27017/doodle_chat'
 
 mongoose.connect( mongooseUrl, function( err ) {
