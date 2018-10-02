@@ -1,6 +1,9 @@
 <div class="clearfix" #clearfix>
+  <h3
+    [ngStyle]="{ color: getColor() }"
+    *ngIf="!owner && !message.system && showFrom">{{ from }}</h3>
   <li 
-    [ngStyle]="{ padding: message.media || message.youtubeId ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) || message.poll || message.youtubeId ? '50%' : '' }"
+    [ngStyle]="{ color: !owner && getColor() ? 'white' : '', 'background-color': !owner ? getColor() : '', padding: message.media || message.youtubeId ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) || message.poll || message.youtubeId ? '50%' : '' }"
     [ngClass]="{ stranger: !owner || message.poll || message.system, owner: owner && !message.poll && !message.system, 'pull-left': !owner || message.system, 'pull-right': owner && !message.system }"
     (contextmenu)="onPress($event)"
     class="list-group-item">
@@ -22,7 +25,7 @@
       *ngIf="message.youtubeId"
       [youtubeId]="message.youtubeId"></app-youtube-embedded>
     <div class="user-tag" *ngIf="!owner && !message.system">
-      <span class="small">{{ from + ' ' + getDate() }}</span>
+      <span class="small">{{ getDate() }}</span>
     </div>
     <button 
       (click)="onDelete()"

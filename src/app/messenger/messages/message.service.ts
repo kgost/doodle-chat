@@ -311,6 +311,16 @@ export class MessageService {
     }
   }
 
+  getColor( id ) {
+    if ( this.currentConversation ) {
+      for ( const participant of this.currentConversation.participants ) {
+        if ( participant.id._id === id ) {
+          return participant.color;
+        }
+      }
+    }
+  }
+
   refreshConversation( conversation: Conversation ) {
     this.currentConversation = conversation;
     this.changeEmitter.emit();

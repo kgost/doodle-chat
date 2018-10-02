@@ -89,14 +89,49 @@ async function createOrUpdate( req, update ) {
   const usernames = {}
 
   for ( let participant of convo.participants ) {
-    usernames[participant.id.username] = { accessKey: participant.accessKey, nickname: participant.nickname }
+    usernames[participant.id.username] = {
+      accessKey: participant.accessKey,
+      nickname: participant.nickname,
+      color: participant.color
+    }
   }
 
   [err, users] = await to( User.find( { username: { '$in': Object.keys( usernames ) } }, '_id username' ).lean().exec() )
   if ( err ) throw err
 
   convo.participants = users.map( ( usr ) => {
-    return { id: { _id: usr._id, username: usr.username }, accessKey: usernames[usr.username].accessKey, nickname: usernames[usr.username].nickname }
+    const result = {
+      id: { _id: usr._id, username: usr.username },
+      accessKey: usernames[usr.username].accessKey,
+      nickname: usernames[usr.username].nickname
+    }
+
+    if ( !usernames[usr.username].color ) {
+      let unMatched = false
+      let color
+
+      while ( !unMatched ) {
+        let match = false
+        color = getRandomColor()
+
+        for ( const u of convo.participants ) {
+          if ( u.color === color ) {
+            match = true
+            break
+          }
+        }
+
+        if ( !match ) {
+          unMatched = true
+        }
+      }
+
+      result.color = color
+    } else {
+      result.color = usernames[usr.username].color
+    }
+
+    return result
   } )
 
   convo.name = req.sanitize( convo.name )
@@ -220,6 +255,21 @@ function pruneUsers( conversation ) {
     }
   }
   return conversation
+}
+
+function getRandomColor() {
+  const colors = [
+    '#E80101', 
+    '#E801D1', 
+    '#AA01E8', 
+    '#4601E8', 
+    '#01C9E8', 
+    '#01E86C',
+    '#E8C901',
+    '#E87401'
+  ]
+
+  return colors[Math.floor( Math.random() * ( colors.length - 1 - 0 + 1 ) ) + 0]
 }
 
 module.exports = syncActions

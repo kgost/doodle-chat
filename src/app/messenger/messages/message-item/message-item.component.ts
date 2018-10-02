@@ -12,6 +12,7 @@ import { AuthService } from '../../../auth/auth.service';
 })
 export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input()message: Message;
+  @Input()showFrom: boolean;
   @ViewChild('clearfix') clearfix: ElementRef;
   subscriptions: Subscription[] = [];
   owner = false;
@@ -139,6 +140,10 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return dateString;
+  }
+
+  getColor() {
+    return this.messageService.getColor( this.message.user );
   }
 
   onPress( event ) {

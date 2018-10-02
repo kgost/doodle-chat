@@ -7,7 +7,12 @@ var
 var conversationSchema = new mongoose.Schema({
   name: {type:String, required: true},
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  participants: [{ id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, nickname: String, accessKey: String }],
+  participants: [{
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    nickname: String,
+    accessKey: String,
+    color: String
+  }],
 }, { timestamps: true } )
 
 // validate participants

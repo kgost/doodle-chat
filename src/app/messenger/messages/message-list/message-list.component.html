@@ -7,6 +7,7 @@
 <div *ngIf="loading" class="lds-dual-ring"></div>
 <ul #list class="list-group">
   <app-message-item
-    *ngFor="let message of messages"
+    *ngFor="let message of messages; let i = index"
+    [showFrom]="!!( i === 0 || messages[i - 1].user !== message.user )"
     [message]="message"></app-message-item>
 </ul>
