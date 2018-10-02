@@ -71,6 +71,8 @@ async function start() {
     ;[err] = await to( conversation.save() )
     if ( err ) throw err
   }
+
+  process.exit()
 }
 
 function getRandomColor() {
