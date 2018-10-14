@@ -168,7 +168,7 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private getTextColor() {
+  getTextColor() {
     let color = this.getColor();
     color = color.substring(1);           // remove #
 
