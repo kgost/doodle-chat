@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Conversation } from './sidebar/conversations/conversation.model';
 import { Friendship } from './sidebar/friends/friendship.model';
 
+import { NotificationService } from './sidebar/notification.service';
 import { SidebarService } from './sidebar/sidebar.service';
 import { ConversationService } from './sidebar/conversations/conversation.service';
 import { FriendService } from './sidebar/friends/friend.service';
@@ -26,8 +27,10 @@ export class MessengerComponent implements OnInit, OnDestroy {
   friendship: Friendship;
   reactions: { text: string, username: string }[];
   showMessages = false;
+  notification = false;
 
   constructor(
+    private notificationService: NotificationService,
     private sidebarService: SidebarService,
     private conversationService: ConversationService,
     private messageService: MessageService,
@@ -73,6 +76,28 @@ export class MessengerComponent implements OnInit, OnDestroy {
           }
 
           this.sidebarService.initialLoad = false;
+        }
+      ) );
+
+    this.subscriptions.push( this.notificationService.conversationEmitter
+      .subscribe(
+        () => {
+          if ( this.notificationService.conversationNotifications.length > 0 ) {
+            this.notification = true;
+          } else if ( !this.notificationService.friendshipNotifications.length ) {
+            this.notification = false;
+          }
+        }
+      ) );
+
+    this.subscriptions.push( this.notificationService.friendshipEmitter
+      .subscribe(
+        () => {
+          if ( this.notificationService.friendshipNotifications.length > 0 ) {
+            this.notification = true;
+          } else if ( !this.notificationService.conversationNotifications.length ) {
+            this.notification = false;
+          }
         }
       ) );
 

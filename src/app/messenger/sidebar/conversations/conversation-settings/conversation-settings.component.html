@@ -1,4 +1,4 @@
-<div class="greyout"></div>
+<div (click)="onClose()" class="greyout"></div>
 <div class="container">
   <button 
     (click)="onClose()"
@@ -15,12 +15,20 @@
           #nicknames
           class="col-xs-6">
           <div class="row">
-            <h3>Users And Nicknames</h3>
+            <h2>Users And Nicknames</h2>
             <div
               class="col-xs-12 participant"
               [ngClass]="{ 'hide-auto': editForm.get('nicknames').controls[i].valid }"
               *ngFor="let participantCtrl of getNicknamesArray().controls; let i = index">
-              <h4>{{ conversation.participants[i].id.username }}</h4>
+              <h3>{{ conversation.participants[i].id.username }}
+                <input
+                  [(colorPicker)]="colors[i].color"
+                  [style.background]="colors[i].color"
+                  [cpOKButton]="true"
+                  [cpOutputFormat]="hex"
+                  type="button"
+                  class="color settings form-control">
+              </h3>
               <input
                 [formControlName]="i + ''"
                 class="form-control"

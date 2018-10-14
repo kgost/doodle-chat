@@ -11,7 +11,7 @@ var conversationSchema = new mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     nickname: String,
     accessKey: String,
-    color: String
+    colors: [{ id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, color: String }]
   }],
 }, { timestamps: true } )
 

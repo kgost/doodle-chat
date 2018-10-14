@@ -2,6 +2,7 @@
   <span
     (click)="toggleMessages()"
     *ngIf="showMessages"
+    [ngClass]="{ notification: notification }"
     class="glyphicon glyphicon-plus toggle"></span>
   <span
     (click)="toggleMessages()"

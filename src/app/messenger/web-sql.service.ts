@@ -21,7 +21,6 @@ export class WebSqlService {
     }
 
     if ( !this.db ) {
-      console.log( 'feff' );
       this.browserAlert();
       return;
     } else {

@@ -38,6 +38,10 @@ app-root {
       cursor: pointer;
       font-size: 22px;
       z-index: 1;
+
+      &.notification {
+        color: red;
+      }
     }
 
     .toggled {
@@ -77,7 +81,6 @@ app-root {
                   margin: 0;
 
                   .new-conversation, .new-friend {
-                    border-right: 0;
                     border-right: none;
                     color: #449d44;
 
@@ -216,6 +219,9 @@ app-root {
                         max-width: 50%;
 
                         &.owner {
+                          color: white;
+                          background-color: #449d44;
+
                           p {
                             padding-right: 15px;
 
@@ -480,10 +486,38 @@ app-root {
         z-index: 2;
       } 
 
+      form {
+        position: relative;
+      }
+
+      .add-participant {
+        position: absolute;
+        bottom: -5px;
+        right: -15px;
+      }
+
       .participant {
         position: relative;
         padding-left: 0;
         padding-right: 0;
+      }
+
+      .color-space {
+        height: 24px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+
+      input.color {
+        margin-left: 10%;
+        width: 80%;
+        max-width: 30px;
+        display: inline-block;
+
+        &.settings {
+          margin-left: 0;
+          height: 28px;
+        }
       }
 
       .container .close {
@@ -497,7 +531,7 @@ app-root {
         font-size: 30px;
         position: absolute;
         top: -5px;
-        right: 18px;
+        right: 5px;
       }
 
       .greyout {

@@ -59,10 +59,10 @@ router.put(
 )
 
 router.put(
-  '/conversations/:conversationId/changeNicknames',
+  '/conversations/:conversationId/changeCosmetic',
   middleware.authenticate,
   middleware.inConversation,
-  conversationController.changeNicknames
+  conversationController.changeCosmetic
 )
 
 /**

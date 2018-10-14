@@ -19,6 +19,7 @@ export class ConversationEditComponent implements OnInit {
   editId: string;
   editKey: string;
   friendNames: string[] = [];
+  colors: { id?: string, color: string }[] = [];
 
   constructor(
     private conversationService: ConversationService,
@@ -48,9 +49,14 @@ export class ConversationEditComponent implements OnInit {
       for ( const participant of this.conversation.participants ) {
         participants.push( new FormControl( participant.id.username, Validators.required, this.usernameValid.bind( this ) ) );
         nicknames.push( new FormControl( participant.nickname ) );
+
+        if ( participant.id._id === this.authService.getCurrentUser()._id ) {
+          this.colors = participant.colors.slice();
+        }
       }
     } else {
       participants.push( new FormControl( null, Validators.required, this.usernameValid.bind( this ) ) );
+      this.colors = [{color: '#ffffff'}];
     }
 
     this.editForm = new FormGroup({
@@ -64,14 +70,18 @@ export class ConversationEditComponent implements OnInit {
     ( <FormArray> this.editForm.get( 'participants' ) ).push(
       new FormControl( null, Validators.required, this.usernameValid.bind( this ) )
     );
+
     ( <FormArray> this.editForm.get( 'nicknames' ) ).push(
       new FormControl( null )
     );
+
+    this.colors.push({ color: '#ffffff' });
   }
 
   onRemoveParticipant( index: number ) {
     ( <FormArray> this.editForm.get('participants') ).removeAt( index );
     ( <FormArray> this.editForm.get('nicknames') ).removeAt( index );
+    this.colors.splice( index, 1 );
   }
 
   onSubmit() {
@@ -99,9 +109,9 @@ export class ConversationEditComponent implements OnInit {
 
       if ( this.editMode ) {
         conversation._id = this.editId;
-        this.conversationService.updateConversation( this.editId, this.editKey, conversation );
+        this.conversationService.updateConversation( this.editId, this.editKey, conversation, this.colors );
       } else {
-        this.conversationService.addConversation( conversation );
+        this.conversationService.addConversation( conversation, this.colors );
       }
 
       this.editForm.reset();

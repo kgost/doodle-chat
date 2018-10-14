@@ -148,7 +148,7 @@ export class ConversationService {
     return this.friendNames.slice();
   }
 
-  addConversation( conversation: Conversation ) {
+  addConversation( conversation: Conversation, colors: { id?: string, color: string }[] ) {
     this.sidebarService.getPublicKeys( conversation.participants )
       .subscribe(
         ( users: User[] ) => {
@@ -158,7 +158,7 @@ export class ConversationService {
               return { id: participant.id, nickname: participant.nickname, accessKey: accessKeys[participant.id.username] };
             }
           );
-          this.sidebarService.createConversation( conversation )
+          this.sidebarService.createConversation( conversation, colors )
             .subscribe(
               ( newConversation: Conversation ) => {
                 for ( let i = 0; i < newConversation.participants.length; i++ ) {
@@ -181,7 +181,7 @@ export class ConversationService {
     this.changeEmitter.emit();
   }
 
-  updateConversation( id: string, key: string, conversation: Conversation ) {
+  updateConversation( id: string, key: string, conversation: Conversation, colors: { id?: string, color: string }[] ) {
     this.sidebarService.getPublicKeys( conversation.participants )
       .subscribe(
         ( users: User[] ) => {
@@ -191,7 +191,7 @@ export class ConversationService {
               return { id: participant.id, nickname: participant.nickname, accessKey: accessKeys[participant.id.username] };
             }
           );
-          this.sidebarService.updateConversation( id, conversation )
+          this.sidebarService.updateConversation( id, conversation, colors )
             .subscribe(
               ( newConversation: Conversation ) => {
                 this.socketIoService.updateConversation( newConversation._id );
@@ -211,8 +211,8 @@ export class ConversationService {
       );
   }
 
-  changeNicknames( id: string, conversation: Conversation ) {
-    this.sidebarService.changeNicknames( id, conversation )
+  changeCosmetic( id: string, conversation: Conversation, colors: { id: string, color: string }[] ) {
+    this.sidebarService.changeCosmetic( id, conversation, colors )
       .subscribe(
         ( newConversation: Conversation ) => {
           this.socketIoService.updateConversation( id );

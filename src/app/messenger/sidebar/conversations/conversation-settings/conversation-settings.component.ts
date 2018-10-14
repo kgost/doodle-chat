@@ -17,6 +17,7 @@ export class ConversationSettingsComponent implements OnInit {
   @Input() conversation: Conversation;
   editForm: FormGroup;
   editMode = false;
+  colors: { id: string, color: string }[] = [];
 
   constructor(
     private conversationService: ConversationService,
@@ -32,6 +33,10 @@ export class ConversationSettingsComponent implements OnInit {
 
     for ( const participant of this.conversation.participants ) {
       nicknames.push( new FormControl( participant.nickname ) );
+
+      if ( participant.id._id === this.authService.getCurrentUser()._id ) {
+        this.colors = participant.colors;
+      }
     }
 
     this.editForm = new FormGroup({
@@ -49,7 +54,7 @@ export class ConversationSettingsComponent implements OnInit {
 
       const conversation = new Conversation( this.conversation.name, this.conversation.owner, users, this.conversation._id );
 
-      this.conversationService.changeNicknames( this.conversation._id, conversation );
+      this.conversationService.changeCosmetic( this.conversation._id, conversation, this.colors );
       this.editForm.reset();
       this.conversationService.settingsChange.next( null );
     }

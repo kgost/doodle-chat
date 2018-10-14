@@ -168,6 +168,21 @@ export class MessageItemComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  private getTextColor() {
+    let color = this.getColor();
+    color = color.substring(1);           // remove #
+
+    const r = parseInt( color.substring( 0, 2 ), 16 );
+    const g = parseInt( color.substring( 2, 4 ), 16 );
+    const b = parseInt( color.substring( 4 ), 16 );
+
+    if ( ( r * 0.299 + g * 0.587 + b * 0.114 ) > 186 ) {
+      return '#000000';
+    }
+
+    return '#ffffff';
+  }
+
   ngAfterViewInit() {
     if ( !this.message.media && !this.message.poll ) {
       this.messageService.loadEmitter.emit();

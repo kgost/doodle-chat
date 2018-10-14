@@ -4,6 +4,7 @@ import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { Ng2AutoCompleteModule } from './auto-complete/dist/index.js';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 import { BROWSER_FAVICONS_CONFIG } from './favicons';
 import { BrowserFavicons } from './favicons';
@@ -113,6 +114,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     AppRoutingModule,
     SocketIoModule.forRoot( config ),
     Ng2AutoCompleteModule,
+    ColorPickerModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [

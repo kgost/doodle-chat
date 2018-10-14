@@ -30,9 +30,11 @@ export class SidebarService {
   /**
    *  CONVERSATIONS
    */
-  createConversation( conversation: Conversation ): Observable<Conversation> {
-    return this.http.post( this.baseUrl + 'conversations?token=' + this.authService.getToken(), conversation )
-      .pipe( map( this.mapConversation ) );
+  createConversation( conversation: Conversation, colors: { id?: string, color: string }[] ): Observable<Conversation> {
+    return this.http.post(
+      this.baseUrl + 'conversations?token=' + this.authService.getToken(),
+      { conversation: conversation, colors: colors }
+    ).pipe( map( this.mapConversation ) );
   }
 
   getConversations() {
@@ -52,14 +54,18 @@ export class SidebarService {
       } ) );
   }
 
-  updateConversation( id: string, conversation: Conversation ) {
-    return this.http.put( this.baseUrl + 'conversations/' + id + '?token=' + this.authService.getToken(), conversation )
-      .pipe( map( this.mapConversation ) );
+  updateConversation( id: string, conversation: Conversation, colors: { id?: string, color: string }[] ) {
+    return this.http.put(
+      this.baseUrl + 'conversations/' + id + '?token=' + this.authService.getToken(),
+      { conversation: conversation, colors: colors }
+    ).pipe( map( this.mapConversation ) );
   }
 
-  changeNicknames( id: string, conversation: Conversation ) {
-    return this.http.put( this.baseUrl + 'conversations/' + id + '/changeNicknames?token=' + this.authService.getToken(), conversation )
-      .pipe( map( this.mapConversation ) );
+  changeCosmetic( id: string, conversation: Conversation, colors: { id?: string, color: string }[] ) {
+    return this.http.put(
+      this.baseUrl + 'conversations/' + id + '/changeCosmetic?token=' + this.authService.getToken(),
+      { conversation: conversation, colors: colors }
+    ).pipe( map( this.mapConversation ) );
   }
 
   removeConversation( id: string ) {

@@ -314,8 +314,12 @@ export class MessageService {
   getColor( id ) {
     if ( this.currentConversation ) {
       for ( const participant of this.currentConversation.participants ) {
-        if ( participant.id._id === id ) {
-          return participant.color;
+        if ( participant.id._id === this.authService.getCurrentUser()._id ) {
+          for ( const c of participant.colors ) {
+            if ( c.id === id ) {
+              return c.color;
+            }
+          }
         }
       }
     }

@@ -68,8 +68,8 @@ const syncActions = {
       } )
   },
 
-  changeNicknames: ( req, res, next ) => {
-    changeNicknames( req )
+  changeCosmetic: ( req, res, next ) => {
+    changeCosmetic( req )
       .then( ( result ) => {
         responseHelper.handleResponse( result, res )
         return next()
@@ -84,7 +84,7 @@ const syncActions = {
 async function createOrUpdate( req, update ) {
   let err, users, conversation
 
-  const convo = pruneUsers( req.body )
+  const convo = pruneUsers( req.body.conversation )
 
   const usernames = {}
 
@@ -92,43 +92,32 @@ async function createOrUpdate( req, update ) {
     usernames[participant.id.username] = {
       accessKey: participant.accessKey,
       nickname: participant.nickname,
-      color: participant.color
+      colors: participant.colors
     }
   }
 
   [err, users] = await to( User.find( { username: { '$in': Object.keys( usernames ) } }, '_id username' ).lean().exec() )
   if ( err ) throw err
 
+  for ( const user of users ) {
+    usernames[user.username]._id = user._id
+  }
+
   convo.participants = users.map( ( usr ) => {
     const result = {
       id: { _id: usr._id, username: usr.username },
       accessKey: usernames[usr.username].accessKey,
-      nickname: usernames[usr.username].nickname
+      nickname: usernames[usr.username].nickname,
     }
 
-    if ( !usernames[usr.username].color ) {
-      let unMatched = false
-      let color
-
-      while ( !unMatched ) {
-        let match = false
-        color = getRandomColor()
-
-        for ( const u of convo.participants ) {
-          if ( u.color === color ) {
-            match = true
-            break
-          }
-        }
-
-        if ( !match ) {
-          unMatched = true
-        }
+    if ( req.user._id == usr._id ) {
+      for ( let i = 0; i < req.body.colors.length; i++ ) {
+        req.body.colors[i].id = usernames[convo.participants[i].id.username]._id
       }
 
-      result.color = color
+      result.colors = req.body.colors 
     } else {
-      result.color = usernames[usr.username].color
+      result.colors = usernames[usr.username].colors ? usernames[usr.username].colors : defaultColors( usr._id, users ) 
     }
 
     return result
@@ -224,16 +213,20 @@ async function leave( req ) {
   return { status: 200, data: { message: 'Left Converrsation' } }
 }
 
-async function changeNicknames( req ) {
+async function changeCosmetic( req ) {
   let err, conversation
 
-  ;[err, conversation] = await to( Conversation.findById( req.params.conversationId ).lean().exec() )
+  [err, conversation] = await to( Conversation.findById( req.params.conversationId ).lean().exec() )
   if ( err ) throw err
 
   for ( let i = 0; i < conversation.participants.length; i++ ) {
-    for ( let j = 0; j < req.body.participants.length; j++ ) {
-      if ( req.body.participants[j].id._id == conversation.participants[i].id ) {
-        conversation.participants[i].nickname = req.body.participants[j].nickname
+    for ( let j = 0; j < req.body.conversation.participants.length; j++ ) {
+      if ( req.body.conversation.participants[j].id._id == conversation.participants[i].id ) {
+        conversation.participants[i].nickname = req.body.conversation.participants[j].nickname
+      }
+
+      if ( conversation.participants[i].id == req.user._id && req.body.conversation.participants[j].id._id === req.user._id ) {
+        conversation.participants[i].colors = req.body.colors
       }
     }
   }
@@ -257,19 +250,18 @@ function pruneUsers( conversation ) {
   return conversation
 }
 
-function getRandomColor() {
-  const colors = [
-    '#E80101', 
-    '#E801D1', 
-    '#AA01E8', 
-    '#4601E8', 
-    '#01C9E8', 
-    '#01E86C',
-    '#E8C901',
-    '#E87401'
-  ]
+function defaultColors( userId, users ) {
+  const colors = []
 
-  return colors[Math.floor( Math.random() * ( colors.length - 1 - 0 + 1 ) ) + 0]
+  for ( const user of users ) {
+    if ( user._id != userId ) {
+      colors.push( { id: user._id, color: '#ffffff' } )
+    } else {
+      colors.push( { id: user._id, color: '#449d44' } )
+    }
+  }
+
+  return colors
 }
 
 module.exports = syncActions
