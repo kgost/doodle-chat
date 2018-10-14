@@ -24,6 +24,7 @@ async function start() {
   if ( err ) throw err
 
   for ( const conversation of conversations ) {
+    console.log( conversation.name )
     const usernames = {}
 
     for ( const participant of conversation.participants ) {
@@ -42,7 +43,7 @@ async function start() {
     }
 
     for ( let i = 0; i < conversation.participants.length; i++ ) {
-      conversation.participants[i].colors = defaultColors( usernames[conversation.participants[i].username]._id, users )
+      conversation.participants[i].colors = defaultColors( conversation.participants[i].id._id, users )
     }
 
     [err] = await to( conversation.save() )
@@ -56,7 +57,7 @@ function defaultColors( userId, users ) {
   const colors = []
 
   for ( const user of users ) {
-    if ( user._id != userId ) {
+    if ( user._id.toString() != userId ) {
       colors.push( { id: user._id, color: '#ffffff' } )
     } else {
       colors.push( { id: user._id, color: '#449d44' } )

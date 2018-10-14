@@ -1,6 +1,6 @@
 <div class="clearfix" #clearfix>
   <h3
-    [ngStyle]="{ color: getColor() }"
+    [ngStyle]="{ color: getColor() !== '#ffffff' ? getColor() : '#000000' }"
     *ngIf="!owner && !message.system && showFrom">{{ from }}</h3>
   <li 
     [ngStyle]="{ color: getColor() ? getTextColor() : '', 'background-color': getColor(), padding: message.media || message.youtubeId ? '0' : '', width: ( message.media && message.media.mime.indexOf( 'video' ) !== -1 ) || message.poll || message.youtubeId ? '50%' : '' }"
