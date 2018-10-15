@@ -63,6 +63,7 @@ import { PollComponent } from './messenger/messages/poll/poll.component';
 import { YoutubeEmbeddedComponent } from './messenger/messages/youtube-embedded/youtube-embedded.component';
 import { SafePipe } from './messenger/messages/safe.pipe';
 import { ConversationSettingsComponent } from './messenger/sidebar/conversations/conversation-settings/conversation-settings.component';
+import { ImagePreviewComponent } from './messenger/messages/image-preview/image-preview.component';
 
 const config: SocketIoConfig = { url: '/', options: {} };
 
@@ -105,6 +106,7 @@ const config: SocketIoConfig = { url: '/', options: {} };
     YoutubeEmbeddedComponent,
     SafePipe,
     ConversationSettingsComponent,
+    ImagePreviewComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,9 +1,10 @@
 <img
   class="img-responsive"
-  *ngIf="media.mime.indexOf( 'image' ) !== -1"
   [src]="media.externalSrc ? media.externalSrc : media.data"
+  *ngIf="media.mime.indexOf( 'image' ) !== -1"
   (load)="loadEmit()"
   [ngStyle]="{ height: loaded || !media.size ? 'auto' : media.size.height + 'px' }"
+  (click)="showPreview()"
   alt="">
 <video #video
   (loadeddata)="loadEmit()"

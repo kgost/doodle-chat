@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
+import { Media } from './messages/media/media.model';
 import { Conversation } from './sidebar/conversations/conversation.model';
 import { Friendship } from './sidebar/friends/friendship.model';
 
@@ -25,6 +26,7 @@ export class MessengerComponent implements OnInit, OnDestroy {
   conversation: Conversation;
   conversationPart: Conversation;
   friendship: Friendship;
+  previewMedia: Media;
   reactions: { text: string, username: string }[];
   showMessages = false;
   notification = false;
@@ -98,6 +100,13 @@ export class MessengerComponent implements OnInit, OnDestroy {
           } else if ( !this.notificationService.conversationNotifications.length ) {
             this.notification = false;
           }
+        }
+      ) );
+
+    this.subscriptions.push( this.messageService.previewSubject
+      .subscribe(
+        ( media: Media ) => {
+          this.previewMedia = media;
         }
       ) );
 

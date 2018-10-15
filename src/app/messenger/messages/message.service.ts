@@ -2,6 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
 import { Message } from './message.model';
+import { Media } from './media/media.model';
 import { Conversation } from '../sidebar/conversations/conversation.model';
 import { Friendship } from '../sidebar/friends/friendship.model';
 import { User } from '../../auth/user.model';
@@ -32,6 +33,7 @@ export class MessageService {
   showReactions = new Subject<{ text: string, username: string }[]>();
   loadingSubject = new Subject<boolean>();
   reactionSubject = new Subject<{ id: string, reactions: { username: string, text: string }[] }>();
+  previewSubject = new Subject<Media>();
   privateMode = false;
   key = '';
   loadMore = false;

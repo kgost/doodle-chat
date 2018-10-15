@@ -92,6 +92,14 @@ export class MediaComponent implements OnInit, OnDestroy {
       } );
   }
 
+  showPreview() {
+    if ( this.media.data ) {
+      this.messageService.previewSubject.next( this.media );
+    } else {
+      this.messageService.previewSubject.next( this.media );
+    }
+  }
+
   ngOnDestroy() {
     this.subscriptions.forEach( ( sub ) => {
       sub.unsubscribe();

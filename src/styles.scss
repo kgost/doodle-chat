@@ -291,6 +291,7 @@ app-root {
 
                         app-media {
                           img {
+                            cursor: pointer;
                             background-color: white;
                           }
 
@@ -475,7 +476,7 @@ app-root {
       }
     }
 
-    app-conversation-edit, app-conversation-settings, app-friend-edit, app-reaction {
+    app-conversation-edit, app-conversation-settings, app-friend-edit, app-reaction, app-image-preview {
       .container {
         position: absolute;
         top: 10%;
@@ -551,6 +552,18 @@ app-root {
           transform: none;
         }
       }
+    }
+  }
+
+  app-image-preview {
+    .container {
+      width: auto;
+    }
+
+    img {
+      max-width: 100%;
+      margin: auto;
+      display: block;
     }
   }
 
