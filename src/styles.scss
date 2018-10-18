@@ -387,21 +387,14 @@ app-root {
                   position: relative;
                   display: flex;
 
-                  .textarea-container {
-                    width: 100%;
+                  .emoji-picker-button {
                     position: relative;
-
-                    textarea.form-control {
-                      border-radius: 0;
-                      border-left: 0;
-                      resize: none;
-                      height: 55px;
-                    }
+                    width: 38px;
 
                     .emoji-picker-container {
                       position: absolute;
-                      right: 0;
-                      bottom: 0;
+                      right: 1px;
+                      bottom: 10px;
 
                       app-emoji-picker {
                         .emoji-picker {
@@ -448,6 +441,18 @@ app-root {
                           height: 32px;
                         }
                       }
+                    }
+                  }
+
+                  .textarea-container {
+                    width: 100%;
+                    position: relative;
+
+                    textarea.form-control {
+                      border-radius: 0;
+                      border-left: 0;
+                      resize: none;
+                      height: 55px;
                     }
                   }
                 }

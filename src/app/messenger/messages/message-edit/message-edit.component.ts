@@ -23,6 +23,7 @@ import { CommandsPipe } from '../commands.pipe';
 export class MessageEditComponent implements OnInit, OnDestroy {
   @ViewChild('f') messageEdit: NgForm;
   @ViewChild('textarea') textarea: ElementRef;
+  @ViewChild('emojiPicker') emojiPicker: ElementRef;
   subscriptions: Subscription[] = [];
   editMode = false;
   editId: string;
@@ -181,6 +182,10 @@ export class MessageEditComponent implements OnInit, OnDestroy {
     } else if ( [13, 16, 17, 18, 19, 20, 27, 35, 36, 37, 38, 39, 40, 91, 93, 224].indexOf( event.keyCode ) === -1 ) {
       this.typing();
     }
+  }
+
+  onOpenEmoji() {
+    this.emojiPicker.toggle();
   }
 
   ngOnDestroy() {

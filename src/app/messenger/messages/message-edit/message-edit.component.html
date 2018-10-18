@@ -16,9 +16,6 @@
             class="form-control" 
             required>
           </textarea>
-          <div class="emoji-picker-container">
-            <app-emoji-picker (emitEmoji)="onSelectEmoji($event)"></app-emoji-picker>
-          </div>
         </div>
         <button
           [disabled]="!messageEdit.valid"
@@ -29,6 +26,14 @@
           (click)="onCancel($event)"
           type="button"
           class="btn btn-warning pull-right">X</button>
+        <button
+          (click)="onOpenEmoji()"
+          type="button"
+          class="emoji-picker-button btn btn-default pull-right">
+          <div class="emoji-picker-container">
+            <app-emoji-picker #emojiPicker (emitEmoji)="onSelectEmoji($event)"></app-emoji-picker>
+          </div>
+        </button>
         <button [disabled]="!media" class="btn btn-default pull-right file-picker" (click)="fileInput.click()">
           <input
             class="hidden"

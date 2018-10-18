@@ -8,7 +8,7 @@
       *ngFor="let emoji of headers; let i = index"
       [innerHtml]="emoji.emoji | emojify"
       [ngStyle]="{ border: selected === i ? 'solid 1px #449d44' : 'none' }"
-      (click)="selected = i"
+      (click)="selected = i;$event.stopPropagation()"
       title="{{ emoji.title }}"
       class="pull-left emoji-header"></div>
   </div>
@@ -17,12 +17,11 @@
     <div
       *ngFor="let emoji of emojis[selected]; let i = index"
       [innerHtml]="emoji | emojify"
-      (click)="onSelectEmoji(i)"
+      (click)="onSelectEmoji(i);$event.stopPropagation()"
       class="pull-left selection"></div>
   </div>
 </div>
 <div
   [ngStyle]="{ 'font-size': isOpen ? '25px' : 'inherit' }"
   [innerHtml]="( !isOpen ) ? ( headers[0].emoji | emojify ) : 'X'"
-  (click)="toggle()"
   class="pull-right text-center emoji-toggle"></div>
