@@ -23,7 +23,7 @@ import { CommandsPipe } from '../commands.pipe';
 export class MessageEditComponent implements OnInit, OnDestroy {
   @ViewChild('f') messageEdit: NgForm;
   @ViewChild('textarea') textarea: ElementRef;
-  @ViewChild('emojiPicker') emojiPicker: ElementRef;
+  @ViewChild('emojiPicker') emojiPicker: any;
   subscriptions: Subscription[] = [];
   editMode = false;
   editId: string;
