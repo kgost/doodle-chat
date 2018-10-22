@@ -116,8 +116,8 @@ async function createOrUpdate( req, update ) {
       }
 
       result.colors = req.body.colors 
-    } else {
-      result.colors = usernames[usr.username].colors ? usernames[usr.username].colors : defaultColors( usr._id, users ) 
+    } else if ( !update ) {
+      result.colors = defaultColors( usr._id, users ) 
     }
 
     return result
