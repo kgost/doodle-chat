@@ -82,17 +82,19 @@ const syncActions = {
 }
 
 async function createOrUpdate( req, update ) {
-  let err, users, conversation
+  let err, users, conversation, oldConversation
 
   const convo = pruneUsers( req.body.conversation )
 
   const usernames = {}
 
+  ;[err, oldConversation] = await to( Conversation.findById( req.params.id ) )
+  if ( err ) throw err
+
   for ( let participant of convo.participants ) {
     usernames[participant.id.username] = {
       accessKey: participant.accessKey,
       nickname: participant.nickname,
-      colors: participant.colors
     }
   }
 
@@ -105,9 +107,9 @@ async function createOrUpdate( req, update ) {
 
   convo.participants = users.map( ( usr ) => {
     const result = {
-      id: { _id: usr._id, username: usr.username },
-      accessKey: usernames[usr.username].accessKey,
+      id: usr._id,
       nickname: usernames[usr.username].nickname,
+      accessKey: usernames[usr.username].accessKey,
     }
 
     if ( req.user._id == usr._id ) {
@@ -118,6 +120,12 @@ async function createOrUpdate( req, update ) {
       result.colors = req.body.colors 
     } else if ( !update ) {
       result.colors = defaultColors( usr._id, users ) 
+    } else {
+      for ( const participant of oldConversation.participants ) {
+        if ( usr._id.toString() == participant.id.toString() ) {
+          result.colors = participant.colors
+        }
+      }
     }
 
     return result
@@ -247,6 +255,7 @@ function pruneUsers( conversation ) {
       }
     }
   }
+
   return conversation
 }
 
