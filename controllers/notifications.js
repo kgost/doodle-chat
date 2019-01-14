@@ -52,14 +52,14 @@ async function destroy( req ) {
 
   if ( req.params.conversationId ) {
     for ( let i = 0; i < notifier.conversations.length; i++ ) {
-      if ( notifier.conversations[i] == req.params.conversationId ) {
+      if ( notifier.conversations[i].id == req.params.conversationId ) {
         notifier.conversations.splice( i, 1 )
         break
       }
     }
   } else {
     for ( let i = 0; i < notifier.friendships.length; i++ ) {
-      if ( notifier.friendships[i] == req.params.friendshipId ) {
+      if ( notifier.friendships[i].id == req.params.friendshipId ) {
         notifier.friendships.splice( i, 1 )
         break
       }

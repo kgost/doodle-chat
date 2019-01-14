@@ -160,11 +160,16 @@ async function create( req ) {
 
     notifierQuery = {
       user: { '$in': users },
-      conversations: { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) }
+      'conversations.id': { '$ne': mongoose.Types.ObjectId( req.params.conversationId ) }
     }
 
     notifierObject = {
-      '$push': { conversations: mongoose.Types.ObjectId( req.params.conversationId ) }
+      '$push': {
+        conversations: {
+          id: mongoose.Types.ObjectId( req.params.conversationId ),
+          sent: false
+        }
+      }
     }
   } else {
     [err, friendship] = await to( Friendship.findById( req.params.friendshipId, 'users' ).lean().exec() )
@@ -178,18 +183,19 @@ async function create( req ) {
 
     notifierQuery = {
       user: { '$in': users },
-      friendships: {
-        id: { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) }
-      }
+      'friendships.id': { '$ne': mongoose.Types.ObjectId( req.params.friendshipId ) }
     }
 
     notifierObject = {
       '$push': {
-        id: { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) },
-        sent: false
+        friendships: {
+          id: mongoose.Types.ObjectId( req.params.friendshipId ),
+          sent: false
+        }
       }
     }
   }
+
 
   [err] = await to( Notifier.update( notifierQuery, notifierObject, { multi: true } ).exec() )
   if ( err ) throw err
