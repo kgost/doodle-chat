@@ -56,6 +56,7 @@ export class ConversationEditComponent implements OnInit {
       }
     } else {
       participants.push( new FormControl( null, Validators.required, this.usernameValid.bind( this ) ) );
+      nicknames.push( new FormControl( null ) );
       this.colors = [{color: '#ffffff'}];
     }
 

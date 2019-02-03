@@ -141,13 +141,16 @@ async function createOrUpdate( req, update ) {
     if ( err ) throw err
   }
 
+  [err, conversation] = await to( Conversation.populate( conversation, { path: 'participants.id' } ) )
+  if ( err ) throw err
+
   return {
     status: 201,
     data: {
       _id: conversation._id,
-      name: convo.name,
+      name: conversation.name,
       owner: { _id: req.user._id, username: req.user.username },
-      participants: convo.participants
+      participants: conversation.participants
     }
   }
 }
@@ -175,8 +178,8 @@ async function destroy( req ) {
 
   ;[err] = await to(
     Notifier.update(
-      { conversations: mongoose.Types.ObjectId( req.params.id ) },
-      { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }
+      { 'conversations.id': mongoose.Types.ObjectId( req.params.id ) },
+      { '$pull': { 'conversations.id': mongoose.Types.ObjectId( req.params.id ) } }
     ).exec()
   )
   if ( err ) throw err
@@ -203,7 +206,7 @@ async function leave( req ) {
   ;[err] = await to(
     Notifier.update(
       { user: mongoose.Types.ObjectId( req.user._id ) },
-      { '$pull': { conversations: mongoose.Types.ObjectId( req.params.id ) } }
+      { '$pull': { 'conversations.id': mongoose.Types.ObjectId( req.params.id ) } }
     ).exec()
   )
   if ( err ) throw err

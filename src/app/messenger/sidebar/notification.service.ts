@@ -91,8 +91,12 @@ export class NotificationService {
     this.sidebarService.getNotifications()
       .subscribe(
         ( notifications: any ) => {
-          this.conversationNotifications = notifications.conversations;
-          this.friendshipNotifications = notifications.friendships;
+          this.conversationNotifications = notifications.conversations.map( conv => {
+            return conv.id;
+          } );
+          this.friendshipNotifications = notifications.friendships.map( fri => {
+            return fri.id;
+          } );
 
           if ( !this.isEmpty() ) {
             this.favicons.activate( 'active' );
