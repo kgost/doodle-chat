@@ -27,7 +27,7 @@ const vapidKeys = {
 }
 
 webpush.setVapidDetails(
-  'mailto:me@jackthelast.com',
+  'mailto:jpbland@mtu.edu',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 )
@@ -61,7 +61,6 @@ app.get('/*', (req, res, next) => {
   if ( req.originalUrl.match( /\./ ) === null &&
     req.originalUrl.indexOf( '/api' ) !== 0 &&
     req.originalUrl.indexOf( '/auth' ) !== 0 ) {
-    console.log( req.originalUrl )
     return res.sendFile( 'index.html', { root: __dirname + '/dist/lalilulelo' })
   } else {
     return next()
@@ -79,67 +78,68 @@ http.listen( app.get( 'port' ), () => {
   console.log( 'Node app is running on port', app.get( 'port' ) )
 })
 
-cron.schedule( '0 15 * * * *', () => {
-  Notifier.find( {}, 'user' ).populate( 'user' ).populate( 'friendships.id.users' ).populate( 'conversations.id' ).exec( ( err, notifiers ) => {
-    const notificationPayload = {
-      'notification': {
-        'title': 'Saoirse',
-        //'body': `New Secure Message(s) From ${ name }`,
-        'icon': '/assets/images/active.jpg',
-        'vibrate': [100, 50, 100],
-        'data': {
-          'dateOfArrival': Date.now(),
-          'primaryKey': 1,
-          'count': 1,
-          //'name': name
-        }
+cron.schedule( '*/5 * * * *', async () => {
+  const notifiers = await Notifier.find( {}, 'user conversations.sent' ).populate( 'user' ).populate( 'friendships.id.users' ).populate( 'conversations.id' ).exec()
+  const notificationPayload = {
+    'notification': {
+      'title': 'Saoirse',
+      //'body': `New Secure Message(s) From ${ name }`,
+      'icon': '/assets/images/active.jpg',
+      'vibrate': [100, 50, 100],
+      'data': {
+        'dateOfArrival': Date.now(),
+        'primaryKey': 1,
+        'count': 1,
+        //'name': name
       }
     }
+  }
 
-    for ( const notifier of notifiers ) {
-      if ( notifier.user.pushSub && Object.keys( notifier.user.pushSub ).length ) {
-        for ( const conversation of notifier.conversations ) {
-          if ( !conversation.sent ) {
-            notificationPayload.body = `New Secure Message(s) From ${ conversation.id.name }`
-            notificationPayload.data.url = `/conversations/${ conversation.id._id }`
-            conversation.sent = true
+  for ( const notifier of notifiers ) {
+    if ( notifier.user.pushSub && Object.keys( notifier.user.pushSub ).length ) {
+      for ( const conversation of notifier.conversations ) {
+        if ( !conversation.sent ) {
+          notificationPayload.notification.body = `New Secure Message(s) From ${ conversation.id.name }`
+          notificationPayload.notification.data.url = `/conversations/${ conversation.id._id }`
+          conversation.sent = true
 
-            webpush.sendNotification(
+          try {
+            await webpush.sendNotification(
               notifier.user.pushSub,
               JSON.stringify( notificationPayload )
-            ).catch( ( err ) => {
-              console.log( err )
-            } ).always( () => {
-            } )
+            )
+          } catch ( e ) {
+            console.log( e )
           }
         }
+      }
 
-        for ( const friendship of notifier.friendships ) {
-          if ( !friendship.sent ) {
-            let name = ''
+      for ( const friendship of notifier.friendships ) {
+        if ( !friendship.sent ) {
+          let name = ''
 
-            for ( const user of friendship.users ) {
-              if ( user._id != notifier.user ) {
-                name = user.username
-              }
+          for ( const user of friendship.users ) {
+            if ( user._id != notifier.user ) {
+              name = user.username
             }
+          }
 
-            notificationPayload.body = `New Secure Message(s) From ${ name }`
-            notificationPayload.data.url = `/friends/${ friendship.id._id }`
-            friendship.sent = true
+          notificationPayload.notification.body = `New Secure Message(s) From ${ name }`
+          notificationPayload.notification.data.url = `/friends/${ friendship.id._id }`
+          friendship.sent = true
 
-            webpush.sendNotification(
+          try {
+            await webpush.sendNotification(
               notifier.user.pushSub,
               JSON.stringify( notificationPayload )
-            ).catch( ( err ) => {
-              console.log( err )
-            } ).always( () => {
-            } )
+            )
+          } catch ( e ) {
+            console.log( e )
           }
         }
-
-        notifier.save()
       }
+
+      await notifier.save()
     }
-  } )
+  }
 } )
