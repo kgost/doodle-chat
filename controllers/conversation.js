@@ -82,15 +82,22 @@ const syncActions = {
 }
 
 async function createOrUpdate( req, update ) {
+  // declare the variables we will end up pulling from mongodb
   let err, users, conversation, oldConversation
 
+  // get rid of duplicate users
   const convo = pruneUsers( req.body.conversation )
 
+  // hashmap of username => { accessKey, nickname } 
   const usernames = {}
 
-  ;[err, oldConversation] = await to( Conversation.findById( req.params.id ) )
-  if ( err ) throw err
+  // get the old conversation
+  if ( update ) {
+    [err, oldConversation] = await to( Conversation.findById( req.params.id ) )
+    if ( err ) throw err
+  }
 
+  // fill the usernames hash with the access keys and nick names
   for ( let participant of convo.participants ) {
     usernames[participant.id.username] = {
       accessKey: participant.accessKey,
@@ -98,41 +105,55 @@ async function createOrUpdate( req, update ) {
     }
   }
 
+  // get the user objects based on usernames
   [err, users] = await to( User.find( { username: { '$in': Object.keys( usernames ) } }, '_id username' ).lean().exec() )
   if ( err ) throw err
 
+  // append the id to usernames hash
   for ( const user of users ) {
     usernames[user.username]._id = user._id
   }
 
+  // go through each user
   convo.participants = users.map( ( usr ) => {
+    // results holds all the fields for a participant in the participants array
+    // found in the conversation model
     const result = {
       id: usr._id,
       nickname: usernames[usr.username].nickname,
       accessKey: usernames[usr.username].accessKey,
     }
 
+    // if the usr is the curretnly logged in user use the current colors sent for that users colors
     if ( req.user._id == usr._id ) {
       for ( let i = 0; i < req.body.colors.length; i++ ) {
         req.body.colors[i].id = usernames[convo.participants[i].id.username]._id
       }
 
       result.colors = req.body.colors 
+    // if this is a create, use default colors
     } else if ( !update ) {
       result.colors = defaultColors( usr._id, users ) 
+    // otherwise, go through the array of participants and copy over their colors into the result
+    // TODO include a new user with default colors
     } else {
       for ( const participant of oldConversation.participants ) {
         if ( usr._id.toString() == participant.id.toString() ) {
           result.colors = participant.colors
+          return result
         }
       }
+
+      result.colors = defaultColors( usr._id, users ) 
     }
 
     return result
   } )
 
+  // sanitize the name and set it
   convo.name = req.sanitize( convo.name )
 
+  // update or create the conversation
   if( update ) {
     [err, conversation] = await to( Conversation.findByIdAndUpdate( req.params.id, convo ).exec() )
     if ( err ) throw err
@@ -141,6 +162,7 @@ async function createOrUpdate( req, update ) {
     if ( err ) throw err
   }
 
+  // re-get the conversation, populated
   [err, conversation] = await to( Conversation.populate( conversation, { path: 'participants.id' } ) )
   if ( err ) throw err
 
@@ -249,6 +271,7 @@ async function changeCosmetic( req ) {
 }
 
 function pruneUsers( conversation ) {
+  // if two users in the conversation have the same username, remove one of them
   for ( let i = 0; i < conversation.participants.length; i++ ) {
     for ( let j = i + 1; j < conversation.participants.length; j++ ) {
       if ( conversation.participants[i].id.username === conversation.participants[j].id.username ) {

@@ -5,11 +5,11 @@ const mongoose = require( 'mongoose' )
 const notifierSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   conversations: [{
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' },
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation', required: true },
     sent: Boolean
   }],
   friendships: [{
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Friendship' },
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Friendship', required: true },
     sent: Boolean
   }]
 }, { timestamps: true } )
