@@ -78,8 +78,8 @@ http.listen( app.get( 'port' ), () => {
   console.log( 'Node app is running on port', app.get( 'port' ) )
 })
 
-//cron.schedule( '*/5 * * * *', async () => {
-cron.schedule( '* * * * * *', async () => {
+cron.schedule( '*/5 * * * *', async () => {
+//cron.schedule( '* * * * * *', async () => {
   //const notifiers = await Notifier.find( {}, 'user conversations.sent friendships.sent' ).populate( 'user' ).populate( 'friendships.id' ).populate( 'conversations.id' ).exec()
   const notifiers = await Notifier.find( {}, 'user conversations.sent friendships.sent' ).populate( 'user' ).populate({ path: 'friendships.id', populate: { path: 'users.id' } }).populate( 'conversations.id' ).exec()
   const notificationPayload = {
