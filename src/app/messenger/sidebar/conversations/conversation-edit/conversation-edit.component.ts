@@ -104,6 +104,7 @@ export class ConversationEditComponent implements OnInit {
 
       if ( !self ) {
         users.push( { id: this.authService.getCurrentUser() } );
+        this.colors.push({ id: this.authService.getCurrentUser()._id, color: '#449d44' });
       }
 
       const conversation = new Conversation( this.editForm.value.name, this.authService.getCurrentUser(), users );
