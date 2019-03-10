@@ -1,33 +1,18 @@
-//Model File for Users
-const mongoose = require( 'mongoose' )
-
-// Define Schema for User, must have username and password, username must be unique
-const userSchema = new mongoose.Schema({
-  username: {type:String, unique:true, required:true},
-  password: {type:String, required:true},
-  publicKey: { type:String, required:true },
-  privateKey: { type: String, required: true },
-  pushSub: {
-    endpoint: String,
-    expirationTime: Object,
-    keys: {
-      p256dh: String,
-      auth: String,
-    }
-  }
-}, { timestamps: true } )
-
-userSchema.path('password').validate(function(password) {
-  if (password.length < 6) return false
-
-  return true
-})
-
-userSchema.path('username').validate(function(username) {
-  if (username.length > 20) return false
-  if ( !username.match( /^[^\s]+.*[^\s]+$/ ) ) return false
-
-  return true
-})
-
-module.exports = mongoose.model( 'User' , userSchema )
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define('User', {
+    username: DataTypes.STRING,
+    passHash: DataTypes.TEXT,
+    publicKey: DataTypes.TEXT,
+    encPrivateKey: DataTypes.TEXT,
+    pushSub: DataTypes.JSON
+  }, {});
+  User.associate = function(models) {
+    User.belongsToMany( models.Conversation, { as: 'conversations', through: 'Participants', foreignKey: 'userId' } )
+    User.hasMany( models.Friendship, { as: 'friendshipsOne', foreignKey: 'userOneId' } )
+    User.hasMany( models.Friendship, { as: 'friendshipsTwo', foreignKey: 'userTwoId' } )
+    User.hasMany( models.ConversationNotification, { as: 'conversationNotifications', foreignKey: 'userId' } )
+    User.hasMany( models.FriendshipNotification, { as: 'friendshipNotifications', foreignKey: 'userId' } )
+  };
+  return User;
+};

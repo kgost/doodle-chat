@@ -1,32 +1,13 @@
-//Model File for Conversations
-var
-  mongoose = require( 'mongoose' ),
-  Message = require( './message' )
-
-// define conversation Schema, must have a name, owner and participants
-var conversationSchema = new mongoose.Schema({
-  name: {type:String, required: true},
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  participants: [{
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    nickname: String,
-    accessKey: String,
-    colors: [{ id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, color: String }]
-  }],
-}, { timestamps: true } )
-
-// validate participants
-conversationSchema.path( 'participants' ).validate( function( participants ) {
-  if ( !participants ) return false
-  else if ( participants.length === 0 ) return false
-
-  return true
-}, 'Conversation must have participants' )
-
-conversationSchema.post( 'remove', ( conversation ) => {
-  Message.remove( { conversation_id: conversation._id }, ( err ) => {
-    if ( err ) throw err
-  } )
-} )
-
-module.exports = mongoose.model( 'Conversation' , conversationSchema )
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Conversation = sequelize.define('Conversation', {
+    name: DataTypes.STRING,
+    userId: DataTypes.INTEGER
+  }, {});
+  Conversation.associate = function(models) {
+    Conversation.belongsToMany( models.User, { as: 'participants', through: 'Participants', foreignKey: 'conversationId' } )
+    Conversation.hasMany( models.ConversationMessage, { as: 'messages', foreignKey: 'conversationId', onDelete: 'CASCADE' } )
+    Conversation.belongsTo( models.User, { as: 'owner' } )
+  };
+  return Conversation;
+};
