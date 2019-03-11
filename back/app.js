@@ -11,7 +11,7 @@ const
   // cron             = require( 'node-cron' ),
   // Notifier         = require( './models/notifier' ),
   socketController = require( './controllers/socket' ),
-  apiRoutes        = require('./routes/api'),
+  // apiRoutes        = require('./routes/api'),
   authRoutes       = require('./routes/auth')
 
 env( __dirname + '/.env', { raise: false } )
@@ -39,8 +39,8 @@ if ( process.env.HEROKU ) {
 app.use( expressSanitizer() )
 
 //Use pathing to routes
-app.use('/api', apiRoutes)
-app.use('/auth', authRoutes)
+// app.use('/api', apiRoutes)
+app.use('/api/auth', authRoutes)
 
 app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 
