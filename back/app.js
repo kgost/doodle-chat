@@ -4,6 +4,7 @@ const
   sslRedirect      = require( 'heroku-ssl-redirect' ),
   app              = express(),
   http             = require( 'http' ).Server(app),
+  cors             = require( 'cors' ),
   io               = require( 'socket.io' ).listen( http ),
   bodyParser       = require( 'body-parser' ),
   expressSanitizer = require( 'express-sanitizer' ),
@@ -37,6 +38,7 @@ if ( process.env.HEROKU ) {
   app.use( sslRedirect() )
 }
 app.use( expressSanitizer() )
+app.use( cors() )
 
 //Use pathing to routes
 // app.use('/api', apiRoutes)
