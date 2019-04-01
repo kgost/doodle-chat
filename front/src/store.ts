@@ -10,6 +10,8 @@ const authService = new AuthService();
 export default new Vuex.Store({
   state: {
     token: '',
+    publicKey: {},
+    privateKey: {},
     user: {},
     conversationId: '',
     friendshipId: '',
@@ -21,10 +23,12 @@ export default new Vuex.Store({
   mutations: {
     setToken( state, token ) {
       Vue.set( state, 'token', token );
+      localStorage.setItem( 'token' , token );
     },
 
     clearToken( state, token ) {
       Vue.delete( state, 'token' );
+      localStorage.removeItem( 'token' );
     },
 
     setUser( state, user ) {
@@ -33,6 +37,17 @@ export default new Vuex.Store({
 
     clearUser( state, user ) {
       Vue.delete( state, 'user' );
+      localStorage.removeItem( 'user' );
+    },
+
+    setKeys( state, keyPair ) {
+      Vue.set( this, 'publicKey', keyPair.publicKey );
+      Vue.set( this, 'privateKey', keyPair.privateKey );
+    },
+
+    clearKeys( state, keyPair ) {
+      Vue.delete( this, 'publicKey' );
+      Vue.delete( this, 'privateKey' );
     },
 
     setConversation( state, conversation ) {
@@ -49,8 +64,17 @@ export default new Vuex.Store({
       return new Promise( ( resolve, reject ) => {
         authService.signin( body )
           .then( ( res: any ) => {
-            commit( 'setToken', res.token );
-            commit( 'setUser', res.user );
+            const keypair = {
+              publicKey: authService.getPublicKeyFromString( res.data.publicKey ),
+              privateKey: authService.getPrivateKeyFromString(
+                authService.decryptAes( res.data.encPrivateKey, authService.getAesKeyFromString( body.password ) ),
+              ),
+            };
+
+            commit( 'setToken', res.data.token );
+            commit( 'setUser', res.data.user );
+            commit( 'setKeys', keypair );
+
             resolve( res );
           } )
           .catch( ( err ) => {
@@ -63,14 +87,21 @@ export default new Vuex.Store({
       return new Promise( ( resolve, reject ) => {
         authService.keyGen()
           .then( ( keyPair: any ) => {
+            const encPrivateKey = authService.encryptAes(
+              authService.privateKeyToString( keyPair.privateKey ),
+              authService.getAesKeyFromString( password ),
+            );
+
             authService.signup({
-              username: username,
-              password: password,
-              publicKey: keyPair.publicKey,
-              encPrivateKey: authService.encryptAes( authService.privateKeyToString( keyPair.privateKey ), password )
+              username,
+              password,
+              publicKey: authService.publicKeyToString( keyPair.publicKey ),
+              encPrivateKey,
             }).then( ( res: any ) => {
-                commit( 'setToken', res.token );
-                commit( 'setUser', res.user );
+                commit( 'setToken', res.data.token );
+                commit( 'setUser', res.data.user );
+                commit( 'setKeys', keyPair );
+
                 resolve( res );
               } )
               .catch( ( err ) => {

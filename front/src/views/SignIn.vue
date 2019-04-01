@@ -19,6 +19,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 import store from '@/store.ts';
+import router from '@/router.ts';
 
 @Component({
   data() {
@@ -46,7 +47,16 @@ import store from '@/store.ts';
   methods: {
     onSubmit() {
       if ( this.$data.username !== '' && this.$data.password.length >= 10 ) {
+        let p;
+        if ( this.$route.name === 'signin' ) {
+          p = store.dispatch( 'signIn', { username: this.$data.username, password: this.$data.password } );
+        } else {
+          p = store.dispatch( 'signUp', { username: this.$data.username, password: this.$data.password } );
+        }
 
+        p.then( () => {
+          router.push({ path: '/messenger' });
+        } );
       }
     },
   },
