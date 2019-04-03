@@ -7,7 +7,7 @@ export default() => {
     return axios.create({
       baseURL: `http://${ location.hostname }:8080`,
       headers: {
-        Authorization: store.state.token,
+        'Authorization': store.state.token,
         'Content-Type': 'application/json',
       },
     });
@@ -15,7 +15,7 @@ export default() => {
     return axios.create({
       baseURL: `http://${ location.hostname }`,
       headers: {
-        Authorization: store.state.token,
+        'Authorization': store.state.token,
         'Content-Type': 'application/json',
       },
     });

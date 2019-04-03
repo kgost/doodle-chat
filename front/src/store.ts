@@ -1,14 +1,18 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import Crudify from '@/services/Crudify';
 import AuthService from '@/services/AuthService';
+import ConversationService from '@/services/ConversationService';
 
 Vue.use(Vuex);
 
 const authService = new AuthService();
+const conversationService = new ConversationService();
 
 export default new Vuex.Store({
   state: {
+    // AUTH
     token: '',
     publicKey: {},
     privateKey: {},
@@ -16,14 +20,21 @@ export default new Vuex.Store({
       id: localStorage.getItem( 'user:id' ) ? localStorage.getItem( 'user:id' ) : undefined,
       username: localStorage.getItem( 'user:username' ) ? localStorage.getItem( 'user:username' ) : undefined,
     },
-    conversationId: '',
-    friendshipId: '',
+
+    // Conversations
+    conversationId: 0,
     conversations: {},
+
+    // Friendships
+    friendshipId: 0,
     friendships: {},
+
+    // Messages
     messages: {},
   },
 
   mutations: {
+    // AUTH
     setToken( state, token ) {
       Vue.set( state, 'token', token );
       localStorage.setItem( 'token' , token );
@@ -56,16 +67,19 @@ export default new Vuex.Store({
       Vue.delete( this, 'privateKey' );
     },
 
+    // Conversations
     setConversation( state, conversation ) {
       Vue.set( state.conversations, conversation._id, conversation );
     },
 
+    // Friendships
     setFriendship( state, friendship ) {
       Vue.set( state.friendships, friendship._id, friendship );
     },
   },
 
   actions: {
+    // AUTH
     signIn( { commit, state }, body ) {
       return new Promise( ( resolve, reject ) => {
         authService.signin( body )
@@ -119,5 +133,16 @@ export default new Vuex.Store({
           } );
       } );
     },
+
+    // Conversations
+    createConversation: Crudify( conversationService.create, [['setConversation']] ),
+
+    getConversations: Crudify( conversationService.index, [['setConversations']] ),
+
+    getConversation: Crudify( conversationService.show ),
+
+    updateConversation: Crudify( conversationService.update, [['setConversation']] ),
+
+    removeConversation: Crudify( conversationService.destroy, [['clearConversation']] ),
   },
 });
