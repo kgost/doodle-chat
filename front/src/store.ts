@@ -12,7 +12,10 @@ export default new Vuex.Store({
     token: '',
     publicKey: {},
     privateKey: {},
-    user: {},
+    user: {
+      id: localStorage.getItem( 'user:id' ) ? localStorage.getItem( 'user:id' ) : undefined,
+      username: localStorage.getItem( 'user:username' ) ? localStorage.getItem( 'user:username' ) : undefined,
+    },
     conversationId: '',
     friendshipId: '',
     conversations: {},
@@ -33,11 +36,14 @@ export default new Vuex.Store({
 
     setUser( state, user ) {
       Vue.set( state, 'user', user );
+      localStorage.setItem( 'user:id', user.id );
+      localStorage.setItem( 'user:username', user.username );
     },
 
     clearUser( state, user ) {
       Vue.delete( state, 'user' );
-      localStorage.removeItem( 'user' );
+      localStorage.removeItem( 'user:id' );
+      localStorage.removeItem( 'user:username' );
     },
 
     setKeys( state, keyPair ) {

@@ -18,7 +18,7 @@ const actions = {
 
     return { body: {
       token: token,
-      userId: user.id,
+      user: { id: user.id, username: user.username },
       publicKey: user.publicKey,
       encPrivateKey: user.encPrivateKey,
     } }
@@ -41,7 +41,7 @@ const actions = {
       status: 201,
       body: {
         token: token,
-        userId: user.id,
+        user: { id: user.id, username: user.username },
       }
     }
   },
