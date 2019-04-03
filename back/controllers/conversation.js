@@ -1,302 +1,195 @@
 const
-  mongoose = require( 'mongoose' ),
-  to = require( 'await-to-js' ).to,
-  responseHelper = require( '../functions/responseHelper' ),
-  User = require( '../models/user' ),
-  Conversation = require( '../models/conversation' ),
-  Notifier = require( '../models/notifier' ),
-  Message = require( '../models/message' )
+  db             = require( '../models' ),
+  Conversation   = db.Conversation,
+  Participant    = db.Participant,
+  User           = db.User,
+  Notification   = db.ConversationNotification,
+  responseHelper = require( '../functions/responseHelper' )
 
-const syncActions = {
-  create: ( req, res, next ) => {
-    createOrUpdate( req, false )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
+const actions = {
+  create: async ( req ) => {
+    const t = await db.sequelize.transaction()
 
-  index: ( req, res, next ) => {
-    index( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
+    let conversation
 
-  update: ( req, res, next ) => {
-    createOrUpdate( req, true )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
+    try {
+      conversation = await Conversation.create({
+        name: req.body.conversation.name,
+        userId: req.user.id,
+      }, { transaction: t })
 
-  destroy: ( req, res, next ) => {
-    destroy( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-
-  leave: ( req, res, next ) => {
-    leave( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-
-  changeCosmetic: ( req, res, next ) => {
-    changeCosmetic( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-}
-
-async function createOrUpdate( req, update ) {
-  // declare the variables we will end up pulling from mongodb
-  let err, users, conversation, oldConversation
-
-  // get rid of duplicate users
-  const convo = pruneUsers( req.body.conversation )
-
-  // hashmap of username => { accessKey, nickname } 
-  const usernames = {}
-
-  // get the old conversation
-  if ( update ) {
-    [err, oldConversation] = await to( Conversation.findById( req.params.id ) )
-    if ( err ) throw err
-  }
-
-  // fill the usernames hash with the access keys and nick names
-  for ( let participant of convo.participants ) {
-    usernames[participant.id.username] = {
-      accessKey: participant.accessKey,
-      nickname: participant.nickname,
-    }
-  }
-
-  // get the user objects based on usernames
-  [err, users] = await to( User.find( { username: { '$in': Object.keys( usernames ) } }, '_id username' ).lean().exec() )
-  if ( err ) throw err
-
-  // append the id to usernames hash
-  for ( const user of users ) {
-    usernames[user.username]._id = user._id
-  }
-
-  // go through each user
-  convo.participants = users.map( ( usr ) => {
-    // results holds all the fields for a participant in the participants array
-    // found in the conversation model
-    const result = {
-      id: usr._id,
-      nickname: usernames[usr.username].nickname,
-      accessKey: usernames[usr.username].accessKey,
-    }
-
-    // if the usr is the curretnly logged in user use the current colors sent for that users colors
-    if ( req.user._id == usr._id ) {
-      for ( let i = 0; i < req.body.colors.length; i++ ) {
-        req.body.colors[i].id = usernames[convo.participants[i].id.username]._id
+      for ( const participant of req.body.participants ) {
+        await Participant.create({
+          conversationId: conversation.id,
+          userId: participant.userId,
+          nickname: participant.nickname,
+          accessKey: participant.accessKey,
+        }, { transaction: t })
       }
-
-      result.colors = req.body.colors 
-    // if this is a create, use default colors
-    } else if ( !update ) {
-      result.colors = defaultColors( usr._id, users ) 
-    // otherwise, go through the array of participants and copy over their colors into the result
-    // TODO include a new user with default colors
-    } else {
-      for ( const participant of oldConversation.participants ) {
-        if ( usr._id.toString() == participant.id.toString() ) {
-          result.colors = participant.colors
-          return result
-        }
-      }
-
-      result.colors = defaultColors( usr._id, users ) 
+    } catch ( err ) {
+      t.rollback()
+      throw err
     }
 
-    return result
-  } )
+    t.commit()
 
-  // sanitize the name and set it
-  convo.name = req.sanitize( convo.name )
+    const result = await Conversation.findByPk( conversation.id, {
+      include: [{
+        model: Participant,
+        as: 'participants',
+      }],
+    })
 
-  // update or create the conversation
-  if( update ) {
-    [err, conversation] = await to( Conversation.findByIdAndUpdate( req.params.id, convo ).exec() )
-    if ( err ) throw err
-  } else {
-    [err, conversation] = await to( Conversation.create( convo ) )
-    if ( err ) throw err
-  }
+    return { body: result, status: 201 }
+  },
 
-  // re-get the conversation, populated
-  [err, conversation] = await to( Conversation.populate( conversation, { path: 'participants.id' } ) )
-  if ( err ) throw err
-
-  return {
-    status: 201,
-    data: {
-      _id: conversation._id,
-      name: conversation.name,
-      owner: { _id: req.user._id, username: req.user.username },
-      participants: conversation.participants
-    }
-  }
-}
-
-async function index( req ) {
-  let err, conversations
-
-  ;[err, conversations] =
-    await to(
-      Conversation.find({ 'participants.id': mongoose.Types.ObjectId( req.user._id ) }, '_id name participants owner' )
-        .populate('participants.id', 'username')
-        .populate( 'owner', 'username' )
-        .exec()
-    )
-  if ( err ) throw err
-
-  return { status: 200, data: { obj: conversations } }
-}
-
-async function destroy( req ) {
-  let err, messages
-
-  [err] = await to( Conversation.remove( { _id: req.params.id } ) )
-  if ( err ) throw err
-
-  ;[err] = await to(
-    Notifier.update(
-      { 'conversations.id': mongoose.Types.ObjectId( req.params.id ) },
-      { '$pull': { 'conversations.id': mongoose.Types.ObjectId( req.params.id ) } }
-    ).exec()
-  )
-  if ( err ) throw err
-
-  ;[err, messages] = await to( Message.find( { conversation_id: req.params.id }, 'media reactions' ).exec() )
-  if ( err ) throw err
-
-  await Promise.all(
-    messages.map( async ( message ) => {
-      [err] = await to( message.remove() )
-      if ( err ) throw err
+  index: async ( req ) => {
+    const user = await User.findByPk( req.user.id, {
+      include: [{
+        model: Conversation,
+        as: 'conversations',
+        include: [{
+          model: Participant,
+          as: 'participants',
+        }]
+      }]
     } )
-  )
 
-  return { status: 200, data: { message: 'Conversation deleted' } }
-}
-
-async function leave( req ) {
-  let err, conversation
-
-  ;[err, conversation] = await to( Conversation.findById( req.params.id ).lean().exec() )
-  if ( err ) throw err
-
-  ;[err] = await to(
-    Notifier.update(
-      { user: mongoose.Types.ObjectId( req.user._id ) },
-      { '$pull': { 'conversations.id': mongoose.Types.ObjectId( req.params.id ) } }
-    ).exec()
-  )
-  if ( err ) throw err
-
-  for ( let i = 0; i < conversation.participants.length; i++ ) {
-    if ( conversation.participants[i].id == req.user._id ) {
-      conversation.participants.splice( i, 1 )
-      break
+    if ( !user.conversations.length ) {
+      throw { status: 404, message: 'no conversations found' }
     }
-  }
 
-  [err] = await to( Conversation.findByIdAndUpdate( conversation._id, conversation ).exec() )
-  if ( err ) throw err
+    return { body: user.conversations }
+  },
 
-  return { status: 200, data: { message: 'Left Converrsation' } }
-}
+  update: async ( req ) => {
+    const t = await db.sequelize.transaction()
 
-async function changeCosmetic( req ) {
-  let err, conversation
+    try {
+      await Conversation.update({
+        name: req.body.conversation.name,
+      }, {
+        where: { id: req.params.id },
+        transaction: t
+      })
 
-  [err, conversation] = await to( Conversation.findById( req.params.conversationId ).lean().exec() )
-  if ( err ) throw err
+      await Participant.destroy({
+        where: { conversationId: req.params.id },
+        transaction: t
+      })
 
-  for ( let i = 0; i < conversation.participants.length; i++ ) {
-    for ( let j = 0; j < req.body.conversation.participants.length; j++ ) {
-      if ( req.body.conversation.participants[j].id._id == conversation.participants[i].id ) {
-        conversation.participants[i].nickname = req.body.conversation.participants[j].nickname
+      for ( const participant of req.body.participants ) {
+        await Participant.create({
+          conversationId: req.params.id,
+          userId: participant.userId,
+          nickname: participant.nickname,
+          accessKey: participant.accessKey,
+        }, { transaction: t })
       }
+    } catch ( err ) {
+      t.rollback()
+      throw err
+    }
 
-      if ( conversation.participants[i].id == req.user._id && req.body.conversation.participants[j].id._id === req.user._id ) {
-        conversation.participants[i].colors = req.body.colors
+    t.commit()
+
+    const result = await Conversation.findByPk( req.params.id, {
+      include: [{
+        model: Participant,
+        as: 'participants',
+      }],
+    })
+
+    return { body: result, status: 201 }
+  },
+
+  destroy: async ( req ) => {
+    const t = await db.sequelize.transaction()
+
+    try {
+      await Conversation.destroy({
+        where: { id: req.params.id },
+        transaction: t
+      })
+
+      await Participant.destroy({
+        where: { conversationId: req.params.id },
+        transaction: t
+      })
+    } catch ( err ) {
+      t.rollback()
+      throw err
+    }
+
+    t.commit()
+  },
+
+  leave: async ( req ) => {
+    const t = await db.sequelize.transaction()
+
+    try {
+      await Participant.destroy({
+        where: { conversationId: req.params.id, userId: req.user.id },
+        transaction: t
+      })
+
+      await Notification.destroy({
+        where: { conversationId: req.params.id, userId: req.user.id },
+        transaction: t
+      })
+
+      const count = await Participant.count({
+        where: { conversationId: req.params.id },
+        transaction: t
+      })
+
+      if ( count < 2 ) {
+        await Conversation.destroy({
+          where: { id: req.params.id },
+          transaction: t
+        })
+
+        await Participant.destroy({
+          where: { conversationId: req.params.id },
+          transaction: t
+        })
       }
+    } catch ( err ) {
+      t.rollback()
+      throw err
     }
-  }
 
-  [err] = await to( Conversation.findByIdAndUpdate( conversation._id, conversation ).exec() )
-  if ( err ) throw err
+    t.commit()
+  },
 
-  return { status: 200, data: conversation }
-}
+  changeCosmetic: async ( req ) => {
+    const t = await db.sequelize.transaction()
 
-function pruneUsers( conversation ) {
-  // if two users in the conversation have the same username, remove one of them
-  for ( let i = 0; i < conversation.participants.length; i++ ) {
-    for ( let j = i + 1; j < conversation.participants.length; j++ ) {
-      if ( conversation.participants[i].id.username === conversation.participants[j].id.username ) {
-        conversation.participants.splice( i, 1 )
-        i--
-        break
+    try {
+      for ( const participant of req.body.participants ) {
+        await Participant.update({
+          nickname: participant.nickname
+        }, {
+          where: { userId: participant.userId },
+          transaction: t
+        })
       }
+    } catch ( err ) {
+      t.rollback()
+      throw err
     }
-  }
 
-  return conversation
+    t.commit()
+
+    const result = await Conversation.findByPk( req.params.id, {
+      include: [{
+        model: Participant,
+        as: 'participants',
+      }],
+    })
+
+    return { body: result, status: 201 }
+  },
 }
 
-function defaultColors( userId, users ) {
-  const colors = []
-
-  for ( const user of users ) {
-    if ( user._id != userId ) {
-      colors.push( { id: user._id, color: '#ffffff' } )
-    } else {
-      colors.push( { id: user._id, color: '#449d44' } )
-    }
-  }
-
-  return colors
-}
-
-module.exports = syncActions
+module.exports = responseHelper.handleActions( actions )

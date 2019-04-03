@@ -1,19 +1,18 @@
 const
-  env              = require( 'node-env-file' ),
-  express          = require( 'express' ),
-  sslRedirect      = require( 'heroku-ssl-redirect' ),
-  app              = express(),
-  http             = require( 'http' ).Server(app),
-  cors             = require( 'cors' ),
-  io               = require( 'socket.io' ).listen( http ),
-  bodyParser       = require( 'body-parser' ),
-  expressSanitizer = require( 'express-sanitizer' ),
-  webpush          = require( 'web-push' ),
-  // cron             = require( 'node-cron' ),
-  // Notifier         = require( './models/notifier' ),
-  socketController = require( './controllers/socket' ),
-  // apiRoutes        = require('./routes/api'),
-  authRoutes       = require('./routes/auth')
+  env                = require( 'node-env-file' ),
+  express            = require( 'express' ),
+  sslRedirect        = require( 'heroku-ssl-redirect' ),
+  app                = express(),
+  http               = require( 'http' ).Server(app),
+  cors               = require( 'cors' ),
+  io                 = require( 'socket.io' ).listen( http ),
+  bodyParser         = require( 'body-parser' ),
+  expressSanitizer   = require( 'express-sanitizer' ),
+  webpush            = require( 'web-push' ),
+  // cron               = require( 'node-cron' ),
+  socketController   = require( './controllers/socket' ),
+  authRoutes         = require( './routes/auth' ),
+  conversationRoutes = require( './routes/conversation' )
 
 env( __dirname + '/.env', { raise: false } )
 
@@ -41,8 +40,8 @@ app.use( expressSanitizer() )
 app.use( cors() )
 
 //Use pathing to routes
-// app.use('/api', apiRoutes)
-app.use('/api/auth', authRoutes)
+app.use( '/api/auth', authRoutes )
+app.use( '/api/conversations', conversationRoutes )
 
 app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 
