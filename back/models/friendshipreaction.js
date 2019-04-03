@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const FriendshipReaction = sequelize.define('FriendshipReaction', {
     friendshipMessageId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    emoji: DataTypes.STRING
+    emoji: {
+      allowNull: false,
+      type: DataTypes.STRING
+    }
   }, {});
   FriendshipReaction.associate = function(models) {
     FriendshipReaction.belongsTo( models.FriendshipMessage, { as: 'message', foreignKey: 'friendshipMessageId', onDelete: 'CASCADE' } )

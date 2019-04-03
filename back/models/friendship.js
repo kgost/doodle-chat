@@ -3,10 +3,22 @@ module.exports = (sequelize, DataTypes) => {
   const Friendship = sequelize.define('Friendship', {
     userOneId: DataTypes.INTEGER,
     userTwoId: DataTypes.INTEGER,
-    userOneAccessKey: DataTypes.TEXT,
-    userTwoAccessKey: DataTypes.TEXT,
-    userOneAccepted: DataTypes.BOOLEAN,
-    userTwoAccepted: DataTypes.BOOLEAN
+    userOneAccessKey: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    userTwoAccessKey: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    userOneAccepted: {
+      allowNull: false,
+      type: DataTypes.BOOLEAN
+    },
+    userTwoAccepted: {
+      allowNull: false,
+      type: DataTypes.BOOLEAN
+    },
   }, {});
   Friendship.associate = function(models) {
     Friendship.hasMany( models.FriendshipMessage, { as: 'messages', foreignKey: 'friendshipId', onDelete: 'CASCADE' } )

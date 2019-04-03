@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const ConversationNotification = sequelize.define('ConversationNotification', {
     conversationId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    sent: DataTypes.BOOLEAN
+    sent: {
+      allowNull: false,
+      type: DataTypes.BOOLEAN
+    }
   }, {});
   ConversationNotification.associate = function(models) {
     ConversationNotification.belongsTo( models.Conversation, { as: 'conversation', foreignKey: 'conversationId', onDelete: 'CASCADE' } )

@@ -1,14 +1,29 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
-    username: DataTypes.STRING,
-    passHash: DataTypes.TEXT,
-    publicKey: DataTypes.TEXT,
-    encPrivateKey: DataTypes.TEXT,
-    pushSub: DataTypes.JSON
+    username: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    passHash: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    publicKey: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    encPrivateKey: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
+    pushSub: {
+      allowNull: false,
+      type: DataTypes.JSON
+    },
   }, {});
   User.associate = function(models) {
-    User.belongsToMany( models.Conversation, { as: 'conversations', through: 'Participants', foreignKey: 'userId' } )
+    User.belongsToMany( models.Conversation, { as: 'conversations', through: models.Participant, foreignKey: 'userId' } )
     User.hasMany( models.Friendship, { as: 'friendshipsOne', foreignKey: 'userOneId' } )
     User.hasMany( models.Friendship, { as: 'friendshipsTwo', foreignKey: 'userTwoId' } )
     User.hasMany( models.ConversationNotification, { as: 'conversationNotifications', foreignKey: 'userId' } )

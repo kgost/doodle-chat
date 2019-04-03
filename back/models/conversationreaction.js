@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const ConversationReaction = sequelize.define('ConversationReaction', {
     userId: DataTypes.INTEGER,
     conversationMessageId: DataTypes.INTEGER,
-    emoji: DataTypes.STRING
+    emoji: {
+      allowNull: false,
+      type: DataTypes.STRING
+    }
   }, {});
   ConversationReaction.associate = function(models) {
     ConversationReaction.belongsTo( models.User, { as: 'user', foreignKey: 'userId', onDelete: 'CASCADE' } )

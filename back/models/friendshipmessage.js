@@ -1,7 +1,10 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const FriendshipMessage = sequelize.define('FriendshipMessage', {
-    message: DataTypes.TEXT,
+    message: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
     userId: DataTypes.INTEGER,
     friendshipId: DataTypes.INTEGER
   }, {});

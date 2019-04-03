@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const ConversationMessage = sequelize.define('ConversationMessage', {
     conversationId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    message: DataTypes.TEXT,
+    message: {
+      allowNull: false,
+      type: DataTypes.TEXT
+    },
   }, {});
   ConversationMessage.associate = function(models) {
     ConversationMessage.belongsTo( models.User, { as: 'author', foreignKey: 'userId', onDelete: 'CASCADE' } )
