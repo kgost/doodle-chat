@@ -33,6 +33,7 @@ const actions = {
       passHash: bcrypt.hashSync( req.body.password, 10 ),
       publicKey: req.body.publicKey,
       encPrivateKey: req.body.encPrivateKey,
+      pushSub: {}
     })
 
     const token = jwt.sign( { user: { id: user.id, username: user.username } }, process.env.JWTKEY )
