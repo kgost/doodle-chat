@@ -1,17 +1,17 @@
-export default ( serviceFunction: any, commits: string[][] = [[]] ) => {
+export default ( service: any, func: string, commits: string[][] = [[]] ) => {
   return ( { commit, state }, body = null ) => {
     return new Promise( ( resolve, reject ) => {
-      serviceFunction( body )
-        .then( ( res: any ) => {
+      service[func]( body )
+        .then( ( data: any ) => {
           for ( const c of commits ) {
             if ( c.length > 1 ) {
-              commit( c[0], res.data[c[1]] );
+              commit( c[0], data.data[c[1]] );
             } else if ( c.length ) {
-              commit( c[0], res.data );
+              commit( c[0], data );
             }
           }
 
-          resolve( res );
+          resolve( data );
         } )
         .catch( ( err ) => {
           reject( err );
