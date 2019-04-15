@@ -5,7 +5,9 @@ import Home from './views/Home.vue';
 
 import SignIn from './views/SignIn.vue';
 
-import MessageList from './views/MessageList.vue';
+import Messenger from './views/Messenger.vue';
+
+import EditConversation from './views/EditConversation.vue';
 
 // import Settings from './views/Settings.vue';
 
@@ -17,8 +19,29 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home,
+      name: 'messenger',
+      component: Messenger,
+    },
+    // Conversations
+    {
+      path: '/conversations/:id/new',
+      name: 'new-conversation',
+      component: EditConversation,
+    },
+    {
+      path: '/conversations/:id',
+      name: 'conversation',
+      component: Messenger,
+    },
+    {
+      path: '/conversations/:id/edit',
+      name: 'edit-conversation',
+      component: EditConversation,
+    },
+    {
+      path: '/freindships/:id',
+      name: 'friendship',
+      component: Messenger,
     },
     {
       path: '/signin',
@@ -29,16 +52,6 @@ export default new Router({
       path: '/signup',
       name: 'signup',
       component: SignIn,
-    },
-    {
-      path: '/conversation/:id',
-      name: 'conversation',
-      component: MessageList,
-    },
-    {
-      path: '/friendship/:id',
-      name: 'friendship',
-      component: MessageList,
     },
   ],
 });
