@@ -6,14 +6,14 @@ export default class AuthService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = 'api/auth';
+    this.baseUrl = 'auth';
   }
 
   public signin( body: any ) {
     return new Promise( ( resolve, reject ) => {
       Api().post( `${ this.baseUrl }/signin`, body )
         .then( ( res ) => {
-          resolve( res );
+          resolve( res.data );
         } )
         .catch( ( err ) => {
           reject( err );
@@ -25,7 +25,7 @@ export default class AuthService {
     return new Promise( ( resolve, reject ) => {
       Api().post( `${ this.baseUrl }/signup`, body )
         .then( ( res ) => {
-          resolve( res );
+          resolve( res.data );
         } )
         .catch( ( err ) => {
           reject( err );
@@ -35,9 +35,9 @@ export default class AuthService {
 
   public usernameTaken( username: any ) {
     return new Promise( ( resolve, reject ) => {
-      Api().get( `${ this.baseUrl }/usernameTaken/${ encodeURIComponent( username ) }` )
-        .then( ( res ) => {
-          resolve( res );
+      Api().get( `${ this.baseUrl }/username-taken/${ encodeURIComponent( username ) }` )
+        .then( ( data ) => {
+          resolve( data );
         } )
         .catch( ( err ) => {
           reject( err );
@@ -50,6 +50,21 @@ export default class AuthService {
       const keyPair = forge.pki.rsa.generateKeyPair( { bits: 2048 } );
       resolve({ publicKey: keyPair.publicKey, privateKey: keyPair.privateKey });
     } );
+  }
+
+  public generateAccessKeys( users: [{ id: number, publicKey: string }], decryptedKey: any = '' ) {
+    const accessKeys = {};
+
+    if ( decryptedKey === '' ) {
+      decryptedKey = forge.random.getBytesSync( 16 );
+    }
+
+    for ( const user of users ) {
+      const publicKey = this.getPublicKeyFromString( user.publicKey );
+      accessKeys[user.id] = publicKey.encrypt( decryptedKey );
+    }
+
+    return accessKeys;
   }
 
   public encryptAes( input: string, key: string ) {

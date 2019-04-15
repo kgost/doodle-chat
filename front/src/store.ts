@@ -13,9 +13,10 @@ const conversationService = new ConversationService();
 export default new Vuex.Store({
   state: {
     // AUTH
-    token: '',
+    token: localStorage.getItem( 'token' ),
     publicKey: {},
     privateKey: {},
+    decryptedAccessKey: '',
     user: {
       id: localStorage.getItem( 'user:id' ) ? localStorage.getItem( 'user:id' ) : undefined,
       username: localStorage.getItem( 'user:username' ) ? localStorage.getItem( 'user:username' ) : undefined,
@@ -31,6 +32,12 @@ export default new Vuex.Store({
 
     // Messages
     messages: {},
+  },
+
+  getters: {
+    encryptAccessKeys: ( state ) => ( users: [{ id: number, publicKey: string }] ) => {
+      return authService.generateAccessKeys( users, state.decryptedAccessKey );
+    },
   },
 
   mutations: {
@@ -69,12 +76,22 @@ export default new Vuex.Store({
 
     // Conversations
     setConversation( state, conversation ) {
-      Vue.set( state.conversations, conversation._id, conversation );
+      Vue.set( state.conversations, conversation.id, conversation );
+    },
+
+    clearConversation( state, id ) {
+      Vue.delete( state.conversations, id );
+    },
+
+    setConversations( state, conversations ) {
+      for ( const conversation of conversations ) {
+        Vue.set( state.conversations, conversation.id, conversation );
+      }
     },
 
     // Friendships
     setFriendship( state, friendship ) {
-      Vue.set( state.friendships, friendship._id, friendship );
+      Vue.set( state.friendships, friendship.id, friendship );
     },
   },
 
@@ -83,19 +100,19 @@ export default new Vuex.Store({
     signIn( { commit, state }, body ) {
       return new Promise( ( resolve, reject ) => {
         authService.signin( body )
-          .then( ( res: any ) => {
+          .then( ( data: any ) => {
             const keypair = {
-              publicKey: authService.getPublicKeyFromString( res.data.publicKey ),
+              publicKey: authService.getPublicKeyFromString( data.publicKey ),
               privateKey: authService.getPrivateKeyFromString(
-                authService.decryptAes( res.data.encPrivateKey, authService.getAesKeyFromString( body.password ) ),
+                authService.decryptAes( data.encPrivateKey, authService.getAesKeyFromString( body.password ) ),
               ),
             };
 
-            commit( 'setToken', res.data.token );
-            commit( 'setUser', res.data.user );
+            commit( 'setToken', data.token );
+            commit( 'setUser', data.user );
             commit( 'setKeys', keypair );
 
-            resolve( res );
+            resolve( data );
           } )
           .catch( ( err ) => {
             reject( err );
@@ -117,12 +134,12 @@ export default new Vuex.Store({
               password,
               publicKey: authService.publicKeyToString( keyPair.publicKey ),
               encPrivateKey,
-            }).then( ( res: any ) => {
-                commit( 'setToken', res.data.token );
-                commit( 'setUser', res.data.user );
+            }).then( ( data: any ) => {
+                commit( 'setToken', data.token );
+                commit( 'setUser', data.user );
                 commit( 'setKeys', keyPair );
 
-                resolve( res );
+                resolve( data );
               } )
               .catch( ( err ) => {
                 reject( err );
@@ -134,15 +151,17 @@ export default new Vuex.Store({
       } );
     },
 
+    usernaemTaken( { commit, state }, username ) {
+      return authService.usernameTaken( username );
+    },
+
     // Conversations
-    createConversation: Crudify( conversationService.create, [['setConversation']] ),
+    createConversation: Crudify( conversationService, 'create', [['setConversation']] ),
 
-    getConversations: Crudify( conversationService.index, [['setConversations']] ),
+    getConversations: Crudify( conversationService, 'index', [['setConversations']] ),
 
-    getConversation: Crudify( conversationService.show ),
+    updateConversation: Crudify( conversationService, 'update', [['setConversation']] ),
 
-    updateConversation: Crudify( conversationService.update, [['setConversation']] ),
-
-    removeConversation: Crudify( conversationService.destroy, [['clearConversation']] ),
+    removeConversation: Crudify( conversationService, 'destroy', [['clearConversation']] ),
   },
 });
