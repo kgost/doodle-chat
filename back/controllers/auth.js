@@ -48,9 +48,12 @@ const actions = {
   },
 
   usernameTaken: async ( req ) => {
-    const count = await User.count({ where: { username: decodeURIComponent( req.params.username ) } })
+    const user = await User.findOne({
+      include: ['publicKey', 'id'],
+      where: { username: decodeURIComponent( req.params.username ) }
+    })
 
-    return { body: !!count }
+    return { body: user }
   }
 }
 
