@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import Api from '@/services/Api';
 import Crudify from '@/services/Crudify';
 import AuthService from '@/services/AuthService';
 import ConversationService from '@/services/ConversationService';
@@ -18,7 +19,7 @@ export default new Vuex.Store({
     privateKey: {},
     decryptedAccessKey: '',
     user: {
-      id: localStorage.getItem( 'user:id' ) ? localStorage.getItem( 'user:id' ) : undefined,
+      id: localStorage.getItem( 'user:id' ) ? Number( localStorage.getItem( 'user:id' ) ) : undefined,
       username: localStorage.getItem( 'user:username' ) ? localStorage.getItem( 'user:username' ) : undefined,
     },
 
@@ -35,8 +36,12 @@ export default new Vuex.Store({
   },
 
   getters: {
-    encryptAccessKeys: ( state ) => ( users: [{ id: number, publicKey: string }] ) => {
-      return authService.generateAccessKeys( users, state.decryptedAccessKey );
+    encryptAccessKeys: ( state, participants: Array<{ userId: number, publicKey: string }> ) => {
+      return authService.generateAccessKeys( participants, state.decryptedAccessKey );
+    },
+
+    getPublicKeyFromString( state, key: string ) {
+      return authService.getPublicKeyFromString( key );
     },
   },
 
@@ -97,66 +102,59 @@ export default new Vuex.Store({
 
   actions: {
     // AUTH
-    signIn( { commit, state }, body ) {
-      return new Promise( ( resolve, reject ) => {
-        authService.signin( body )
-          .then( ( data: any ) => {
-            const keypair = {
-              publicKey: authService.getPublicKeyFromString( data.publicKey ),
-              privateKey: authService.getPrivateKeyFromString(
-                authService.decryptAes( data.encPrivateKey, authService.getAesKeyFromString( body.password ) ),
-              ),
-            };
+    signIn( { commit, state }, { username, password } ) {
+      return Api().post( '/auth/signin', { username, password } )
+        .then( ( res ) => {
+          const keypair = {
+            publicKey: authService.getPublicKeyFromString( res.data.publicKey ),
+            privateKey: authService.getPrivateKeyFromString(
+              authService.decryptAes( res.data.encPrivateKey, authService.getAesKeyFromString( password ) ),
+            ),
+          };
 
-            commit( 'setToken', data.token );
-            commit( 'setUser', data.user );
-            commit( 'setKeys', keypair );
-
-            resolve( data );
-          } )
-          .catch( ( err ) => {
-            reject( err );
-          } );
-      } );
+          commit( 'setToken', res.data.token );
+          commit( 'setUser', res.data.user );
+          commit( 'setKeys', keypair );
+        } );
     },
 
     signUp( { commit, state }, { username, password } ) {
-      return new Promise( ( resolve, reject ) => {
-        authService.keyGen()
-          .then( ( keyPair: any ) => {
-            const encPrivateKey = authService.encryptAes(
-              authService.privateKeyToString( keyPair.privateKey ),
-              authService.getAesKeyFromString( password ),
-            );
+      const keyPair = authService.keyGen();
 
-            authService.signup({
-              username,
-              password,
-              publicKey: authService.publicKeyToString( keyPair.publicKey ),
-              encPrivateKey,
-            }).then( ( data: any ) => {
-                commit( 'setToken', data.token );
-                commit( 'setUser', data.user );
-                commit( 'setKeys', keyPair );
+      const encPrivateKey = authService.encryptAes(
+        authService.privateKeyToString( keyPair.privateKey ),
+        authService.getAesKeyFromString( password ),
+      );
 
-                resolve( data );
-              } )
-              .catch( ( err ) => {
-                reject( err );
-              } );
-          } )
-          .catch( ( err ) => {
-            reject( err );
-          } );
+      return Api().post( '/auth/signup', {
+        username,
+        password,
+        publicKey: authService.publicKeyToString( keyPair.publicKey ),
+        encPrivateKey,
+      } ).then( ( res ) => {
+        commit( 'setToken', res.data.token );
+        commit( 'setUser', res.data.user );
+        commit( 'setKeys', keyPair );
       } );
     },
 
     usernaemTaken( { commit, state }, username ) {
-      return authService.usernameTaken( username );
+      return Api().get( `/auth/username-taken/${ encodeURIComponent( username ) }` );
     },
 
     // Conversations
-    createConversation: Crudify( conversationService, 'create', [['setConversation']] ),
+    createConversation( { commit, state, getters }, { conversation, participants } ) {
+      const accessKeys = getters.encryptAccessKeys( participants );
+
+      for ( const participant of participants ) {
+        participant.accessKey = accessKeys[participant.userId];
+      }
+
+      return Api().post( '/conversations', { conversation, participants } )
+        .then( ( res ) => {
+          commit( 'setConversation', res.data );
+        } );
+    },
 
     getConversations: Crudify( conversationService, 'index', [['setConversations']] ),
 

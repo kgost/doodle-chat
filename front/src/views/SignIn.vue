@@ -22,44 +22,40 @@ import store from '@/store.ts';
 import router from '@/router.ts';
 
 @Component({
-  data() {
-    return {
-      username: '',
-      password: '',
-    };
-  },
-
-  components: {
-  },
-
   computed: {
-    showSignIn() {
-      if ( this.$route.name === 'signin' ) {
-        return true;
-      }
-    },
-
-    valid() {
-      return this.$data.username !== '' && this.$data.password.length >= 10;
-    },
   },
 
   methods: {
-    onSubmit() {
-      if ( this.$data.username !== '' && this.$data.password.length >= 10 ) {
-        let p;
-        if ( this.$route.name === 'signin' ) {
-          p = store.dispatch( 'signIn', { username: this.$data.username, password: this.$data.password } );
-        } else {
-          p = store.dispatch( 'signUp', { username: this.$data.username, password: this.$data.password } );
-        }
-
-        p.then( () => {
-          router.push({ path: '/messenger' });
-        } );
-      }
-    },
   },
 })
-export default class SignIn extends Vue {}
+export default class SignIn extends Vue {
+  private username = '';
+  private password = '';
+
+  get showSignIn() {
+    if ( router.currentRoute.name === 'signin' ) {
+      return true;
+    }
+  }
+
+  get valid() {
+    return this.username !== '' && this.password.length >= 10;
+  }
+
+  private onSubmit() {
+    if ( this.username !== '' && this.password.length >= 10 ) {
+      let p;
+
+      if ( router.currentRoute.name === 'signin' ) {
+        p = store.dispatch( 'signIn', { username: this.username, password: this.password } );
+      } else {
+        p = store.dispatch( 'signUp', { username: this.username, password: this.password } );
+      }
+
+      p.then( () => {
+        router.push({ path: '/messenger' });
+      } );
+    }
+  }
+}
 </script>

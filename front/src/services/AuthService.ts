@@ -3,65 +3,20 @@ import Api from './Api';
 import * as forge from 'node-forge';
 
 export default class AuthService {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = 'auth';
-  }
-
-  public signin( body: any ) {
-    return new Promise( ( resolve, reject ) => {
-      Api().post( `${ this.baseUrl }/signin`, body )
-        .then( ( res ) => {
-          resolve( res.data );
-        } )
-        .catch( ( err ) => {
-          reject( err );
-        } );
-    } );
-  }
-
-  public signup( body: any ) {
-    return new Promise( ( resolve, reject ) => {
-      Api().post( `${ this.baseUrl }/signup`, body )
-        .then( ( res ) => {
-          resolve( res.data );
-        } )
-        .catch( ( err ) => {
-          reject( err );
-        } );
-    } );
-  }
-
-  public usernameTaken( username: any ) {
-    return new Promise( ( resolve, reject ) => {
-      Api().get( `${ this.baseUrl }/username-taken/${ encodeURIComponent( username ) }` )
-        .then( ( data ) => {
-          resolve( data );
-        } )
-        .catch( ( err ) => {
-          reject( err );
-        } );
-    } );
-  }
-
   public keyGen() {
-    return new Promise( ( resolve, reject ) => {
-      const keyPair = forge.pki.rsa.generateKeyPair( { bits: 2048 } );
-      resolve({ publicKey: keyPair.publicKey, privateKey: keyPair.privateKey });
-    } );
+    return forge.pki.rsa.generateKeyPair( { bits: 2048 } );
   }
 
-  public generateAccessKeys( users: [{ id: number, publicKey: string }], decryptedKey: any = '' ) {
+  public generateAccessKeys( participants: Array<{ userId: number, publicKey: string }>, decryptedKey: any = '' ) {
     const accessKeys = {};
 
     if ( decryptedKey === '' ) {
       decryptedKey = forge.random.getBytesSync( 16 );
     }
 
-    for ( const user of users ) {
-      const publicKey = this.getPublicKeyFromString( user.publicKey );
-      accessKeys[user.id] = publicKey.encrypt( decryptedKey );
+    for ( const participant of participants ) {
+      const publicKey = this.getPublicKeyFromString( participant.publicKey );
+      accessKeys[participant.userId] = publicKey.encrypt( decryptedKey );
     }
 
     return accessKeys;
