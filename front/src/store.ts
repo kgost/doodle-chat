@@ -15,8 +15,8 @@ export default new Vuex.Store({
   state: {
     // AUTH
     token: localStorage.getItem( 'token' ),
-    publicKey: {},
-    privateKey: {},
+    publicKey: '',
+    privateKey: '',
     decryptedAccessKey: '',
     user: {
       id: localStorage.getItem( 'user:id' ) ? Number( localStorage.getItem( 'user:id' ) ) : undefined,
@@ -36,11 +36,7 @@ export default new Vuex.Store({
   },
 
   getters: {
-    encryptAccessKeys: ( state, participants: Array<{ userId: number, publicKey: string }> ) => {
-      return authService.generateAccessKeys( participants, state.decryptedAccessKey );
-    },
-
-    getPublicKeyFromString( state, key: string ) {
+    getPublicKeyFromString: ( state ) => ( key: string ) => {
       return authService.getPublicKeyFromString( key );
     },
   },
@@ -69,14 +65,17 @@ export default new Vuex.Store({
       localStorage.removeItem( 'user:username' );
     },
 
-    setKeys( state, keyPair ) {
-      Vue.set( this, 'publicKey', keyPair.publicKey );
-      Vue.set( this, 'privateKey', keyPair.privateKey );
+    setKeys( state, { keyPair, encPrivateKey } ) {
+      localStorage.setItem( 'publicKey', authService.publicKeyToString( keyPair.publicKey ) );
+      localStorage.setItem( 'encPrivateKey', encPrivateKey );
+
+      Vue.set( state, 'publicKey', authService.publicKeyToString( keyPair.publicKey ) );
+      Vue.set( state, 'privateKey', authService.privateKeyToString( keyPair.privateKey ) );
     },
 
     clearKeys( state, keyPair ) {
-      Vue.delete( this, 'publicKey' );
-      Vue.delete( this, 'privateKey' );
+      Vue.delete( state, 'publicKey' );
+      Vue.delete( state, 'privateKey' );
     },
 
     // Conversations
@@ -105,7 +104,7 @@ export default new Vuex.Store({
     signIn( { commit, state }, { username, password } ) {
       return Api().post( '/auth/signin', { username, password } )
         .then( ( res ) => {
-          const keypair = {
+          const keyPair = {
             publicKey: authService.getPublicKeyFromString( res.data.publicKey ),
             privateKey: authService.getPrivateKeyFromString(
               authService.decryptAes( res.data.encPrivateKey, authService.getAesKeyFromString( password ) ),
@@ -114,7 +113,7 @@ export default new Vuex.Store({
 
           commit( 'setToken', res.data.token );
           commit( 'setUser', res.data.user );
-          commit( 'setKeys', keypair );
+          commit( 'setKeys', { keyPair, encPrivateKey: res.data.encPrivateKey } );
         } );
     },
 
@@ -138,13 +137,13 @@ export default new Vuex.Store({
       } );
     },
 
-    usernaemTaken( { commit, state }, username ) {
+    usernameTaken( { commit, state }, username ) {
       return Api().get( `/auth/username-taken/${ encodeURIComponent( username ) }` );
     },
 
     // Conversations
     createConversation( { commit, state, getters }, { conversation, participants } ) {
-      const accessKeys = getters.encryptAccessKeys( participants );
+      const accessKeys = authService.generateAccessKeys( participants );
 
       for ( const participant of participants ) {
         participant.accessKey = accessKeys[participant.userId];
@@ -156,10 +155,53 @@ export default new Vuex.Store({
         } );
     },
 
+    getConversation( { commit, state, getters }, conversationId: number ) {
+      if ( state.conversations[conversationId] ) {
+        return new Promise( ( resolve, reject) => {
+          resolve( state.conversations[conversationId] );
+        } );
+      }
+
+      return Api().get( `/conversations/${ conversationId }` )
+        .then( ( res ) => {
+          commit( 'setConversation', res.data );
+
+          return res.data;
+        } );
+    },
+
     getConversations: Crudify( conversationService, 'index', [['setConversations']] ),
 
-    updateConversation: Crudify( conversationService, 'update', [['setConversation']] ),
+    updateConversation( { commit, state, getters }, { conversation, participants } ) {
+      const accessKey = authService.getPrivateKeyFromString( state.privateKey ).decrypt( participants[0].accessKey );
+      const accessKeys = authService.generateAccessKeys( participants, accessKey );
 
-    removeConversation: Crudify( conversationService, 'destroy', [['clearConversation']] ),
+      for ( const participant of participants ) {
+        participant.accessKey = accessKeys[participant.userId];
+      }
+
+      return Api().put( `/conversations/${ conversation.id }`, { conversation, participants } )
+        .then( ( res ) => {
+          commit( 'setConversation', res.data );
+
+          return res.data;
+        } );
+    },
+
+    changeConversation( { commit, state, getters }, { conversation, participants } ) {
+      return Api().put( `/conversations/${ conversation.id }/change-cosmetic`, { participants } )
+        .then( ( res ) => {
+          commit( 'setConversation', res.data );
+
+          return res.data;
+        } );
+    },
+
+    removeConversation( { commit, state, getters }, conversationId ) {
+      return Api().delete( `/conversations/${ conversationId }` )
+        .then( () => {
+          commit( 'clearConversation', conversationId );
+        } );
+    },
   },
 });

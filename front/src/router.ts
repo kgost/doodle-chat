@@ -24,7 +24,7 @@ export default new Router({
     },
     // Conversations
     {
-      path: '/conversations/:id/new',
+      path: '/conversations/new',
       name: 'new-conversation',
       component: EditConversation,
     },

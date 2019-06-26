@@ -32,6 +32,6 @@ router.post('/signup', authController.signup )
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding messages.
  */
-router.get('/usernameTaken/:username', authController.usernameTaken )
+router.get('/username-taken/:username', authController.usernameTaken )
 
 module.exports = router

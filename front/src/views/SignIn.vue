@@ -53,7 +53,7 @@ export default class SignIn extends Vue {
       }
 
       p.then( () => {
-        router.push({ path: '/messenger' });
+        router.push({ path: '/' });
       } );
     }
   }

@@ -15,20 +15,10 @@ import router from '@/router.ts';
 import SideBar from '@/components/SideBar.vue';
 
 @Component({
-  data() {
-    return {
-    };
-  },
-
   components: {
     SideBar,
   },
-
-  computed: {
-  },
-
-  methods: {
-  },
 })
-export default class Messenger extends Vue {}
+export default class Messenger extends Vue {
+}
 </script>

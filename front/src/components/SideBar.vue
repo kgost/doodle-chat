@@ -4,9 +4,10 @@
       <h3>Conversations</h3>
       <router-link to="conversations/new"  class="new">new</router-link>
       <ul>
-        <li v-for="conversation of conversations">
+        <li v-for="( conversation, i ) of conversations">
           <router-link :to="`/conversations/${ conversation.id }`">{{ conversation.name }}</router-link>
           <router-link :to="`/conversations/${ conversation.id }/edit`">Edit</router-link>
+          <button v-if="isOwner( conversation.userId )" v-on:click="onDelete( conversation.id )">Delete</button>
         </li>
       </ul>
     </div>
@@ -20,26 +21,23 @@ import store from '@/store.ts';
 import router from '@/router.ts';
 
 @Component({
-  data() {
-    return {
-    };
-  },
-
-  computed: {
-    conversations() {
-      return Object.values( store.state.conversations );
-    },
-  },
-
-  methods: {
-  },
-
-  mounted() {
-    store.dispatch( 'getConversations' );
-  },
 })
 export default class SideBar extends Vue {
-  // @Prop() private msg!: string;
+  get conversations() {
+    return Object.values( store.state.conversations );
+  }
+
+  private isOwner( userId ) {
+    return store.state.user.id === userId;
+  }
+
+  private onDelete( id: number ) {
+    store.dispatch( 'removeConversation', id );
+  }
+
+  private mounted() {
+    store.dispatch( 'getConversations' );
+  }
 }
 </script>
 

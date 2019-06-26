@@ -7,14 +7,15 @@ export default class AuthService {
     return forge.pki.rsa.generateKeyPair( { bits: 2048 } );
   }
 
-  public generateAccessKeys( participants: Array<{ userId: number, publicKey: string }>, decryptedKey: any = '' ) {
+  public generateAccessKeys( participants: Array<{ userId: number, publicKey: string }>, decryptedKey: string = '' ) {
     const accessKeys = {};
 
     if ( decryptedKey === '' ) {
-      decryptedKey = forge.random.getBytesSync( 16 );
+      decryptedKey = forge.random.getBytesSync( 16 ).toString();
     }
 
     for ( const participant of participants ) {
+      console.log( participant.publicKey );
       const publicKey = this.getPublicKeyFromString( participant.publicKey );
       accessKeys[participant.userId] = publicKey.encrypt( decryptedKey );
     }
@@ -64,11 +65,11 @@ export default class AuthService {
     return forge.asn1.toDer( forge.pki.publicKeyToAsn1( publicKey ) ).data;
   }
 
-  public getPrivateKeyFromString( privateKeyString ) {
+  public getPrivateKeyFromString( privateKeyString: string ) {
     return forge.pki.privateKeyFromAsn1( forge.asn1.fromDer( privateKeyString ) );
   }
 
-  public getPublicKeyFromString( publicKeyString ) {
+  public getPublicKeyFromString( publicKeyString: string ) {
     return forge.pki.publicKeyFromAsn1( forge.asn1.fromDer( publicKeyString ) );
   }
 }

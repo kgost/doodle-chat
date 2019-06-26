@@ -13,6 +13,11 @@ router.get( '/',
   middleware.authenticate,
   controller.index )
 
+router.get( '/:id',
+  middleware.authenticate,
+  middleware.inConversation,
+  controller.show )
+
 router.put( '/:id',
   middleware.authenticate,
   middleware.validConversation,

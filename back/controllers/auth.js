@@ -49,11 +49,15 @@ const actions = {
 
   usernameTaken: async ( req ) => {
     const user = await User.findOne({
-      include: ['publicKey', 'id'],
+      attributes: ['publicKey', 'id'],
       where: { username: decodeURIComponent( req.params.username ) }
     })
 
-    return { body: user }
+    if ( user ) {
+      return { body: user }
+    } else {
+      return { body: false }
+    }
   }
 }
 

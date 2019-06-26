@@ -51,15 +51,52 @@ const actions = {
         include: [{
           model: Participant,
           as: 'participants',
-        }]
-      }]
+          include: [{
+            model: User,
+            as: 'user',
+            attributes: ['username', 'publicKey'],
+          }],
+        }],
+      }],
     } )
 
     if ( !user.conversations.length ) {
       throw { status: 404, message: 'no conversations found' }
     }
 
+    for ( const conversation of user.conversations ) {
+      for ( const participant of conversation.participants ) {
+        participant.dataValues.username = participant.user.username
+        participant.dataValues.publicKey = participant.user.publicKey
+      }
+    }
+
     return { body: user.conversations }
+  },
+
+  show: async ( req ) => {
+    const conversation = await Conversation.findByPk( req.params.id, {
+      include: [{
+        model: Participant,
+        as: 'participants',
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['username', 'publicKey'],
+        }],
+      }]
+    } )
+
+    if ( !conversation ) {
+      throw { status: 404, message: 'no conversation found' }
+    }
+
+    for ( const participant of conversation.participants ) {
+      participant.dataValues.username = participant.user.username
+      participant.dataValues.publicKey = participant.user.publicKey
+    }
+
+    return { body: conversation }
   },
 
   update: async ( req ) => {
@@ -170,7 +207,10 @@ const actions = {
         await Participant.update({
           nickname: participant.nickname
         }, {
-          where: { userId: participant.userId },
+          where: {
+            conversationId: req.params.id,
+            userId: participant.userId,
+          },
           transaction: t
         })
       }
