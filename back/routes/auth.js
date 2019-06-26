@@ -1,6 +1,7 @@
 const
   express        = require('express'),
   router         = express.Router(),
+  middleware     = require( '../functions/middleware' ),
   authController = require( '../controllers/auth' )
 
 /**
@@ -11,7 +12,7 @@ const
   * @param  {Function} next next function in express function list
   * @return {[type]}        Returns a status code and corresponding message and token.
   */
-router.post('/signin', authController.signin )
+router.post( '/signin', authController.signin )
 
 
 /**
@@ -22,7 +23,7 @@ router.post('/signin', authController.signin )
   * @param  {Function} next next function in express function list
   * @return {[type]}        Returns a status code and corresponding message and token.
   */
-router.post('/signup', authController.signup )
+router.post( '/signup', authController.signup )
 
 /**
  * Checks against MongoDB for username uniqueness upon registration
@@ -32,6 +33,8 @@ router.post('/signup', authController.signup )
  * @param  {Function} next next function in express function list
  * @return {[type]}        Returns a status code and corresponding messages.
  */
-router.get('/username-taken/:username', authController.usernameTaken )
+router.get( '/username-taken/:username', authController.usernameTaken )
+
+router.post( '/consume-nonce', middleware.authenticate, authController.consumeNonce )
 
 module.exports = router

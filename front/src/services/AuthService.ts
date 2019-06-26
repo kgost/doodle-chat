@@ -11,11 +11,10 @@ export default class AuthService {
     const accessKeys = {};
 
     if ( decryptedKey === '' ) {
-      decryptedKey = forge.random.getBytesSync( 16 ).toString();
+      decryptedKey = this.getRandomAesKey();
     }
 
     for ( const participant of participants ) {
-      console.log( participant.publicKey );
       const publicKey = this.getPublicKeyFromString( participant.publicKey );
       accessKeys[participant.userId] = publicKey.encrypt( decryptedKey );
     }
@@ -45,6 +44,10 @@ export default class AuthService {
     }
 
     return '';
+  }
+
+  public getRandomAesKey() {
+    return forge.random.getBytesSync( 16 ).toString();
   }
 
   public getAesKeyFromString( input: string ) {

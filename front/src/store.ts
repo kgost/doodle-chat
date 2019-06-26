@@ -65,12 +65,17 @@ export default new Vuex.Store({
       localStorage.removeItem( 'user:username' );
     },
 
-    setKeys( state, { keyPair, encPrivateKey } ) {
-      localStorage.setItem( 'publicKey', authService.publicKeyToString( keyPair.publicKey ) );
-      localStorage.setItem( 'encPrivateKey', encPrivateKey );
+    setPublicKey( state, publicKey: string ) {
+      localStorage.setItem( 'publicKey', publicKey );
+      Vue.set( state, 'publicKey', publicKey );
+    },
 
-      Vue.set( state, 'publicKey', authService.publicKeyToString( keyPair.publicKey ) );
-      Vue.set( state, 'privateKey', authService.privateKeyToString( keyPair.privateKey ) );
+    setPrivateKey( state, privateKey: string ) {
+      Vue.set( state, 'privateKey', privateKey );
+    },
+
+    setEncPrivateKey( state, encPrivateKey: string ) {
+      localStorage.setItem( 'encPrivateKey', encPrivateKey );
     },
 
     clearKeys( state, keyPair ) {
@@ -101,7 +106,7 @@ export default new Vuex.Store({
 
   actions: {
     // AUTH
-    signIn( { commit, state }, { username, password } ) {
+    signIn( { commit, state, dispatch }, { username, password } ) {
       return Api().post( '/auth/signin', { username, password } )
         .then( ( res ) => {
           const keyPair = {
@@ -113,11 +118,15 @@ export default new Vuex.Store({
 
           commit( 'setToken', res.data.token );
           commit( 'setUser', res.data.user );
-          commit( 'setKeys', { keyPair, encPrivateKey: res.data.encPrivateKey } );
+
+          commit( 'setPublicKey', authService.publicKeyToString( keyPair.publicKey ) );
+          commit( 'setPrivateKey', authService.privateKeyToString( keyPair.privateKey ) );
+
+          return dispatch( 'consumeNonce' );
         } );
     },
 
-    signUp( { commit, state }, { username, password } ) {
+    signUp( { commit, state, dispatch }, { username, password } ) {
       const keyPair = authService.keyGen();
 
       const encPrivateKey = authService.encryptAes(
@@ -133,12 +142,34 @@ export default new Vuex.Store({
       } ).then( ( res ) => {
         commit( 'setToken', res.data.token );
         commit( 'setUser', res.data.user );
-        commit( 'setKeys', keyPair );
+
+        commit( 'setPublicKey', authService.publicKeyToString( keyPair.publicKey ) );
+        commit( 'setPrivateKey', authService.privateKeyToString( keyPair.privateKey ) );
+
+        return dispatch( 'consumeNonce' );
       } );
     },
 
     usernameTaken( { commit, state }, username ) {
       return Api().get( `/auth/username-taken/${ encodeURIComponent( username ) }` );
+    },
+
+    consumeNonce( { commit, state } ) {
+      const nonce = authService.getRandomAesKey();
+
+      return Api().post( '/auth/consume-nonce', { nonce } )
+        .then( ( res ) => {
+          if ( localStorage.getItem( 'encPrivateKey' ) ) {
+            const encPrivateKey = localStorage.getItem( 'encPrivateKey' ) + '';
+            const privateKey = authService.decryptAes( encPrivateKey, res.data );
+
+            if ( privateKey.length ) {
+              commit( 'setPrivateKey', privateKey );
+            }
+          }
+
+          commit( 'setEncPrivateKey', authService.encryptAes( state.privateKey, nonce ) );
+        } );
     },
 
     // Conversations

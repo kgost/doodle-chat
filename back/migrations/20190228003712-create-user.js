@@ -29,6 +29,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.JSON
       },
+      nonce: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

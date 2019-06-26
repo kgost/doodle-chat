@@ -58,7 +58,19 @@ const actions = {
     } else {
       return { body: false }
     }
-  }
+  },
+
+  consumeNonce: async ( req ) => {
+    const user = await User.findByPk( req.user.id, {
+      attributes: ['nonce'],
+    } )
+
+    const oldNonce = user.nonce
+
+    await User.update({ nonce: req.body.nonce }, { where: { id: req.user.id } })
+
+    return { body: oldNonce }
+  },
 }
 
 module.exports = responseHelper.handleActions( actions )

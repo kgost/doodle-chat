@@ -9,6 +9,25 @@
   </div>
 </template>
 
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+
+import store from '@/store.ts';
+
+@Component({
+  computed: {
+  },
+
+  methods: {
+  },
+})
+export default class SignIn extends Vue {
+  private created() {
+    store.dispatch( 'consumeNonce' );
+  }
+}
+</script>
+
 <style>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;

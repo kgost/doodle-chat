@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.JSON
     },
+    nonce: {
+      type: DataTypes.STRING
+    },
   }, {});
   User.associate = function(models) {
     User.belongsToMany( models.Conversation, { as: 'conversations', through: models.Participant, foreignKey: 'userId' } )
