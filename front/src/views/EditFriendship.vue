@@ -44,7 +44,7 @@ export default class SignIn extends Vue {
   }
 
   @Watch( 'username' )
-  onUsernameChange( value: string ) {
+  private onUsernameChange( value: string ) {
     store.dispatch( 'usernameTaken', this.username )
       .then( ( res ) => {
         if ( res.data ) {
@@ -59,7 +59,7 @@ export default class SignIn extends Vue {
       store.dispatch( 'createFriendship', this.friendship )
         .then( () => {
           router.push({ path: '/' });
-        } )
+        } );
     }
   }
 }

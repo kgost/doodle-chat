@@ -1,10 +1,11 @@
 const
-  jwt            = require( 'jsonwebtoken' ),
-  db             = require( '../models' ),
-  Conversation   = db.Conversation,
-  Participant    = db.Participant,
-  Friendship     = db.Friendship,
-  responseHelper = require( './responseHelper' )
+  jwt                 = require( 'jsonwebtoken' ),
+  db                  = require( '../models' ),
+  Conversation        = db.Conversation,
+  ConversationMessage = db.ConversationMessage,
+  Participant         = db.Participant,
+  Friendship          = db.Friendship,
+  responseHelper      = require( './responseHelper' )
 
 const actions = {
 
@@ -126,22 +127,13 @@ const actions = {
     }
   },
 
-  // isMessageOwner: (req, res, next) => {
-    // if ( !req.params.id || req.params.id == 'null' ) {
-      // return responseHelper.handleError( { status: 400, userMessage: 'Invalid Message.' }, res )
-    // }
+  ownsConversationMessage: async ( req ) => {
+    const message = await ConversationMessage.findByPk( req.params.messageId )
 
-    // Message.findById( req.params.id, ( err, message) => {
-      // if ( !message ) {
-        // return responseHelper.handleError( { status: 404, userMessage: 'Message Not Found.' }, res )
-      // }
-
-      // if ( message.user != req.user._id ) {
-        // return responseHelper.handleError( { status: 403, userMessage: 'You Are Not The Owner Of This Message.' }, res )
-      // }
-      // return next()
-    // })
-  // }
+    if ( message.userId != req.user.id ) {
+      throw { status: 400, message: 'you do not own that message' }
+    }
+  },
 }
 
 module.exports = responseHelper.handleMiddleware( actions )

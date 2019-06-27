@@ -1,8 +1,9 @@
 const
-  express    = require('express'),
-  router     = express.Router(),
-  middleware = require( '../functions/middleware' ),
-  controller = require( '../controllers/conversation' )
+  express       = require('express'),
+  router        = express.Router(),
+  middleware    = require( '../functions/middleware' ),
+  controller    = require( '../controllers/conversation' ),
+  messageRouter = require( './conversationMessage.js' )
 
 router.post( '/',
   middleware.authenticate,
@@ -41,5 +42,9 @@ router.put(
   middleware.authenticate,
   middleware.inConversation,
   controller.changeCosmetic )
+
+router.use(
+  '/:id/messages',
+  messageRouter )
 
 module.exports = router

@@ -39,6 +39,18 @@ export default new Vuex.Store({
     getPublicKeyFromString: ( state ) => ( key: string ) => {
       return authService.getPublicKeyFromString( key );
     },
+
+    privateKey: ( state ) => {
+      return authService.getPrivateKeyFromString( state.privateKey );
+    },
+
+    getDecryptedMessage: ( state ) => ({ message, key }) => {
+      return authService.decryptAes( message, key );
+    },
+
+    getEncryptedMessage: ( state ) => ({ message, key }) => {
+      return authService.encryptAes( message, key );
+    },
   },
 
   mutations: {
@@ -111,6 +123,25 @@ export default new Vuex.Store({
       for ( const friendship of friendships ) {
         Vue.set( state.friendships, friendship.id, friendship );
       }
+    },
+
+    // Messages
+    setMessage( state, message ) {
+      Vue.set( state.messages, message.id, message );
+    },
+
+    clearMessage( state, id ) {
+      Vue.delete( state.messages, id );
+    },
+
+    setMessages( state, messages ) {
+      for ( const message of messages ) {
+        Vue.set( state.messages, message.id, message );
+      }
+    },
+
+    clearMessages( state, id ) {
+      Vue.set( state, 'messages', {} );
     },
   },
 
@@ -291,6 +322,35 @@ export default new Vuex.Store({
       return Api().delete( `/friendships/${ id }` )
         .then( () => {
           commit( 'clearFriendship', id );
+        } );
+    },
+
+    // Messages
+    createConversationMessage( { commit }, { id, message } ) {
+      return Api().post( `/conversations/${ id }/messages`, message )
+        .then( ( res ) => {
+          commit( 'setMessage', res.data );
+        } );
+    },
+
+    getConversationMessages( { commit }, { id, offset } ) {
+      return Api().get( `/conversations/${ id }/messages?offset=${ offset }` )
+        .then( ( res ) => {
+          commit( 'setMessages', res.data );
+        } );
+    },
+
+    updateConversationMessage( { commit }, { id, messageId, message } ) {
+      return Api().put( `/conversations/${ id }/messages/${ messageId }`, message )
+        .then( ( res ) => {
+          commit( 'setMessage', res.data );
+        } );
+    },
+
+    removeConversationMessage( { commit }, { id, messageId } ) {
+      return Api().delete( `/conversations/${ id }/messages/${ messageId }` )
+        .then( ( res ) => {
+          commit( 'clearMessage', messageId );
         } );
     },
   },
