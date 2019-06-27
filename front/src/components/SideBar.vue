@@ -2,7 +2,7 @@
   <div>
     <div class="wrapper">
       <h3>Conversations</h3>
-      <router-link to="conversations/new"  class="new">new</router-link>
+      <router-link to="/conversations/new"  class="new">new</router-link>
       <ul>
         <li v-for="( conversation, i ) of conversations" :key="i">
           <router-link :to="`/conversations/${ conversation.id }`">{{ conversation.name }}</router-link>
@@ -14,7 +14,7 @@
 
     <div class="wrapper">
       <h3>Friends</h3>
-      <router-link to="friendships/new"  class="new">new</router-link>
+      <router-link to="/friendships/new"  class="new">new</router-link>
       <ul>
         <li v-for="( friendship, i ) of friendships" :key="i">
           <router-link :to="`/friendships/${ friendship.id }`">{{ getFriendName( friendship ) }}</router-link>

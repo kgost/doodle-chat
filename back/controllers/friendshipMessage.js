@@ -1,17 +1,16 @@
 const
   db             = require( '../models' ),
-  Conversation   = db.Conversation,
-  Participant    = db.Participant,
+  Friendship     = db.Friendship,
   User           = db.User,
-  Notification   = db.ConversationNotification,
-  Message        = db.ConversationMessage,
-  Reaction       = db.ConversationReaction,
+  Notification   = db.FriendshipNotification,
+  Message        = db.FriendshipMessage,
+  Reaction       = db.FriendshipReaction,
   responseHelper = require( '../functions/responseHelper' )
 
 const actions = {
   create: async ( req ) => {
     const message = await Message.create({
-      conversationId: req.params.id,
+      friendshipId: req.params.id,
       userId: req.user.id,
       message: req.body.message,
     })
@@ -29,7 +28,7 @@ const actions = {
   index: async ( req ) => {
     const messages = await Message.findAll({
       where: {
-        conversationId: req.params.id
+        friendshipId: req.params.id
       },
       limit: 20,
       offset: parseInt( req.query.offset ),
@@ -64,7 +63,7 @@ const actions = {
   destroy: async ( req ) => {
     await Message.destroy({ where: { id: req.params.messageId } })
 
-    await Reaction.destroy({ where: { conversationMessageId: req.params.messageId } })
+    await Reaction.destroy({ where: { friendshipMessageId: req.params.messageId } })
   },
 }
 

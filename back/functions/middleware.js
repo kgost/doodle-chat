@@ -5,6 +5,7 @@ const
   ConversationMessage = db.ConversationMessage,
   Participant         = db.Participant,
   Friendship          = db.Friendship,
+  FriendshipMessage   = db.FriendshipMessage,
   responseHelper      = require( './responseHelper' )
 
 const actions = {
@@ -129,6 +130,14 @@ const actions = {
 
   ownsConversationMessage: async ( req ) => {
     const message = await ConversationMessage.findByPk( req.params.messageId )
+
+    if ( message.userId != req.user.id ) {
+      throw { status: 400, message: 'you do not own that message' }
+    }
+  },
+
+  ownsFriendshipMessage: async ( req ) => {
+    const message = await FriendshipMessage.findByPk( req.params.messageId )
 
     if ( message.userId != req.user.id ) {
       throw { status: 400, message: 'you do not own that message' }

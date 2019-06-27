@@ -45,7 +45,7 @@ export default new Router({
       component: EditFriendship,
     },
     {
-      path: '/freindships/:id',
+      path: '/friendships/:id',
       name: 'friendship',
       component: Messenger,
     },

@@ -3,6 +3,8 @@
     <div class="flex-container">
       <SideBar></SideBar>
       <Conversation v-if="showConversation"></Conversation>
+
+      <Friendship v-if="showFriendship"></Friendship>
     </div>
   </div>
 </template>
@@ -15,11 +17,13 @@ import router from '@/router.ts';
 
 import SideBar from '@/components/SideBar.vue';
 import Conversation from '@/components/Conversation.vue';
+import Friendship from '@/components/Friendship.vue';
 
 @Component({
   components: {
     SideBar,
     Conversation,
+    Friendship,
   },
 })
 export default class Messenger extends Vue {

@@ -1,8 +1,9 @@
 const
-  express    = require('express'),
-  router     = express.Router(),
-  middleware = require( '../functions/middleware' ),
-  controller = require( '../controllers/friendship' )
+  express       = require('express'),
+  router        = express.Router(),
+  middleware    = require( '../functions/middleware' ),
+  controller    = require( '../controllers/friendship' ),
+  messageRouter = require( './friendshipMessage' )
 
 router.post( '/',
   middleware.authenticate,
@@ -29,5 +30,9 @@ router.delete(
   middleware.authenticate,
   middleware.inFriendship,
   controller.destroy )
+
+router.use(
+  '/:id/messages',
+  messageRouter )
 
 module.exports = router

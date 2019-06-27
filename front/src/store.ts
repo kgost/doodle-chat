@@ -325,7 +325,7 @@ export default new Vuex.Store({
         } );
     },
 
-    // Messages
+    // Conversation Messages
     createConversationMessage( { commit }, { id, message } ) {
       return Api().post( `/conversations/${ id }/messages`, message )
         .then( ( res ) => {
@@ -349,6 +349,35 @@ export default new Vuex.Store({
 
     removeConversationMessage( { commit }, { id, messageId } ) {
       return Api().delete( `/conversations/${ id }/messages/${ messageId }` )
+        .then( ( res ) => {
+          commit( 'clearMessage', messageId );
+        } );
+    },
+
+    // Friendship Messages
+    createFriendshipMessage( { commit }, { id, message } ) {
+      return Api().post( `/friendships/${ id }/messages`, message )
+        .then( ( res ) => {
+          commit( 'setMessage', res.data );
+        } );
+    },
+
+    getFriendshipMessages( { commit }, { id, offset } ) {
+      return Api().get( `/friendships/${ id }/messages?offset=${ offset }` )
+        .then( ( res ) => {
+          commit( 'setMessages', res.data );
+        } );
+    },
+
+    updateFriendshipMessage( { commit }, { id, messageId, message } ) {
+      return Api().put( `/friendships/${ id }/messages/${ messageId }`, message )
+        .then( ( res ) => {
+          commit( 'setMessage', res.data );
+        } );
+    },
+
+    removeFriendshipMessage( { commit }, { id, messageId } ) {
+      return Api().delete( `/friendships/${ id }/messages/${ messageId }` )
         .then( ( res ) => {
           commit( 'clearMessage', messageId );
         } );
