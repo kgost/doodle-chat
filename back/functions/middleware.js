@@ -3,6 +3,7 @@ const
   db             = require( '../models' ),
   Conversation   = db.Conversation,
   Participant    = db.Participant,
+  Friendship     = db.Friendship,
   responseHelper = require( './responseHelper' )
 
 const actions = {
@@ -107,71 +108,23 @@ const actions = {
     }
   },
 
-  /**
-  * Check if the user is in the conversation being accessed, return error if they are not
-  * @param  {String}   req.params.friendshipId    id of the friendship being accessed
-  * @param  {Object}   req                        request object from user to server
-  * @param  {Object}   res                        response object to user from server
-  * @param  {Function} next                       next function in express function list
-  * @return {Object}                              Returns res with an error code 401 or next if the user is in the conversation
-  */
-  // inFriendship: ( req, res, next ) => {
-    // // if no id was sent under params or the id was null then respond with the error
-    // if ( !req.params.friendshipId || req.params.friendshipId == 'null' ) {
-      // return responseHelper.handleError( { status: 400, userMessage: 'Invalid Friendship.' }, res )
-    // }
+  validFriendship: async ( req ) => {
+    if ( req.body.userOneId != req.user.id && req.body.userTwoId != req.user.id ) {
+      throw { status: 400, message: 'you must be in the friendship' }
+    }
 
-    // // find the conversation with the provided id
-    // Friendship.findById( req.params.friendshipId, ( err, friendship ) => {
-      // // if no conversation was found respond with the invalid resource error
-      // if ( !friendship || !friendship._id ) {
-        // return responseHelper.handleError( { status: 404, userMessage: 'Friendship Not Found.' }, res )
-      // }
+    if ( req.body.userOneId == req.body.userTwoId ) {
+      throw { status: 400, message: 'you cannot be friends with yourself' }
+    }
+  },
 
-      // // if the user is not in the participants list, respond with a 401 error
-      // if ( friendship.users[0].id != req.user._id && friendship.users[1].id != req.user._id ) {
-        // return responseHelper.handleError( { status: 403, userMessage: 'You Are Not In This Friendship.' }, res )
-      // }
+  inFriendship: async ( req ) => {
+    const friendship = await Friendship.findByPk( req.params.id )
 
-      // return next()
-    // } )
-  // },
-
-  // validSentFriendship: ( req, res, next ) => {
-    // if ( !req.body || !req.body.users || !req.body.users[0] || !req.body.users[1] ||
-         // ( req.body.users[0].id.username != req.user.username && req.body.users[1].id.username != req.user.username ) ) {
-      // return responseHelper.handleError( { status: 400, userMessage: 'Invalid Friendship Sent.' }, res )
-    // }
-
-    // if ( req.body.users[0].id.username === req.body.users[1].id.username ) {
-      // return responseHelper.handleError( { status: 400, userMessage: 'You Cannot Be Friends With Yourself, That\'s Just Sad' }, res )
-    // }
-
-    // User.find( { username: { '$in': [req.body.users[0].id.username, req.body.users[1].id.username] } }, '_id', ( err, users ) => {
-      // if ( !users || users.length < 2 ) {
-        // return responseHelper.handleError( { status: 400, userMessage: 'Invalid Friendship Sent.' }, res )
-      // }
-
-      // const ids = users.map( ( user ) => {
-        // return user._id
-      // } )
-
-      // Friendship.find( { 'users.id': ids }, 'users', ( err, friendships ) => {
-        // for ( let i = 0; i < friendships.length; i++ ) {
-          // const friendshipIds = friendships[i].users.map( ( user ) => {
-            // return user.id.toString()
-          // } )
-
-          // if ( friendshipIds.indexOf( ids[0].toString() ) !== -1 &&
-            // friendshipIds.indexOf( ids[1].toString() ) !== -1 ) {
-            // return responseHelper.handleError( { status: 400, userMessage: 'Friendship Already Exists' }, res )
-          // }
-        // }
-
-        // return next()
-      // } )
-    // } )
-  // },
+    if ( friendship.userOneId != req.user.id && friendship.userTwoId != req.user.id ) {
+      throw { status: 400, message: 'you are not in this friendship' }
+    }
+  },
 
   // isMessageOwner: (req, res, next) => {
     // if ( !req.params.id || req.params.id == 'null' ) {

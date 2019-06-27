@@ -38,8 +38,6 @@ import store from '@/store.ts';
 import router from '@/router.ts';
 
 @Component({
-  methods: {
-  },
 })
 export default class SignIn extends Vue {
   private conversation = {

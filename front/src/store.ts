@@ -15,7 +15,7 @@ export default new Vuex.Store({
   state: {
     // AUTH
     token: localStorage.getItem( 'token' ),
-    publicKey: '',
+    publicKey: localStorage.getItem( 'publicKey' ),
     privateKey: '',
     decryptedAccessKey: '',
     user: {
@@ -102,6 +102,16 @@ export default new Vuex.Store({
     setFriendship( state, friendship ) {
       Vue.set( state.friendships, friendship.id, friendship );
     },
+
+    clearFriendship( state, id ) {
+      Vue.delete( state.friendships, id );
+    },
+
+    setFriendships( state, friendships ) {
+      for ( const friendship of friendships ) {
+        Vue.set( state.friendships, friendship.id, friendship );
+      }
+    },
   },
 
   actions: {
@@ -174,7 +184,7 @@ export default new Vuex.Store({
 
     // Conversations
     createConversation( { commit, state, getters }, { conversation, participants } ) {
-      const accessKeys = authService.generateAccessKeys( participants );
+      const accessKeys = authService.generateConversationAccessKeys( participants );
 
       for ( const participant of participants ) {
         participant.accessKey = accessKeys[participant.userId];
@@ -186,26 +196,26 @@ export default new Vuex.Store({
         } );
     },
 
-    getConversation( { commit, state, getters }, conversationId: number ) {
-      if ( state.conversations[conversationId] ) {
+    getConversations: Crudify( conversationService, 'index', [['setConversations']] ),
+
+    getConversation( { commit, state, getters }, id: number ) {
+      if ( state.conversations[id] ) {
         return new Promise( ( resolve, reject) => {
-          resolve( state.conversations[conversationId] );
+          resolve( state.conversations[id] );
         } );
       }
 
-      return Api().get( `/conversations/${ conversationId }` )
+      return Api().get( `/conversations/${ id }` )
         .then( ( res ) => {
           commit( 'setConversation', res.data );
 
-          return res.data;
+          return state.conversations[id];
         } );
     },
 
-    getConversations: Crudify( conversationService, 'index', [['setConversations']] ),
-
     updateConversation( { commit, state, getters }, { conversation, participants } ) {
       const accessKey = authService.getPrivateKeyFromString( state.privateKey ).decrypt( participants[0].accessKey );
-      const accessKeys = authService.generateAccessKeys( participants, accessKey );
+      const accessKeys = authService.generateConversationAccessKeys( participants, accessKey );
 
       for ( const participant of participants ) {
         participant.accessKey = accessKeys[participant.userId];
@@ -214,8 +224,6 @@ export default new Vuex.Store({
       return Api().put( `/conversations/${ conversation.id }`, { conversation, participants } )
         .then( ( res ) => {
           commit( 'setConversation', res.data );
-
-          return res.data;
         } );
     },
 
@@ -223,8 +231,6 @@ export default new Vuex.Store({
       return Api().put( `/conversations/${ conversation.id }/change-cosmetic`, { participants } )
         .then( ( res ) => {
           commit( 'setConversation', res.data );
-
-          return res.data;
         } );
     },
 
@@ -232,6 +238,59 @@ export default new Vuex.Store({
       return Api().delete( `/conversations/${ conversationId }` )
         .then( () => {
           commit( 'clearConversation', conversationId );
+        } );
+    },
+
+    // Friendships
+    createFriendship( { commit }, friendship ) {
+      const accessKeys = authService.generateFriendshipAccessKeys(
+        friendship.userOneId,
+        friendship.userOne.publicKey,
+        friendship.userTwoId,
+        friendship.userTwo.publicKey );
+
+      friendship.userOneAccessKey = accessKeys[friendship.userOneId];
+      friendship.userTwoAccessKey = accessKeys[friendship.userTwoId];
+
+      return Api().post( '/friendships', friendship )
+        .then( ( res ) => {
+          commit( 'setFriendship', res.data );
+        } );
+    },
+
+    getFriendship( { commit, state }, id: number ) {
+      if ( state.friendships[id] ) {
+        return new Promise( ( resolve ) => {
+          resolve( state.friendships[id] );
+        } );
+      }
+
+      return Api().get( `/friendships/${ id }` )
+        .then( ( res ) => {
+          commit( 'setFriendship', res.data );
+
+          return state.friendships[id];
+        } );
+    },
+
+    getFriendships( { commit, state } ) {
+      return Api().get( '/friendships' )
+        .then( ( res ) => {
+          commit( 'setFriendships', res.data );
+        } );
+    },
+
+    updateFriendship( { commit }, friendship ) {
+      return Api().put( `/friendships/${ friendship.id }`, friendship )
+        .then( ( res ) => {
+          commit( 'setFriendship', res.data );
+        } );
+    },
+
+    removeFriendship( { commit }, id ) {
+      return Api().delete( `/friendships/${ id }` )
+        .then( () => {
+          commit( 'clearFriendship', id );
         } );
     },
   },

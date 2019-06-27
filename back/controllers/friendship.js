@@ -1,159 +1,100 @@
 const
-  mongoose       = require( 'mongoose' ),
-  to             = require( 'await-to-js' ).to,
-  responseHelper = require( '../functions/responseHelper' ),
-  User           = require( '../models/user' ),
-  Friendship     = require( '../models/friendship' ),
-  Notifier       = require( '../models/notifier' ),
-  Message        = require( '../models/message' )
+  db             = require( '../models' ),
+  User           = db.User,
+  Friendship     = db.Friendship,
+  Notification   = db.FriendshipNotification,
+  responseHelper = require( '../functions/responseHelper' )
 
-const syncActions = {
-  create: ( req, res, next ) => {
-    create( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
+const actions = {
+  create: async ( req ) => {
+    const friendship = await Friendship.create({
+      userOneId: req.user.id,
+      userTwoId: req.body.userTwoId,
+      userOneAccessKey: req.body.userOneAccessKey,
+      userTwoAccessKey: req.body.userTwoAccessKey,
+      userOneAccepted: true,
+      userTwoAccepted: false,
+    })
 
-  index: ( req, res, next ) => {
-    index( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-
-  update: ( req, res, next ) => {
-    update( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-
-  destroy: ( req, res, next ) => {
-    destroy( req )
-      .then( ( result ) => {
-        responseHelper.handleResponse( result, res )
-        return next()
-      } )
-      .catch( ( err ) => {
-        responseHelper.handleError( err, res )
-        return next()
-      } )
-  },
-}
-
-async function create( req ) {
-  let err, usr
-
-  let key1 = ''
-  let key2 = ''
-  let otherUsername = ''
-
-  for ( let i = 0; i < req.body.users.length; i++ ) {
-    if ( req.body.users[i].id.username != req.user.username ) {
-      otherUsername = req.body.users[i].id.username
-      key2 = req.body.users[i].accessKey
-    } else {
-      key1 = req.body.users[i].accessKey
-    }
-  }
-
-  [err, usr] = await to( User.findOne( { username: otherUsername }, '_id username' ).lean().exec() )
-  if ( err ) throw err
-  if ( !usr || !usr._id ) throw { status: 400, userMessage: 'Invalid Friendship Sent.' }
-
-  ;[err] = await to(
-    Friendship.create(
-      {
-        users: [
-          { id: req.user._id, accessKey: key1, accepted: true },
-          { id: usr._id, accessKey: key2, accepted: false }
-        ]
-      }
-    )
-  )
-  if ( err ) throw err
-
-  return {
-    status: 201,
-    data: { users: [
-      { id: { _id: req.user._id, username: req.user.username }, accepted: true },
-      { id: { _id: usr._id, username: usr.username }, accepted: false }
-    ] }
-  }
-}
-
-async function index( req ) {
-  let err, friendships
-
-  ;[err, friendships] = await to(
-    Friendship.find({ 'users.id': mongoose.Types.ObjectId( req.user._id ) })
-      .populate( 'users.id', 'username' )
-      .lean()
-      .exec()
-  )
-  if ( err ) throw err
-
-  return { status: 200, data: { obj: friendships } }
-}
-
-async function update( req ) {
-  let err, friendship
-
-  ;[err, friendship] = await to( Friendship.findById( req.params.friendshipId ).exec() )
-  if ( err ) throw err
-
-  for ( let i = 0; i < friendship.users.length; i++ ) {
-    if ( friendship.users[i].id == req.user._id ) {
-      friendship.users[i].accepted = true
-    }
-  }
-
-  [err] = await to( friendship.save() )
-  if ( err ) throw err
-      
-  return { status: 201, data: friendship }
-}
-
-async function destroy( req ) {
-  let err, messages
-
-  [err] = await to( Friendship.findByIdAndRemove( req.params.friendshipId ) )
-  if ( err ) throw err
-
-  ;[err] = await to(
-    Notifier.update(
-      { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) },
-      { '$pull': { friendships: mongoose.Types.ObjectId( req.params.friendshipId ) } }
-    ).exec()
-  )
-
-  ;[err, messages] = await to( Message.find( { friendship_id: req.params.friendshipId }, 'media reactions' ) )
-  if ( err ) throw err
-
-  await Promise.all(
-    messages.map( async ( message ) => {
-      [err] = await to( message.remove() )
-      if ( err ) throw err
+    const result = await Friendship.findByPk( friendship.id, {
+      include:[
+        { model: User, as: 'userOne' },
+        { model: User, as: 'userTwo' },
+      ],
     } )
-  )
 
-  return { status: 200, data: { message: 'Friendship deleted' } }
+    return { status: 201, body: result }
+  },
+
+  index: async ( req ) => {
+    const friendships = await Friendship.findAll({
+      where: {
+        [db.Sequelize.Op.or]: {
+          userOneId: req.user.id,
+          userTwoId: req.user.id,
+        }
+      },
+      include:[
+        { model: User, as: 'userOne' },
+        { model: User, as: 'userTwo' },
+      ],
+    })
+
+    if ( !friendships.length ) {
+      throw { status: 404, message: 'no friendships found' }
+    }
+
+    return { body: friendships }
+  },
+
+  show: async ( req ) => {
+    const friendship = await Friendship.findByPk( req.params.id, {
+      include:[
+        { model: User, as: 'userOne' },
+        { model: User, as: 'userTwo' },
+      ],
+    } )
+
+    if ( !friendship ) {
+      throw { status: 404, message: 'no friendship found' }
+    }
+
+    return { body: friendship }
+  },
+
+  update: async ( req ) => {
+    const friendship = await Friendship.findByPk( req.params.id )
+
+    if ( !friendship ) {
+      throw { status: 404, message: 'no friendship found' }
+    }
+
+    if ( req.user.id != friendship.userTwoId ) {
+      throw { status: 400, message: 'you cannot modify the other users data' }
+    }
+
+    await Friendship.update({
+      userTwoAccepted: req.body.userTwoAccepted
+    }, {
+      where: { id: req.params.id }
+    })
+
+    return actions.show( req )
+  },
+
+  destroy: async ( req ) => {
+    const numModified = await Friendship.destroy({
+      where: { id: req.params.id }
+    })
+
+    if ( !numModified ) {
+      throw { status: 404, message: 'no friendship found' }
+    }
+
+    await Notification.destroy({
+      where: { friendshipId: req.params.id }
+    })
+  },
 }
 
-module.exports = syncActions
+module.exports = responseHelper.handleActions( actions )

@@ -37,6 +37,11 @@ const actions = {
       include: [{
         model: Participant,
         as: 'participants',
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['username', 'publicKey'],
+        }],
       }],
     })
 
@@ -134,6 +139,11 @@ const actions = {
       include: [{
         model: Participant,
         as: 'participants',
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['username', 'publicKey'],
+        }],
       }],
     })
 

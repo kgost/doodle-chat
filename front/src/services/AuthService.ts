@@ -7,7 +7,7 @@ export default class AuthService {
     return forge.pki.rsa.generateKeyPair( { bits: 2048 } );
   }
 
-  public generateAccessKeys( participants: Array<{ userId: number, publicKey: string }>, decryptedKey: string = '' ) {
+  public generateConversationAccessKeys( participants: Array<{ userId: number, publicKey: string }>, decryptedKey: string = '' ) {
     const accessKeys = {};
 
     if ( decryptedKey === '' ) {
@@ -18,6 +18,17 @@ export default class AuthService {
       const publicKey = this.getPublicKeyFromString( participant.publicKey );
       accessKeys[participant.userId] = publicKey.encrypt( decryptedKey );
     }
+
+    return accessKeys;
+  }
+
+  public generateFriendshipAccessKeys( userOneId: number, userOnePublicKey: string, userTwoId: number, userTwoPublicKey: string ) {
+    const accessKeys = {};
+
+    const decryptedKey = this.getRandomAesKey();
+
+    accessKeys[userOneId] = this.getPublicKeyFromString( userOnePublicKey ).encrypt( decryptedKey );
+    accessKeys[userTwoId] = this.getPublicKeyFromString( userTwoPublicKey ).encrypt( decryptedKey );
 
     return accessKeys;
   }

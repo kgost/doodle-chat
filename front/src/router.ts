@@ -8,6 +8,7 @@ import SignIn from './views/SignIn.vue';
 import Messenger from './views/Messenger.vue';
 
 import EditConversation from './views/EditConversation.vue';
+import EditFriendship from './views/EditFriendship.vue';
 
 // import Settings from './views/Settings.vue';
 
@@ -37,6 +38,11 @@ export default new Router({
       path: '/conversations/:id/edit',
       name: 'edit-conversation',
       component: EditConversation,
+    },
+    {
+      path: '/friendships/new',
+      name: 'new-friendship',
+      component: EditFriendship,
     },
     {
       path: '/freindships/:id',

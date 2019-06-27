@@ -4,10 +4,23 @@
       <h3>Conversations</h3>
       <router-link to="conversations/new"  class="new">new</router-link>
       <ul>
-        <li v-for="( conversation, i ) of conversations">
+        <li v-for="( conversation, i ) of conversations" :key="i">
           <router-link :to="`/conversations/${ conversation.id }`">{{ conversation.name }}</router-link>
           <router-link :to="`/conversations/${ conversation.id }/edit`">Edit</router-link>
-          <button v-if="isOwner( conversation.userId )" v-on:click="onDelete( conversation.id )">Delete</button>
+          <button v-if="isOwner( conversation.userId )" v-on:click="onDeleteConversation( conversation.id )">Delete</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="wrapper">
+      <h3>Friends</h3>
+      <router-link to="friendships/new"  class="new">new</router-link>
+      <ul>
+        <li v-for="( friendship, i ) of friendships" :key="i">
+          <router-link :to="`/friendships/${ friendship.id }`">{{ getFriendName( friendship ) }}</router-link>
+          <button v-if="showAccept( friendship )" v-on:click="onAccept( friendship )">Accept</button>
+          <span v-if="!showAccept( friendship ) && showPending( friendship )">Pending</span>
+          <button v-on:click="onDeleteFriendship( friendship.id )">Delete</button>
         </li>
       </ul>
     </div>
@@ -23,6 +36,10 @@ import router from '@/router.ts';
 @Component({
 })
 export default class SideBar extends Vue {
+  get friendships() {
+    return Object.values( store.state.friendships );
+  }
+
   get conversations() {
     return Object.values( store.state.conversations );
   }
@@ -31,12 +48,43 @@ export default class SideBar extends Vue {
     return store.state.user.id === userId;
   }
 
-  private onDelete( id: number ) {
+  private onDeleteConversation( id: number ) {
     store.dispatch( 'removeConversation', id );
+  }
+
+  private getFriendName( friendship: any ) {
+    if ( friendship.userOneId === store.state.user.id ) {
+      return friendship.userTwo.username;
+    } else {
+      return friendship.userOne.username;
+    }
+  }
+
+  private showAccept( friendship: any ) {
+    if ( friendship.userTwoId === store.state.user.id && !friendship.userTwoAccepted ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private showPending( friendship: any ) {
+    return !friendship.userTwoAccepted;
+  }
+
+  private onAccept( friendship: any ) {
+    friendship.userTwoAccepted = true;
+
+    store.dispatch( 'updateFriendship', friendship );
+  }
+
+  private onDeleteFriendship( id: number ) {
+    store.dispatch( 'removeFriendship', id );
   }
 
   private mounted() {
     store.dispatch( 'getConversations' );
+    store.dispatch( 'getFriendships' );
   }
 }
 </script>
