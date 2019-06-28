@@ -115,6 +115,7 @@ export default class Friendship extends Vue {
     store.commit( 'clearMessages' );
     store.dispatch( 'getFriendship', +router.currentRoute.params.id )
       .then( () => {
+        store.dispatch( 'joinFriendship', +router.currentRoute.params.id );
         store.dispatch( 'getFriendshipMessages', { id: +router.currentRoute.params.id, offset: 0 } );
       } );
   }

@@ -24,6 +24,7 @@ import store from '@/store.ts';
 export default class App extends Vue {
   private created() {
     store.dispatch( 'consumeNonce' );
+    store.commit( 'setUser', store.state.user );
   }
 }
 </script>

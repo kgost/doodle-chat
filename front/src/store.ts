@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import SocketService from '@/services/SocketService';
 import Api from '@/services/Api';
 import Crudify from '@/services/Crudify';
 import AuthService from '@/services/AuthService';
@@ -8,10 +9,11 @@ import ConversationService from '@/services/ConversationService';
 
 Vue.use(Vuex);
 
+const socketService = new SocketService();
 const authService = new AuthService();
 const conversationService = new ConversationService();
 
-export default new Vuex.Store({
+const vuex =  new Vuex.Store({
   state: {
     // AUTH
     token: localStorage.getItem( 'token' ),
@@ -69,9 +71,15 @@ export default new Vuex.Store({
       Vue.set( state, 'user', user );
       localStorage.setItem( 'user:id', user.id );
       localStorage.setItem( 'user:username', user.username );
+
+      socketService.signIn( user.id );
     },
 
-    clearUser( state, user ) {
+    clearUser( state ) {
+      if ( state.user.id ) {
+        socketService.signOut( state.user.id );
+      }
+
       Vue.delete( state, 'user' );
       localStorage.removeItem( 'user:id' );
       localStorage.removeItem( 'user:username' );
@@ -114,6 +122,15 @@ export default new Vuex.Store({
       }
     },
 
+    clearConversations( state ) {
+      Vue.set( state, 'conversations', {} );
+    },
+
+    setConversationId( state, id ) {
+      Vue.set( state, 'conversationId', id );
+      Vue.set( state, 'friendshipId', 0 );
+    },
+
     // Friendships
     setFriendship( state, friendship ) {
       Vue.set( state.friendships, friendship.id, friendship );
@@ -127,6 +144,15 @@ export default new Vuex.Store({
       for ( const friendship of friendships ) {
         Vue.set( state.friendships, friendship.id, friendship );
       }
+    },
+
+    clearFriendships( state ) {
+      Vue.set( state, 'friendships', {} );
+    },
+
+    setFriendshipId( state, id ) {
+      Vue.set( state, 'friendshipId', id );
+      Vue.set( state, 'conversationId', 0 );
     },
 
     // Messages
@@ -222,6 +248,13 @@ export default new Vuex.Store({
     },
 
     // Conversations
+    joinConversation( { commit, state }, id ) {
+      socketService.leaveConversation( state.conversationId );
+      socketService.leaveFriendship( state.friendshipId );
+      socketService.joinConversation( id );
+      commit( 'setConversationId', id );
+    },
+
     createConversation( { commit, state, getters }, { conversation, participants } ) {
       const accessKeys = authService.generateConversationAccessKeys( participants );
 
@@ -232,10 +265,58 @@ export default new Vuex.Store({
       return Api().post( '/conversations', { conversation, participants } )
         .then( ( res ) => {
           commit( 'setConversation', res.data );
+
+          for ( const participant of res.data.participants ) {
+            socketService.addConversation( participant.userId );
+          }
         } );
     },
 
-    getConversations: Crudify( conversationService, 'index', [['setConversations']] ),
+    getConversations( { commit, state } ) {
+      return Api().get( '/conversations' )
+        .then( ( res ) => {
+          const newConversations: number[] = [];
+          const removedConversations: number[] = [];
+
+          for ( const conversation of res.data ) {
+            if ( !state.conversations[conversation.id] ) {
+              newConversations.push( conversation.id );
+            }
+          }
+
+          for ( const id of Object.keys( state.conversations ) ) {
+            const oldConversation: any = state.conversations[id];
+            let match = false;
+
+            for ( const conversation of res.data ) {
+              if ( conversation.id === +id ) {
+                match = true;
+                break;
+              }
+            }
+
+            if ( !match ) {
+              removedConversations.push( +id );
+            }
+          }
+
+          for ( const id of newConversations ) {
+            socketService.listenConversation( id );
+          }
+
+          for ( const id of removedConversations ) {
+            socketService.unListenConversation( id );
+            commit( 'clearConversation', id );
+          }
+
+          commit( 'setConversations', res.data );
+        } )
+        .catch( ( err ) => {
+          if ( err.response.status === 404 ) {
+            commit( 'clearConversations' );
+          }
+        } );
+    },
 
     getConversation( { commit, state, getters }, id: number ) {
       if ( state.conversations[id] ) {
@@ -262,6 +343,23 @@ export default new Vuex.Store({
 
       return Api().put( `/conversations/${ conversation.id }`, { conversation, participants } )
         .then( ( res ) => {
+          for ( const participant of res.data.participants ) {
+            let match = false;
+
+            for ( const oldParticipant of state.conversations[conversation.id].participants ) {
+              if ( oldParticipant.userId === participant.userId ) {
+                match = true;
+                break;
+              }
+            }
+
+            if ( !match ) {
+              socketService.addConversation( participant.userId );
+            }
+          }
+
+          socketService.updateConversation( conversation.id );
+
           commit( 'setConversation', res.data );
         } );
     },
@@ -269,6 +367,8 @@ export default new Vuex.Store({
     changeConversation( { commit, state, getters }, { conversation, participants } ) {
       return Api().put( `/conversations/${ conversation.id }/change-cosmetic`, { participants } )
         .then( ( res ) => {
+          socketService.updateConversation( conversation.id );
+
           commit( 'setConversation', res.data );
         } );
     },
@@ -276,11 +376,20 @@ export default new Vuex.Store({
     removeConversation( { commit, state, getters }, conversationId ) {
       return Api().delete( `/conversations/${ conversationId }` )
         .then( () => {
+          socketService.updateConversation( conversationId );
+
           commit( 'clearConversation', conversationId );
         } );
     },
 
     // Friendships
+    joinFriendship( { commit, state }, id ) {
+      socketService.leaveConversation( state.conversationId );
+      socketService.leaveFriendship( state.friendshipId );
+      socketService.joinFriendship( id );
+      commit( 'setFriendshipId', id );
+    },
+
     createFriendship( { commit }, friendship ) {
       const accessKeys = authService.generateFriendshipAccessKeys(
         friendship.userOneId,
@@ -293,6 +402,8 @@ export default new Vuex.Store({
 
       return Api().post( '/friendships', friendship )
         .then( ( res ) => {
+          socketService.addFriendship( friendship.userTwoId );
+
           commit( 'setFriendship', res.data );
         } );
     },
@@ -315,13 +426,54 @@ export default new Vuex.Store({
     getFriendships( { commit, state } ) {
       return Api().get( '/friendships' )
         .then( ( res ) => {
+          const newFriendships: number[] = [];
+          const removedFriendships: number[] = [];
+
+          for ( const friendship of res.data ) {
+            if ( !state.friendships[friendship.id] ) {
+              newFriendships.push( friendship.id );
+            }
+          }
+
+          for ( const id of Object.keys( state.friendships ) ) {
+            const oldFriendship: any = state.friendships[id];
+            let match = false;
+
+            for ( const friendship of res.data ) {
+              if ( friendship.id === +id ) {
+                match = true;
+                break;
+              }
+            }
+
+            if ( !match ) {
+              removedFriendships.push( +id );
+            }
+          }
+
+          for ( const id of newFriendships ) {
+            socketService.listenFriendship( id );
+          }
+
+          for ( const id of removedFriendships ) {
+            socketService.unListenFriendship( id );
+            commit( 'clearFriendship', id );
+          }
+
           commit( 'setFriendships', res.data );
+        } )
+        .catch( ( err ) => {
+          if ( err.response.status === 404 ) {
+            commit( 'clearFriendships' );
+          }
         } );
     },
 
     updateFriendship( { commit }, friendship ) {
       return Api().put( `/friendships/${ friendship.id }`, friendship )
         .then( ( res ) => {
+          socketService.updateFriendship( friendship.id );
+
           commit( 'setFriendship', res.data );
         } );
     },
@@ -329,6 +481,8 @@ export default new Vuex.Store({
     removeFriendship( { commit }, id ) {
       return Api().delete( `/friendships/${ id }` )
         .then( () => {
+          socketService.updateFriendship( id );
+
           commit( 'clearFriendship', id );
         } );
     },
@@ -337,6 +491,8 @@ export default new Vuex.Store({
     createConversationMessage( { commit }, { id, message } ) {
       return Api().post( `/conversations/${ id }/messages`, message )
         .then( ( res ) => {
+          socketService.newConversationMessage( id, res.data.id );
+
           commit( 'setMessage', res.data );
         } );
     },
@@ -358,6 +514,8 @@ export default new Vuex.Store({
     updateConversationMessage( { commit }, { id, messageId, message } ) {
       return Api().put( `/conversations/${ id }/messages/${ messageId }`, message )
         .then( ( res ) => {
+          socketService.changeConversationMessage( id, messageId );
+
           commit( 'setMessage', res.data );
         } );
     },
@@ -365,6 +523,8 @@ export default new Vuex.Store({
     removeConversationMessage( { commit }, { id, messageId } ) {
       return Api().delete( `/conversations/${ id }/messages/${ messageId }` )
         .then( ( res ) => {
+          socketService.changeConversationMessage( id, messageId );
+
           commit( 'clearMessage', messageId );
         } );
     },
@@ -373,6 +533,8 @@ export default new Vuex.Store({
     createFriendshipMessage( { commit }, { id, message } ) {
       return Api().post( `/friendships/${ id }/messages`, message )
         .then( ( res ) => {
+          socketService.newFriendshipMessage( id, res.data.id );
+
           commit( 'setMessage', res.data );
         } );
     },
@@ -394,6 +556,8 @@ export default new Vuex.Store({
     updateFriendshipMessage( { commit }, { id, messageId, message } ) {
       return Api().put( `/friendships/${ id }/messages/${ messageId }`, message )
         .then( ( res ) => {
+          socketService.changeFriendshipMessage( id, messageId );
+
           commit( 'setMessage', res.data );
         } );
     },
@@ -401,6 +565,8 @@ export default new Vuex.Store({
     removeFriendshipMessage( { commit }, { id, messageId } ) {
       return Api().delete( `/friendships/${ id }/messages/${ messageId }` )
         .then( ( res ) => {
+          socketService.changeFriendshipMessage( id, messageId );
+
           commit( 'clearMessage', messageId );
         } );
     },
@@ -409,6 +575,8 @@ export default new Vuex.Store({
     createConversationReaction( { commit, dispatch }, { id, messageId, reaction } ) {
       return Api().post( `/conversations/${ id }/messages/${ messageId }/reactions`, reaction )
         .then( ( res ) => {
+          socketService.changeConversationMessage( id, messageId );
+
           return dispatch( 'getConversationMessage', { id, messageId } );
         } );
     },
@@ -417,8 +585,54 @@ export default new Vuex.Store({
     createFriendshipReaction( { commit, dispatch }, { id, messageId, reaction } ) {
       return Api().post( `/friendships/${ id }/messages/${ messageId }/reactions`, reaction )
         .then( ( res ) => {
+          socketService.changeFriendshipMessage( id, messageId );
+
           return dispatch( 'getFriendshipMessage', { id, messageId } );
         } );
     },
   },
 });
+
+// Conversations
+socketService.socket.on( 'add-conversation-message', ( payload ) => {
+  vuex.dispatch( 'getConversationMessage', payload );
+} );
+
+socketService.socket.on( 'update-conversation-message', ( payload ) => {
+  vuex.dispatch( 'getConversationMessage', payload )
+    .catch( ( err ) => {
+      if ( err.response.status === 404 ) {
+        vuex.commit( 'clearMessage', payload.messageId );
+      }
+    } );
+} );
+
+// socketService.socket.on( 'notify-conversation', ( id ) => {
+// } );
+
+socketService.socket.on( 'refresh-conversations', ( payload ) => {
+  vuex.dispatch( 'getConversations' );
+} );
+
+// Friendships
+socketService.socket.on( 'add-friendship-message', ( payload ) => {
+  vuex.dispatch( 'getFriendshipMessage', payload );
+} );
+
+socketService.socket.on( 'update-friendship-message', ( payload ) => {
+  vuex.dispatch( 'getFriendshipMessage', payload )
+    .catch( ( err ) => {
+      if ( err.response.status === 404 ) {
+        vuex.commit( 'clearMessage', payload.messageId );
+      }
+    } );
+} );
+
+// socketService.socket.on( 'notify-friendship', ( id ) => {
+// } );
+
+socketService.socket.on( 'refresh-friendships', ( payload ) => {
+  vuex.dispatch( 'getFriendships' );
+} );
+
+export default vuex;

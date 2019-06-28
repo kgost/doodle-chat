@@ -107,6 +107,7 @@ export default class Conversation extends Vue {
     store.commit( 'clearMessages' );
     store.dispatch( 'getConversation', +router.currentRoute.params.id )
       .then( () => {
+        store.dispatch( 'joinConversation', +router.currentRoute.params.id );
         store.dispatch( 'getConversationMessages', { id: +router.currentRoute.params.id, offset: 0 } );
       } );
   }

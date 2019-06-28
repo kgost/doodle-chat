@@ -19,67 +19,67 @@ exports = module.exports = function( io ) {
     } )
 
     socket.on( 'listen-conversation', ( conversationId ) => {
-      socket.join( 'listen-' + conversationId )
+      socket.join( 'listen-conversation-' + conversationId )
     } )
 
     socket.on( 'listen-friendship', ( friendshipId ) => {
-      socket.join( 'listen-' + friendshipId )
+      socket.join( 'listen-friendship-' + friendshipId )
     } )
 
     socket.on( 'unlisten-conversation', ( conversationId ) => {
-      socket.leave( 'listen-' + conversationId )
+      socket.leave( 'listen-conversation-' + conversationId )
     } )
 
     socket.on( 'unlisten-friendship', ( friendshipId ) => {
-      socket.leave( 'listen-' + friendshipId )
+      socket.leave( 'listen-friendship-' + friendshipId )
     } )
 
     //On user joining coversation connects them to the socket for that conversation
     socket.on( 'join-conversation', ( conversationId ) => {
-      socket.join( conversationId )
+      socket.join( `conversation-${ conversationId }` )
     } )
 
     socket.on( 'join-friendship', ( friendshipId ) => {
-      socket.join( friendshipId )
+      socket.join( `friendship-${ friendshipId }` )
     } )
 
     //Leaves socket for specific conversation when user leaves
     socket.on( 'leave-conversation', ( conversationId ) => {
-      socket.leave( conversationId )
+      socket.leave( `conversation-${ conversationId }` )
     } )
 
     socket.on( 'leave-friendship', ( friendshipId ) => {
-      socket.leave( friendshipId )
+      socket.leave( `friendship-${ friendshipId }` )
     } )
 
     //Refreshes current socket when new messages are sent so new message can be loaded
-    socket.on( 'new-message', ( data ) => {
-      io.sockets.in( data.conversationId  ).emit( 'add-message', data.messageId )
-      io.sockets.in( 'listen-' + data.conversationId ).emit( 'notify-conversation', data.conversationId )
+    socket.on( 'new-conversation-message', ( data ) => {
+      io.sockets.in( `conversation-${ data.id }` ).emit( 'add-conversation-message', data )
+      io.sockets.in( 'listen-conversation-' + data.id ).emit( 'notify-conversation', data.id )
     } )
 
-    socket.on( 'change-message', ( data ) => {
-      io.sockets.in( data.conversationId  ).emit( 'update-message', data.messageId )
+    socket.on( 'change-conversation-message', ( data ) => {
+      io.sockets.in( `conversation-${ data.id }` ).emit( 'update-conversation-message', data )
       //io.sockets.in( 'listen-' + data.conversationId ).emit( 'notify-conversation', data.conversationId )
     } )
 
-    socket.on( 'new-private-message', ( data ) => {
-      io.sockets.in( data.friendshipId ).emit( 'add-private-message', data.messageId )
-      io.sockets.in( 'listen-' + data.friendshipId ).emit( 'notify-friendship', data.friendshipId )
+    socket.on( 'new-friendship-message', ( data ) => {
+      io.sockets.in( `friendship-${ data.id }` ).emit( 'add-friendship-message', data )
+      io.sockets.in( 'listen-friendship-' + data.id ).emit( 'notify-friendship', data.id )
     } )
 
-    socket.on( 'change-private-message', ( data ) => {
-      io.sockets.in( data.friendshipId ).emit( 'update-private-message', data.messageId )
+    socket.on( 'change-friendship-message', ( data ) => {
+      io.sockets.in( `friendship-${ data.id }` ).emit( 'update-friendship-message', data )
       //io.sockets.in( 'listen-' + data.friendshipId ).emit( 'notify-friendship', data.friendshipId )
     } )
 
     //Destroys socket tied to a specific conversation
     socket.on( 'update-conversation', ( conversationId ) => {
-      io.sockets.in( 'listen-' + conversationId  ).emit( 'refresh-conversations')
+      io.sockets.in( 'listen-conversation-' + conversationId  ).emit( 'refresh-conversations' )
     })
 
     socket.on( 'update-friendship', ( friendshipId ) => {
-      io.sockets.in( 'listen-' + friendshipId  ).emit( 'refresh-friendships')
+      io.sockets.in( 'listen-friendship-' + friendshipId  ).emit( 'refresh-friendships' )
     })
 
     //Destroys socket tied to a specific conversation
@@ -91,28 +91,12 @@ exports = module.exports = function( io ) {
       io.sockets.in( userId  ).emit( 'refresh-friendships' )
     })
 
-    socket.on( 'user-typing-send', ( data ) => {
-      if ( data.conversationId ) {
-        io.sockets.in( data.conversationId ).emit( 'user-typing', data.username )
-      } else {
-        io.sockets.in( data.friendshipId ).emit( 'user-typing', data.username )
-      }
+    socket.on( 'conversation-typing', ( data ) => {
+      io.sockets.in( `conversation-${ data.id }` ).emit( 'user-typing', data.username )
     } )
 
-    socket.on( 'initial-request-media', ( data ) => {
-      if ( data.conversationId ) {
-        io.sockets.in( 'listen-' + data.conversationId ).emit( 'request-media', data )
-      } else {
-        io.sockets.in( 'listen-' + data.friendshipId ).emit( 'request-media', data )
-      }
-    } )
-
-    socket.on( 'send-media', ( data ) => {
-      if ( data.conversationId ) {
-        io.sockets.in( 'listen-' + data.conversationId ).emit( 'receive-media', { messageId: data.messageId, mediaData: data.mediaData } )
-      } else {
-        io.sockets.in( 'listen-' + data.friendshipId ).emit( 'receive-media', { messageId: data.messageId, mediaData: data.mediaData } )
-      }
+    socket.on( 'friendship-typing', ( data ) => {
+      io.sockets.in( `friendship-${ data.id }` ).emit( 'user-typing', data.username )
     } )
 
     //Logs users disconnecting from any socket
