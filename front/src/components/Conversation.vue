@@ -3,10 +3,17 @@
     <h1 v-if="conversation">{{ conversation.name }}</h1>
 
     <div v-for="message of messages" :key="message.id">
-      <span>{{ decrypt( message.message ) }}</span>
-      <span>{{ message.author.username }}</span>
-      <button v-on:click="onEdit( message )" v-if="isOwner( message.userId )">Edit</button>
-      <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+      <div>
+        <span>{{ decrypt( message.message ) }}</span>
+        <span>{{ message.author.username }}</span>
+        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId )">Edit</button>
+        <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+      </div>
+
+      <div>
+        <EditReaction :messageId="message.id" :accessKey="accessKey"></EditReaction>
+        <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
+      </div>
     </div>
 
     <EditMessage v-if="conversation" v-model="activeMessage" :accessKey="accessKey"></EditMessage>
@@ -15,15 +22,18 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import twemoji from 'twemoji';
 
 import store from '@/store.ts';
 import router from '@/router.ts';
 
 import EditMessage from '@/components/EditMessage.vue';
+import EditReaction from '@/components/EditReaction.vue';
 
 @Component({
   components: {
     EditMessage,
+    EditReaction,
   },
 })
 export default class Conversation extends Vue {
@@ -81,6 +91,18 @@ export default class Conversation extends Vue {
     store.dispatch( 'removeConversationMessage', { id: +this.$route.params.id, messageId } );
   }
 
+  private emojify( emoji: string ) {
+    return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
+  }
+
+  private getUsername( id: number ) {
+    for ( const participant of this.conversation.participants ) {
+      if ( participant.userId === id ) {
+        return participant.user.username;
+      }
+    }
+  }
+
   private mounted() {
     store.commit( 'clearMessages' );
     store.dispatch( 'getConversation', +router.currentRoute.params.id )
@@ -93,4 +115,7 @@ export default class Conversation extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.emoji {
+  width: 32px;
+}
 </style>

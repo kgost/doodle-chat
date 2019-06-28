@@ -15,8 +15,8 @@ import router from '@/router.ts';
 @Component({
 })
 export default class EditMessage extends Vue {
-  @Model( 'on-submit', { type: Object } ) message!: { id: number, message: string };
-  @Prop( String ) readonly accessKey!: string;
+  @Model( 'on-submit', { type: Object } ) private message!: { id: number, message: string };
+  @Prop( String ) private readonly accessKey!: string;
 
   get encryptedMessage() {
     return store.getters.getEncryptedMessage({ message: this.message.message, key: this.accessKey });
@@ -25,7 +25,7 @@ export default class EditMessage extends Vue {
   private onSubmit() {
     let p;
 
-    const payload = { id: this.message.id, message: this.encryptedMessage }
+    const payload = { id: this.message.id, message: this.encryptedMessage };
 
     if ( router.currentRoute.name === 'conversation' ) {
       if ( this.message.id ) {

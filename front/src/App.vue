@@ -21,7 +21,7 @@ import store from '@/store.ts';
   methods: {
   },
 })
-export default class SignIn extends Vue {
+export default class App extends Vue {
   private created() {
     store.dispatch( 'consumeNonce' );
   }

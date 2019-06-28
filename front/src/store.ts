@@ -348,6 +348,13 @@ export default new Vuex.Store({
         } );
     },
 
+    getConversationMessage( { commit }, { id, messageId } ) {
+      return Api().get( `/conversations/${ id }/messages/${ messageId }` )
+        .then( ( res ) => {
+          commit( 'setMessage', res.data );
+        } );
+    },
+
     updateConversationMessage( { commit }, { id, messageId, message } ) {
       return Api().put( `/conversations/${ id }/messages/${ messageId }`, message )
         .then( ( res ) => {
@@ -377,6 +384,13 @@ export default new Vuex.Store({
         } );
     },
 
+    getFriendshipMessage( { commit }, { id, messageId } ) {
+      return Api().get( `/friendships/${ id }/messages/${ messageId }` )
+        .then( ( res ) => {
+          commit( 'setMessage', res.data );
+        } );
+    },
+
     updateFriendshipMessage( { commit }, { id, messageId, message } ) {
       return Api().put( `/friendships/${ id }/messages/${ messageId }`, message )
         .then( ( res ) => {
@@ -388,6 +402,14 @@ export default new Vuex.Store({
       return Api().delete( `/friendships/${ id }/messages/${ messageId }` )
         .then( ( res ) => {
           commit( 'clearMessage', messageId );
+        } );
+    },
+
+    // Conversation Reactions
+    createConversationReaction( { commit, dispatch }, { id, messageId, reaction } ) {
+      return Api().post( `/conversations/${ id }/messages/${ messageId }/reactions`, reaction )
+        .then( ( res ) => {
+          return dispatch( 'getConversationMessage', { id, messageId } );
         } );
     },
   },

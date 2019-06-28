@@ -1,8 +1,9 @@
 const
-  express       = require('express'),
-  router        = express.Router({ mergeParams: true }),
-  middleware    = require( '../functions/middleware' ),
-  controller    = require( '../controllers/conversationMessage' )
+  express        = require('express'),
+  router         = express.Router({ mergeParams: true }),
+  middleware     = require( '../functions/middleware' ),
+  controller     = require( '../controllers/conversationMessage' ),
+  reactionRouter = require( './conversationReaction.js' )
 
 router.post( '/',
   middleware.authenticate,
@@ -13,6 +14,11 @@ router.get( '/',
   middleware.authenticate,
   middleware.inConversation,
   controller.index )
+
+router.get( '/:messageId',
+  middleware.authenticate,
+  middleware.inConversation,
+  controller.show )
 
 router.put( '/:messageId',
   middleware.authenticate,
@@ -25,5 +31,8 @@ router.delete( '/:messageId',
   middleware.inConversation,
   middleware.ownsConversationMessage,
   controller.destroy )
+
+router.use( '/:messageId/reactions',
+  reactionRouter )
 
 module.exports = router
