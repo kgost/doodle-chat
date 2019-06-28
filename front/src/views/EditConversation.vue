@@ -15,7 +15,7 @@
         <div class="participant" v-for="( participant, i ) of participants" :key="i">
           <div class="input-group">
             <h4>Username</h4>
-            <input v-if="isOwner" type="text" v-model="participant.username" v-on:change="getUserId( i )" placeholder="username">
+            <input v-if="isOwner" type="text" v-model="participant.username" placeholder="username">
             <span v-if="!isOwner">{{ participant.username }}</span>
           </div>
 
@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
 
 import store from '@/store.ts';
 import router from '@/router.ts';
@@ -59,6 +59,13 @@ export default class SignIn extends Vue {
       publicKey: '',
     },
   ];
+
+  @Watch( 'participants', { deep: true } )
+  private onParticipantChange( newParticipants ) {
+    for ( const index in newParticipants ) {
+      this.getUserId( +index );
+    }
+  }
 
   get valid(): boolean {
     if ( !this.conversation.name || !this.conversation.userId ) {

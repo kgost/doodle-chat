@@ -90,6 +90,10 @@ export default new Vuex.Store({
       localStorage.setItem( 'encPrivateKey', encPrivateKey );
     },
 
+    clearEncPrivateKey( state, encPrivateKey: string ) {
+      localStorage.removeItem( 'encPrivateKey' );
+    },
+
     clearKeys( state, keyPair ) {
       Vue.delete( state, 'publicKey' );
       Vue.delete( state, 'privateKey' );
@@ -163,6 +167,8 @@ export default new Vuex.Store({
           commit( 'setPublicKey', authService.publicKeyToString( keyPair.publicKey ) );
           commit( 'setPrivateKey', authService.privateKeyToString( keyPair.privateKey ) );
 
+          commit( 'clearEncPrivateKey' );
+
           return dispatch( 'consumeNonce' );
         } );
     },
@@ -186,6 +192,8 @@ export default new Vuex.Store({
 
         commit( 'setPublicKey', authService.publicKeyToString( keyPair.publicKey ) );
         commit( 'setPrivateKey', authService.privateKeyToString( keyPair.privateKey ) );
+
+        commit( 'clearEncPrivateKey' );
 
         return dispatch( 'consumeNonce' );
       } );
