@@ -45,6 +45,21 @@ const actions = {
     return { body: messages }
   },
 
+  show: async ( req ) => {
+    const message = await Message.findByPk( req.params.messageId, {
+      include: [
+        { model: User, as: 'author', attributes: ['username'] },
+        { model: Reaction, as: 'reactions' },
+      ],
+    } )
+
+    if ( !message ) {
+      throw { status: 404, message: 'no message found' }
+    }
+
+    return { body: message }
+  },
+
   update: async ( req ) => {
     await Message.update({
       message: req.body.message

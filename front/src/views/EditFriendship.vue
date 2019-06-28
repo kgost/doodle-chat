@@ -48,8 +48,11 @@ export default class SignIn extends Vue {
     store.dispatch( 'usernameTaken', this.username )
       .then( ( res ) => {
         if ( res.data ) {
-          this.friendship.userTwo.publicKey = res.data.publicKey;
-          this.friendship.userTwoId = res.data.id;
+          Vue.set( this.friendship.userTwo, 'publicKey', res.data.publicKey );
+          Vue.set( this.friendship, 'userTwoId', res.data.id );
+        } else {
+          Vue.set( this.friendship.userTwo, 'publicKey', '' );
+          Vue.set( this.friendship, 'userTwoId', 0 );
         }
       } );
   }

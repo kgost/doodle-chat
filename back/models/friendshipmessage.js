@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     friendshipId: DataTypes.INTEGER
   }, {});
   FriendshipMessage.associate = function(models) {
-    FriendshipMessage.belongsTo( models.User, { as: 'user', foreignKey: 'userId', onDelete: 'CASCADE' } )
+    FriendshipMessage.belongsTo( models.User, { as: 'author', foreignKey: 'userId', onDelete: 'CASCADE' } )
     FriendshipMessage.belongsTo( models.Friendship, { as: 'friendship', foreignKey: 'friendshipId', onDelete: 'CASCADE' } )
     FriendshipMessage.hasMany( models.FriendshipReaction, { as: 'reactions', foreignKey: 'friendshipMessageId' } )
   };

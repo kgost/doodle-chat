@@ -12,7 +12,8 @@ const
   // cron               = require( 'node-cron' ),
   socketController   = require( './controllers/socket' ),
   authRoutes         = require( './routes/auth' ),
-  conversationRoutes = require( './routes/conversation' )
+  conversationRoutes = require( './routes/conversation' ),
+  friendshipRoutes = require( './routes/friendship' )
 
 env( __dirname + '/.env', { raise: false } )
 
@@ -42,6 +43,7 @@ app.use( cors() )
 //Use pathing to routes
 app.use( '/api/auth', authRoutes )
 app.use( '/api/conversations', conversationRoutes )
+app.use( '/api/friendships', friendshipRoutes )
 
 app.use( '/assets', express.static( __dirname + '/src/assets' ) )
 

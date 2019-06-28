@@ -126,6 +126,10 @@ const actions = {
     if ( friendship.userOneId != req.user.id && friendship.userTwoId != req.user.id ) {
       throw { status: 400, message: 'you are not in this friendship' }
     }
+
+    if ( !friendship.userOneAccepted || !friendship.userTwoAccepted ) {
+      throw { status: 400, message: 'this friendship is not active' }
+    }
   },
 
   ownsConversationMessage: async ( req ) => {

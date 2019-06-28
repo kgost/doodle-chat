@@ -3,10 +3,17 @@
     <h1 v-if="friendship">{{ friendName }}</h1>
 
     <div v-for="message of messages" :key="message.id">
-      <span>{{ decrypt( message.message ) }}</span>
-      <span>{{ message.author.username }}</span>
-      <button v-on:click="onEdit( message )" v-if="isOwner( message.userId )">Edit</button>
-      <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+      <div>
+        <span>{{ decrypt( message.message ) }}</span>
+        <span>{{ message.author.username }}</span>
+        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId )">Edit</button>
+        <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+      </div>
+
+      <div>
+        <EditReaction :messageId="message.id" :accessKey="accessKey"></EditReaction>
+        <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
+      </div>
     </div>
 
     <EditMessage v-if="friendship" v-model="activeMessage" :accessKey="accessKey"></EditMessage>
@@ -15,15 +22,18 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import twemoji from 'twemoji';
 
 import store from '@/store.ts';
 import router from '@/router.ts';
 
 import EditMessage from '@/components/EditMessage.vue';
+import EditReaction from '@/components/EditReaction.vue';
 
 @Component({
   components: {
     EditMessage,
+    EditReaction,
   },
 })
 export default class Friendship extends Vue {
@@ -89,6 +99,18 @@ export default class Friendship extends Vue {
     store.dispatch( 'removeFriendshipMessage', { id: +this.$route.params.id, messageId } );
   }
 
+  private emojify( emoji: string ) {
+    return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
+  }
+
+  private getUsername( id: number ) {
+    if ( this.friendship.userOneId === id ) {
+      return this.friendship.userOne.username;
+    } else {
+      return this.friendship.userTwo.username;
+    }
+  }
+
   private mounted() {
     store.commit( 'clearMessages' );
     store.dispatch( 'getFriendship', +router.currentRoute.params.id )
@@ -101,4 +123,7 @@ export default class Friendship extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.emoji {
+  width: 32px;
+}
 </style>

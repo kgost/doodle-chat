@@ -412,5 +412,13 @@ export default new Vuex.Store({
           return dispatch( 'getConversationMessage', { id, messageId } );
         } );
     },
+
+    // Friendship Reactions
+    createFriendshipReaction( { commit, dispatch }, { id, messageId, reaction } ) {
+      return Api().post( `/friendships/${ id }/messages/${ messageId }/reactions`, reaction )
+        .then( ( res ) => {
+          return dispatch( 'getFriendshipMessage', { id, messageId } );
+        } );
+    },
   },
 });
