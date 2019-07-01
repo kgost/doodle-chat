@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Model, Prop, Vue } from 'vue-property-decorator';
+import { Component, Model, Prop, Watch, Vue } from 'vue-property-decorator';
 
 import store from '@/store.ts';
 import router from '@/router.ts';
@@ -17,9 +17,19 @@ import router from '@/router.ts';
 export default class EditMessage extends Vue {
   @Model( 'on-submit', { type: Object } ) private message!: { id: number, message: string };
   @Prop( String ) private readonly accessKey!: string;
+  @Prop( String ) private readonly name!: string;
 
   get encryptedMessage() {
     return store.getters.getEncryptedMessage({ message: this.message.message, key: this.accessKey });
+  }
+
+  @Watch( 'message.message' )
+  private onMessageChange() {
+    if ( router.currentRoute.name === 'conversation' ) {
+      store.dispatch( 'conversationTyping', { id: +this.$route.params.id, name: this.name } );
+    } else {
+      store.dispatch( 'friendshipTyping', { id: +this.$route.params.id, name: this.name } );
+    }
   }
 
   private onSubmit() {

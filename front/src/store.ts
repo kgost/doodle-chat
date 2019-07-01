@@ -25,6 +25,8 @@ const vuex =  new Vuex.Store({
       username: localStorage.getItem( 'user:username' ) ? localStorage.getItem( 'user:username' ) : undefined,
     },
 
+    typingNames: {},
+
     // Conversations
     conversationId: 0,
     conversations: {},
@@ -172,6 +174,18 @@ const vuex =  new Vuex.Store({
 
     clearMessages( state, id ) {
       Vue.set( state, 'messages', {} );
+    },
+
+    setTyping( state, name: string ) {
+      if ( state.typingNames[name] ) {
+        window.clearTimeout( vuex.state.typingNames[name] );
+      }
+
+      const timeout = window.setTimeout( () => {
+        Vue.delete( state.typingNames, name );
+      }, 4000 );
+
+      Vue.set( state.typingNames, name, timeout );
     },
   },
 
@@ -488,6 +502,10 @@ const vuex =  new Vuex.Store({
     },
 
     // Conversation Messages
+    conversationTyping( { commit }, { id, name } ) {
+      socketService.conversationTyping( id, name );
+    },
+
     createConversationMessage( { commit }, { id, message } ) {
       return Api().post( `/conversations/${ id }/messages`, message )
         .then( ( res ) => {
@@ -530,6 +548,10 @@ const vuex =  new Vuex.Store({
     },
 
     // Friendship Messages
+    friendshipTyping( { commit }, { id, name } ) {
+      socketService.friendshipTyping( id, name );
+    },
+
     createFriendshipMessage( { commit }, { id, message } ) {
       return Api().post( `/friendships/${ id }/messages`, message )
         .then( ( res ) => {
@@ -634,5 +656,10 @@ socketService.socket.on( 'update-friendship-message', ( payload ) => {
 socketService.socket.on( 'refresh-friendships', ( payload ) => {
   vuex.dispatch( 'getFriendships' );
 } );
+
+socketService.socket.on( 'user-typing', ( name ) => {
+  vuex.commit( 'setTyping', name );
+} );
+
 
 export default vuex;

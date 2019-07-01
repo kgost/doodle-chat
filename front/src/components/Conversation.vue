@@ -16,7 +16,9 @@
       </div>
     </div>
 
-    <EditMessage v-if="conversation" v-model="activeMessage" :accessKey="accessKey"></EditMessage>
+    <TypingNames :names="typingNames"></TypingNames>
+
+    <EditMessage v-if="conversation" v-model="activeMessage" :accessKey="accessKey" :name="name"></EditMessage>
   </div>
 </template>
 
@@ -29,11 +31,13 @@ import router from '@/router.ts';
 
 import EditMessage from '@/components/EditMessage.vue';
 import EditReaction from '@/components/EditReaction.vue';
+import TypingNames from '@/components/TypingNames.vue';
 
 @Component({
   components: {
     EditMessage,
     EditReaction,
+    TypingNames,
   },
 })
 export default class Conversation extends Vue {
@@ -72,6 +76,20 @@ export default class Conversation extends Vue {
     }
 
     return '';
+  }
+
+  get typingNames() {
+    return Object.keys( store.state.typingNames ).filter( ( name ) => {
+      return name !== this.name;
+    } );
+  }
+
+  get name() {
+    for ( const participant of this.conversation.participants ) {
+      if ( participant.userId === store.state.user.id ) {
+        return participant.nickname || store.state.user.username;
+      }
+    }
   }
 
   private decrypt( message: string ) {
