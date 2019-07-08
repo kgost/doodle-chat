@@ -1,6 +1,7 @@
 <template>
   <div>
-    <textarea cols="30" rows="10" v-model="message.message"></textarea>
+    <textarea ref="textarea" cols="30" rows="10" v-model="message.message"></textarea>
+    <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
 
     <button v-on:click="onSubmit">Submit</button>
   </div>
@@ -12,12 +13,21 @@ import { Component, Model, Prop, Watch, Vue } from 'vue-property-decorator';
 import store from '@/store.ts';
 import router from '@/router.ts';
 
+import EmojiPicker from '@/components/EmojiPicker.vue';
+
 @Component({
+  components: {
+    EmojiPicker,
+  }
 })
 export default class EditMessage extends Vue {
   @Model( 'on-submit', { type: Object } ) private message!: { id: number, message: string };
   @Prop( String ) private readonly accessKey!: string;
   @Prop( String ) private readonly name!: string;
+
+  $refs!: {
+    textarea: HTMLFormElement
+  };
 
   get encryptedMessage() {
     return store.getters.getEncryptedMessage({ message: this.message.message, key: this.accessKey });
@@ -29,6 +39,25 @@ export default class EditMessage extends Vue {
       store.dispatch( 'conversationTyping', { id: +this.$route.params.id, name: this.name } );
     } else {
       store.dispatch( 'friendshipTyping', { id: +this.$route.params.id, name: this.name } );
+    }
+  }
+
+  private onPickEmoji( emoji ) {
+    let text = this.message.message;
+
+    if ( typeof this.$refs.textarea.selectionStart !== 'undefined' && typeof this.$refs.textarea.selectionEnd !== 'undefined' ) {
+      const endIndex = this.$refs.textarea.selectionEnd;
+      text = text.slice( 0, this.$refs.textarea.selectionStart ) + emoji + text.slice( endIndex );
+      Vue.set( this.message, 'message', text );
+      this.$refs.textarea.focus();
+
+      window.setTimeout( () => {
+        this.$refs.textarea.selectionEnd = this.$refs.textarea.selectionStart = endIndex + emoji.length;
+      }, 10 );
+    } else {
+      text = text + emoji;
+      Vue.set( this.message, 'message', text );
+      this.$refs.textarea.focus();
     }
   }
 
