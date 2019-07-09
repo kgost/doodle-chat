@@ -2,9 +2,9 @@
   <div>
     <h1 v-if="friendship">{{ friendName }}</h1>
 
-    <div v-for="message of messages" :key="message.id">
+    <div v-for="message of messages" :key="message.id" class="message-list">
       <div>
-        <span>{{ decrypt( message.message ) }}</span>
+        <span v-html="emojifyMessage( decode( decrypt( message.message ) ) )" class="message"></span>
         <span>{{ message.author.username }}</span>
         <button v-on:click="onEdit( message )" v-if="isOwner( message.userId )">Edit</button>
         <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
@@ -106,7 +106,7 @@ export default class Friendship extends Vue {
 
   private onEdit( message: any ) {
     this.activeMessage.id = message.id;
-    this.activeMessage.message = this.decrypt( message.message );
+    this.activeMessage.message = this.decode( this.decrypt( message.message ) );
   }
 
   private onDelete( messageId: number ) {
@@ -115,6 +115,14 @@ export default class Friendship extends Vue {
 
   private emojify( emoji: string ) {
     return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
+  }
+
+  private emojifyMessage( message: string ) {
+    return twemoji.parse( message );
+  }
+
+  private decode( message: string ) {
+    return decodeURIComponent( escape( message ) );
   }
 
   private getUsername( id: number ) {

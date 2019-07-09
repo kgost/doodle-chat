@@ -30,7 +30,11 @@ export default class EditMessage extends Vue {
   };
 
   get encryptedMessage() {
-    return store.getters.getEncryptedMessage({ message: this.message.message, key: this.accessKey });
+    return store.getters.getEncryptedMessage({ message: this.encoding, key: this.accessKey });
+  }
+
+  get encoding() {
+    return unescape( encodeURIComponent( this.message.message ) );
   }
 
   @Watch( 'message.message' )
@@ -65,6 +69,8 @@ export default class EditMessage extends Vue {
     let p;
 
     const payload = { id: this.message.id, message: this.encryptedMessage };
+
+    console.log( this.encryptedMessage );
 
     if ( router.currentRoute.name === 'conversation' ) {
       if ( this.message.id ) {
