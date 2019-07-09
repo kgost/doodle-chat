@@ -115,11 +115,13 @@ export default class Conversation extends Vue {
   }
 
   private emojify( emoji: string ) {
-    return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
+    return `/img/emojis/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
   }
 
   private emojifyMessage( message: string ) {
-    return twemoji.parse( message );
+    return twemoji.parse( message, ( icon, options, variant ) => {
+      return `/img/emojis/${ icon }.png`;
+    } );
   }
 
   private decode( message: string ) {
@@ -152,7 +154,7 @@ export default class Conversation extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .emoji {
-  width: 32px;
+  height: 32px;
 }
 </style>
 
@@ -160,10 +162,9 @@ export default class Conversation extends Vue {
 .message-list {
   .message {
     .emoji {
-       height: 1em;
-       width: 1em;
-       margin: 0 .05em 0 .1em;
-       vertical-align: -0.1em;
+      height: 1em;
+      margin: 0 .05em 0 .1em;
+      vertical-align: -0.1em;
     }
   }
 }

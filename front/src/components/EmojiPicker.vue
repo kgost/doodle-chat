@@ -1,12 +1,14 @@
 <template>
   <div>
-    <img v-show="!showPicker" v-on:click="toggleShow" src="https://twemoji.maxcdn.com/2/72x72/1f914.png" alt="🤔" class="emoji">
+    <img v-show="!showPicker" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji">
 
     <div v-show="showPicker">
-      <img v-on:click="activeHeader = i" v-for="( header, i ) of headers" :key="i" :src="emojify( header.emoji )" :alt="header.emoji" class="emoji">
+      <img v-on:click="activeHeader = i" v-for="( header, i ) of headers" :key="i" :src="emojify( header.emoji )" :alt="header.title" class="emoji">
+
       <div>
         <img v-for="( emoji, i ) of emojis[activeHeader]" v-on:click="pickEmoji( emoji )" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
       </div>
+
       <button v-show="showPicker" v-on:click="toggleShow">Close</button>
     </div>
   </div>
@@ -29,7 +31,7 @@ export default class EmojiPicker extends Vue {
     { emoji: '🐱', title: 'Animals And Drink' },
     { emoji: '🍆', title: 'Food And Drink' },
     { emoji: '🏋️', title: 'Sports' },
-    { emoji: '⌚️', title: 'Objects' },
+    { emoji: '🔫', title: 'Objects' },
     { emoji: '🇮🇪', title: 'Borders' },
   ];
   private emojis = [
@@ -126,7 +128,7 @@ export default class EmojiPicker extends Vue {
   }
 
   private emojify( emoji: string ) {
-    return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( emoji ) }.png`;
+    return `/img/emojis/${ twemoji.convert.toCodePoint( emoji ) }.png`;
   }
 
   private pickEmoji( emoji ) {
@@ -138,6 +140,6 @@ export default class EmojiPicker extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .emoji {
-  width: 32px;
+  height: 32px;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img v-show="!showReactions" v-on:click="toggleShow" src="https://twemoji.maxcdn.com/2/72x72/1f914.png" alt="🤔" class="emoji">
+    <img v-show="!showReactions" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji">
     <img v-show="showReactions" v-on:click="onSubmit( emoji )" v-for="( emoji, i ) of emojis" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
     <button v-show="showReactions" v-on:click="toggleShow">Close</button>
   </div>
@@ -19,7 +19,7 @@ export default class EditReaction extends Vue {
   @Prop( String ) private readonly accessKey!: string;
   @Prop( Number ) private readonly messageId!: string;
 
-  private emojis = ['🤔', '😂', '😍', '😤', '😢', '👍', '🏊🏿‍♂️'];
+  private emojis = ['🤔', '😂', '😍', '😤', '😢', '👍', '🏊🏿‍♂️', '🔫'];
   private showReactions = false;
 
   private toggleShow() {
@@ -27,7 +27,7 @@ export default class EditReaction extends Vue {
   }
 
   private emojify( emoji: string ) {
-    return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( emoji ) }.png`;
+    return `/img/emojis/${ twemoji.convert.toCodePoint( emoji ) }.png`;
   }
 
   private encrypt( emoji: string ) {
@@ -55,6 +55,6 @@ export default class EditReaction extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .emoji {
-  width: 32px;
+  height: 32px;
 }
 </style>

@@ -114,11 +114,13 @@ export default class Friendship extends Vue {
   }
 
   private emojify( emoji: string ) {
-    return `https://twemoji.maxcdn.com/2/72x72/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
+    return `/img/emojis/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
   }
 
   private emojifyMessage( message: string ) {
-    return twemoji.parse( message );
+    return twemoji.parse( message, ( icon, options, variant ) => {
+      return `/img/emojis/${ icon }.png`;
+    } );
   }
 
   private decode( message: string ) {
@@ -147,6 +149,6 @@ export default class Friendship extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .emoji {
-  width: 32px;
+  height: 32px;
 }
 </style>

@@ -12,3 +12,5 @@ e2e/*
 
 #ignore vim swp files ( big boys use vim )
 *.swp
+
+front/public/img/emojis/
