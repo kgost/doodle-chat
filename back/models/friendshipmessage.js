@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const FriendshipMessage = sequelize.define('FriendshipMessage', {
     message: {
       allowNull: false,
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT( 'medium' )
     },
     userId: DataTypes.INTEGER,
     friendshipId: DataTypes.INTEGER

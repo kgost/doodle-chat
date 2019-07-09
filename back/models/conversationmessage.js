@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     message: {
       allowNull: false,
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT( 'medium' )
     },
   }, {});
   ConversationMessage.associate = function(models) {
