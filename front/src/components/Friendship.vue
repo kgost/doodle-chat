@@ -2,18 +2,21 @@
   <div>
     <h1 v-if="friendship">{{ friendName }}</h1>
 
-    <div v-for="message of messages" :key="message.id" class="message-list">
-      <div>
-        <img v-if="message.isImage" :src="message.message.substr( 4 )">
-        <span v-else v-html="emojifyMessage( message.message )" class="message"></span>
-        <span>{{ message.author.username }}</span>
-        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
-        <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
-      </div>
+    <div class="message-list">
+      <div v-for="message of messages" :key="message.id">
+        <div>
+          <img v-if="message.isImage" :src="message.message.substr( 4 )">
+          <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )"></video>
+          <span v-else v-html="emojifyMessage( message.message )" class="message"></span>
+          <span>{{ message.author.username }}</span>
+          <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
+          <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+        </div>
 
-      <div>
-        <EditReaction :messageId="message.id" :accessKey="accessKey"></EditReaction>
-        <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
+        <div>
+          <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
+          <EditReaction :messageId="message.id" :accessKey="accessKey"></EditReaction>
+        </div>
       </div>
     </div>
 
@@ -65,14 +68,19 @@ export default class Friendship extends Vue {
 
       return 0;
     } ).map( ( message: any ) => {
-      message.message = this.decode( this.decrypt( message.message ) );
+      const result: any = JSON.parse( JSON.stringify( message ) );
 
-      if ( message.message.indexOf( '!img' ) === 0 ) {
-        message.isMedia = true;
-        message.isImage = true;
+      result.message = this.decode( this.decrypt( result.message ) );
+
+      if ( result.message.indexOf( '!img' ) === 0 ) {
+        result.isMedia = true;
+        result.isImage = true;
+      } else if ( result.message.indexOf( '!vid' ) === 0 ) {
+        result.isMedia = true;
+        result.isVideo = true;
       }
 
-      return message;
+      return result;
     } );
   }
 

@@ -81,7 +81,7 @@ export default class EditMessage extends Vue {
       if ( file.type.indexOf( 'image' ) !== -1 ) {
         payload.message = '!img ' + payload.message;
       } else if ( file.type.indexOf( 'video' ) !== 1 ) {
-        payload.message = '!video ' + payload.message;
+        payload.message = '!vid ' + payload.message;
       }
 
       payload.message = store.getters.getEncryptedMessage({ message: unescape( encodeURIComponent( payload.message ) ), key: this.accessKey });
@@ -100,8 +100,6 @@ export default class EditMessage extends Vue {
     let p;
 
     const payload = { id: this.message.id, message: this.encryptedMessage };
-
-    console.log( this.encryptedMessage );
 
     if ( router.currentRoute.name === 'conversation' ) {
       if ( this.message.id ) {

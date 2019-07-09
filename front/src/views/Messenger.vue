@@ -25,6 +25,10 @@ import Friendship from '@/components/Friendship.vue';
     Conversation,
     Friendship,
   },
+  beforeRouteLeave( to, from, next ) {
+    store.commit( 'clearMessages' );
+    next();
+  },
 })
 export default class Messenger extends Vue {
   get showConversation() {
