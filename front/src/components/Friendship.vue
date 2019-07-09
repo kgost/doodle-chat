@@ -4,9 +4,10 @@
 
     <div v-for="message of messages" :key="message.id" class="message-list">
       <div>
-        <span v-html="emojifyMessage( decode( decrypt( message.message ) ) )" class="message"></span>
+        <img v-if="message.isImage" :src="message.message.substr( 4 )">
+        <span v-else v-html="emojifyMessage( message.message )" class="message"></span>
         <span>{{ message.author.username }}</span>
-        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId )">Edit</button>
+        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
         <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
       </div>
 
@@ -63,6 +64,15 @@ export default class Friendship extends Vue {
       }
 
       return 0;
+    } ).map( ( message: any ) => {
+      message.message = this.decode( this.decrypt( message.message ) );
+
+      if ( message.message.indexOf( '!img' ) === 0 ) {
+        message.isMedia = true;
+        message.isImage = true;
+      }
+
+      return message;
     } );
   }
 
@@ -106,7 +116,7 @@ export default class Friendship extends Vue {
 
   private onEdit( message: any ) {
     this.activeMessage.id = message.id;
-    this.activeMessage.message = this.decode( this.decrypt( message.message ) );
+    this.activeMessage.message = message.message;
   }
 
   private onDelete( messageId: number ) {

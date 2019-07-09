@@ -3,7 +3,12 @@
     <textarea ref="textarea" cols="30" rows="10" v-model="message.message"></textarea>
     <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
 
+    <button v-if="message.id" v-on:click="onCancel">Cancel</button>
     <button v-on:click="onSubmit">Submit</button>
+    <button v-on:click="$refs.mediaUpload.click()">
+      Media
+      <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
+    </button>
   </div>
 </template>
 
@@ -65,6 +70,32 @@ export default class EditMessage extends Vue {
     }
   }
 
+  private onMediaUpload( event ) {
+    let p;
+    const file = event.srcElement ? event.srcElement.files[0] : event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const payload = { message: reader.result }
+
+      if ( file.type.indexOf( 'image' ) !== -1 ) {
+        payload.message = '!img ' + payload.message;
+      } else if ( file.type.indexOf( 'video' ) !== 1 ) {
+        payload.message = '!video ' + payload.message;
+      }
+
+      payload.message = store.getters.getEncryptedMessage({ message: unescape( encodeURIComponent( payload.message ) ), key: this.accessKey });
+
+      if ( router.currentRoute.name === 'conversation' ) {
+        p = store.dispatch( 'createConversationMessage', { id: +this.$route.params.id, message: payload } );
+      } else {
+        p = store.dispatch( 'createFriendshipMessage', { id: +this.$route.params.id, message: payload } );
+      }
+    }
+
+    reader.readAsDataURL( file );
+  }
+
   private onSubmit() {
     let p;
 
@@ -93,9 +124,19 @@ export default class EditMessage extends Vue {
       this.$emit( 'on-submit', this.message );
     } );
   }
+
+  private onCancel() {
+    Vue.set( this.message, 'id', 0 );
+    Vue.set( this.message, 'message', '' );
+
+    this.$emit( 'on-submit', this.message );
+  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.media-upload {
+  display: none;
+}
 </style>
