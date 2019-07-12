@@ -262,10 +262,11 @@ const vuex =  new Vuex.Store({
     },
 
     // Conversations
-    joinConversation( { commit, state }, id ) {
+    joinConversation( { commit, state, dispatch }, id ) {
       socketService.leaveConversation( state.conversationId );
       socketService.leaveFriendship( state.friendshipId );
       socketService.joinConversation( id );
+      dispatch( 'removeConversationNotifications', id );
       commit( 'setConversationId', id );
     },
 
@@ -333,12 +334,6 @@ const vuex =  new Vuex.Store({
     },
 
     getConversation( { commit, state, getters }, id: number ) {
-      if ( state.conversations[id] ) {
-        return new Promise( ( resolve, reject) => {
-          resolve( state.conversations[id] );
-        } );
-      }
-
       return Api().get( `/conversations/${ id }` )
         .then( ( res ) => {
           commit( 'setConversation', res.data );
@@ -397,10 +392,11 @@ const vuex =  new Vuex.Store({
     },
 
     // Friendships
-    joinFriendship( { commit, state }, id ) {
+    joinFriendship( { commit, state, dispatch }, id ) {
       socketService.leaveConversation( state.conversationId );
       socketService.leaveFriendship( state.friendshipId );
       socketService.joinFriendship( id );
+      dispatch( 'removeFriendshipNotifications', id );
       commit( 'setFriendshipId', id );
     },
 
@@ -423,12 +419,6 @@ const vuex =  new Vuex.Store({
     },
 
     getFriendship( { commit, state }, id: number ) {
-      if ( state.friendships[id] ) {
-        return new Promise( ( resolve ) => {
-          resolve( state.friendships[id] );
-        } );
-      }
-
       return Api().get( `/friendships/${ id }` )
         .then( ( res ) => {
           commit( 'setFriendship', res.data );
@@ -612,6 +602,22 @@ const vuex =  new Vuex.Store({
           return dispatch( 'getFriendshipMessage', { id, messageId } );
         } );
     },
+
+    // Conversation Notifications
+    removeConversationNotifications( { commit, dispatch }, id ) {
+      return Api().delete( `/conversations/${ id }/notifications` )
+        .then( () => {
+          return dispatch( 'getConversation', id );
+        } );
+    },
+
+    // Conversation Notifications
+    removeFriendshipNotifications( { commit, dispatch }, id ) {
+      return Api().delete( `/friendships/${ id }/notifications` )
+        .then( () => {
+          return dispatch( 'getFriendship', id );
+        } );
+    },
   },
 });
 
@@ -629,8 +635,13 @@ socketService.socket.on( 'update-conversation-message', ( payload ) => {
     } );
 } );
 
-// socketService.socket.on( 'notify-conversation', ( id ) => {
-// } );
+socketService.socket.on( 'notify-conversation', ( id ) => {
+  if ( vuex.state.conversationId === id ) {
+    vuex.dispatch( 'removeConversationNotifications', id );
+  } else {
+    vuex.dispatch( 'getConversation', id );
+  }
+} );
 
 socketService.socket.on( 'refresh-conversations', ( payload ) => {
   vuex.dispatch( 'getConversations' );
@@ -650,8 +661,13 @@ socketService.socket.on( 'update-friendship-message', ( payload ) => {
     } );
 } );
 
-// socketService.socket.on( 'notify-friendship', ( id ) => {
-// } );
+socketService.socket.on( 'notify-friendship', ( id ) => {
+  if ( vuex.state.friendshipId === id ) {
+    vuex.dispatch( 'removeFriendshipNotifications', id );
+  } else {
+    vuex.dispatch( 'getFriendship', id );
+  }
+} );
 
 socketService.socket.on( 'refresh-friendships', ( payload ) => {
   vuex.dispatch( 'getFriendships' );

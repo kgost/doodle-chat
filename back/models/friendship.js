@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Friendship.associate = function(models) {
     Friendship.hasMany( models.FriendshipMessage, { as: 'messages', foreignKey: 'friendshipId', onDelete: 'CASCADE' } )
+    Friendship.hasMany( models.FriendshipNotification, { as: 'notifications', foreignKey: 'friendshipId', onDelete: 'CASCADE' } )
     Friendship.belongsTo( models.User, { as: 'userOne', foreignKey: 'userOneId' } )
     Friendship.belongsTo( models.User, { as: 'userTwo', foreignKey: 'userTwoId' } )
   };

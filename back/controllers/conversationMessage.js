@@ -10,11 +10,38 @@ const
 
 const actions = {
   create: async ( req ) => {
-    const message = await Message.create({
-      conversationId: req.params.id,
-      userId: req.user.id,
-      message: req.body.message,
-    })
+    const t = await db.sequelize.transaction()
+
+    let message
+
+    try {
+      message = await Message.create({
+        conversationId: req.params.id,
+        userId: req.user.id,
+        message: req.body.message,
+      }, { transaction: t })
+
+      const participants = await Participant.findAll({
+        where: { conversationId: req.params.id },
+        attributes: ['userId'],
+        transaction: t,
+      })
+
+      for ( const participant of participants ) {
+        if ( participant.userId != req.user.id ) {
+          await Notification.create({
+            conversationId: req.params.id,
+            userId: participant.userId,
+            sent: false,
+          }, { transaction: t })
+        }
+      }
+    } catch ( err ) {
+      await t.rollback()
+      throw err
+    }
+
+    await t.commit()
 
     const result = await Message.findByPk( message.id, {
       include: [

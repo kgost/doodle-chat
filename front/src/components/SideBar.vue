@@ -5,7 +5,7 @@
       <router-link to="/conversations/new"  class="new">new</router-link>
       <ul>
         <li v-for="( conversation, i ) of conversations" :key="i">
-          <router-link :to="`/conversations/${ conversation.id }`">{{ conversation.name }}</router-link>
+          <router-link :to="`/conversations/${ conversation.id }`">{{ conversation.name }} {{ conversation.notifications.length ? conversation.notifications.length : '' }}</router-link>
           <router-link :to="`/conversations/${ conversation.id }/edit`">Edit</router-link>
           <button v-if="isOwner( conversation.userId )" v-on:click="onDeleteConversation( conversation.id )">Delete</button>
         </li>
@@ -17,7 +17,7 @@
       <router-link to="/friendships/new"  class="new">new</router-link>
       <ul>
         <li v-for="( friendship, i ) of friendships" :key="i">
-          <router-link :to="`/friendships/${ friendship.id }`">{{ getFriendName( friendship ) }}</router-link>
+          <router-link :to="`/friendships/${ friendship.id }`">{{ getFriendName( friendship ) }} {{ friendship.notifications.length ? friendship.notifications.length : '' }}</router-link>
           <button v-if="showAccept( friendship )" v-on:click="onAccept( friendship )">Accept</button>
           <span v-if="!showAccept( friendship ) && showPending( friendship )">Pending</span>
           <button v-on:click="onDeleteFriendship( friendship.id )">Delete</button>

@@ -27,22 +27,30 @@ const actions = {
         }, { transaction: t })
       }
     } catch ( err ) {
-      t.rollback()
+      await t.rollback()
       throw err
     }
 
-    t.commit()
+    await t.commit()
 
     const result = await Conversation.findByPk( conversation.id, {
-      include: [{
-        model: Participant,
-        as: 'participants',
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['username', 'publicKey'],
-        }],
-      }],
+      include: [
+        {
+          model: Notification,
+          as: 'notifications',
+          where: { userId: req.user.id },
+          required: false,
+        },
+        {
+          model: Participant,
+          as: 'participants',
+          include: [{
+            model: User,
+            as: 'user',
+            attributes: ['username', 'publicKey'],
+          }],
+        }
+      ],
     })
 
     return { body: result, status: 201 }
@@ -53,15 +61,23 @@ const actions = {
       include: [{
         model: Conversation,
         as: 'conversations',
-        include: [{
-          model: Participant,
-          as: 'participants',
-          include: [{
-            model: User,
-            as: 'user',
-            attributes: ['username', 'publicKey'],
-          }],
-        }],
+        include: [
+          {
+            model: Notification,
+            as: 'notifications',
+            where: { userId: req.user.id },
+            required: false,
+          },
+          {
+            model: Participant,
+            as: 'participants',
+            include: [{
+              model: User,
+              as: 'user',
+              attributes: ['username', 'publicKey'],
+            }],
+          }
+        ],
       }],
     } )
 
@@ -81,15 +97,23 @@ const actions = {
 
   show: async ( req ) => {
     const conversation = await Conversation.findByPk( req.params.id, {
-      include: [{
-        model: Participant,
-        as: 'participants',
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['username', 'publicKey'],
-        }],
-      }]
+      include: [
+        {
+          model: Notification,
+          as: 'notifications',
+          where: { userId: req.user.id },
+          required: false,
+        },
+        {
+          model: Participant,
+          as: 'participants',
+          include: [{
+            model: User,
+            as: 'user',
+            attributes: ['username', 'publicKey'],
+          }],
+        }
+      ]
     } )
 
     if ( !conversation ) {
@@ -129,25 +153,13 @@ const actions = {
         }, { transaction: t })
       }
     } catch ( err ) {
-      t.rollback()
+      await t.rollback()
       throw err
     }
 
-    t.commit()
+    await t.commit()
 
-    const result = await Conversation.findByPk( req.params.id, {
-      include: [{
-        model: Participant,
-        as: 'participants',
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['username', 'publicKey'],
-        }],
-      }],
-    })
-
-    return { body: result, status: 201 }
+    return actions.show( req )
   },
 
   destroy: async ( req ) => {
@@ -164,11 +176,11 @@ const actions = {
         transaction: t
       })
     } catch ( err ) {
-      t.rollback()
+      await t.rollback()
       throw err
     }
 
-    t.commit()
+    await t.commit()
   },
 
   leave: async ( req ) => {
@@ -202,11 +214,11 @@ const actions = {
         })
       }
     } catch ( err ) {
-      t.rollback()
+      await t.rollback()
       throw err
     }
 
-    t.commit()
+    await t.commit()
   },
 
   changeCosmetic: async ( req ) => {
@@ -225,20 +237,46 @@ const actions = {
         })
       }
     } catch ( err ) {
-      t.rollback()
+      await t.rollback()
       throw err
     }
 
-    t.commit()
+    await t.commit()
 
     const result = await Conversation.findByPk( req.params.id, {
-      include: [{
-        model: Participant,
-        as: 'participants',
-      }],
+      include: [
+        {
+          model: Notification,
+          as: 'notifications',
+          where: { userId: req.user.id },
+          required: false
+        },
+        {
+          model: Participant,
+          as: 'participants',
+          include: [{
+            model: User,
+            as: 'user',
+            attributes: ['username', 'publicKey'],
+          }],
+        }
+      ],
     })
 
     return { body: result, status: 201 }
+  },
+
+  destroyNotifications: async ( req ) => {
+    const numModified = await Notification.destroy({
+      where: {
+        userId: req.user.id,
+        conversationId: req.params.id,
+      }
+    })
+
+    if ( !numModified ) {
+      throw { status: 404, message: 'no notifications found' }
+    }
   },
 }
 

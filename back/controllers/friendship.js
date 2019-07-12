@@ -20,6 +20,12 @@ const actions = {
       include:[
         { model: User, as: 'userOne' },
         { model: User, as: 'userTwo' },
+        {
+          model: Notification,
+          as: 'notifications',
+          where: { userId: req.user.id },
+          required: false
+        },
       ],
     } )
 
@@ -37,6 +43,12 @@ const actions = {
       include:[
         { model: User, as: 'userOne' },
         { model: User, as: 'userTwo' },
+        {
+          model: Notification,
+          as: 'notifications',
+          where: { userId: req.user.id },
+          required: false
+        },
       ],
     })
 
@@ -52,6 +64,12 @@ const actions = {
       include:[
         { model: User, as: 'userOne' },
         { model: User, as: 'userTwo' },
+        {
+          model: Notification,
+          as: 'notifications',
+          where: { userId: req.user.id },
+          required: false
+        },
       ],
     } )
 
@@ -94,6 +112,19 @@ const actions = {
     await Notification.destroy({
       where: { friendshipId: req.params.id }
     })
+  },
+
+  destroyNotifications: async ( req ) => {
+    const numModified = await Notification.destroy({
+      where: {
+        userId: req.user.id,
+        friendshipId: req.params.id,
+      }
+    })
+
+    if ( !numModified ) {
+      throw { status: 404, message: 'no notifications found' }
+    }
   },
 }
 

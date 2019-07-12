@@ -43,6 +43,12 @@ router.put(
   middleware.inConversation,
   controller.changeCosmetic )
 
+router.delete(
+  '/:id/notifications',
+  middleware.authenticate,
+  middleware.inConversation,
+  controller.destroyNotifications )
+
 router.use(
   '/:id/messages',
   messageRouter )

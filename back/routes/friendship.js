@@ -31,6 +31,12 @@ router.delete(
   middleware.inFriendship,
   controller.destroy )
 
+router.delete(
+  '/:id/notifications',
+  middleware.authenticate,
+  middleware.inFriendship,
+  controller.destroyNotifications )
+
 router.use(
   '/:id/messages',
   messageRouter )

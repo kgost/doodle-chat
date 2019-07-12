@@ -9,11 +9,32 @@ const
 
 const actions = {
   create: async ( req ) => {
-    const message = await Message.create({
-      friendshipId: req.params.id,
-      userId: req.user.id,
-      message: req.body.message,
-    })
+    const t = await db.sequelize.transaction()
+
+    let message
+
+    try {
+      message = await Message.create({
+        friendshipId: req.params.id,
+        userId: req.user.id,
+        message: req.body.message,
+      }, { transaction: t })
+
+      const friendship = await Friendship.findByPk( req.params.id, {
+        transaction: t
+      } )
+
+      await Notification.create({
+        friendshipId: req.params.id,
+        userId: friendship.userOneId == req.user.id ? friendship.userTwoId : friendship.userOneId,
+        sent: false,
+      }, { transaction: t })
+    } catch ( err ) {
+      await t.rollback()
+      throw err
+    }
+
+    await t.commit()
 
     const result = await Message.findByPk( message.id, {
       include: [
