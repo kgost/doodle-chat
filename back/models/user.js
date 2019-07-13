@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT
     },
     pushSub: {
-      allowNull: false,
       type: DataTypes.JSON
     },
     nonce: {

@@ -8,25 +8,13 @@ const
   io                 = require( 'socket.io' ).listen( http ),
   bodyParser         = require( 'body-parser' ),
   expressSanitizer   = require( 'express-sanitizer' ),
-  webpush            = require( 'web-push' ),
-  // cron               = require( 'node-cron' ),
   socketController   = require( './controllers/socket' ),
   authRoutes         = require( './routes/auth' ),
   conversationRoutes = require( './routes/conversation' ),
-  friendshipRoutes = require( './routes/friendship' )
+  friendshipRoutes   = require( './routes/friendship' ),
+  pushSubRoutes      = require( './routes/pushSub' )
 
 env( __dirname + '/.env', { raise: false } )
-
-const vapidKeys = {
-  'publicKey':'BGkgfZpOxJfbbAp-dZcNhJxB-oFE9Tz2fROAqXDs211GqWcomgzxPYgQMBSX3ZY5PYSxJcnSf2diyj-jad6TAm0',
-  'privateKey': process.env.PRIVATE_VAPID_KEY
-}
-
-webpush.setVapidDetails(
-  'mailto:jpbland@mtu.edu',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-)
 
 //Setting our views and port for the app
 app.set('port', ( process.env.PORT || 3000 ) )
@@ -44,22 +32,7 @@ app.use( cors() )
 app.use( '/api/auth', authRoutes )
 app.use( '/api/conversations', conversationRoutes )
 app.use( '/api/friendships', friendshipRoutes )
-
-app.use( '/assets', express.static( __dirname + '/src/assets' ) )
-
-app.get('/*', (req, res, next) => {
-  // Just send the index.html for other files to support HTML5Mode
-  if ( req.originalUrl.match( /\./ ) === null &&
-    req.originalUrl.indexOf( '/api' ) !== 0 &&
-    req.originalUrl.indexOf( '/auth' ) !== 0 ) {
-    return res.sendFile( 'index.html', { root: __dirname + '../front/dist' })
-  } else {
-    return next()
-  }
-})
-
-//Pathing to our static files, css/js etc...
-app.use( express.static(__dirname + '../front/dist') )
+app.use( '/api/pushSub', pushSubRoutes )
 
 //Starts up sockets
 socketController( io )
@@ -69,70 +42,114 @@ http.listen( app.get( 'port' ), () => {
   console.log( 'Node app is running on port', app.get( 'port' ) )
 })
 
-// cron.schedule( '*/5 * * * *', async () => {
-// //cron.schedule( '* * * * * *', async () => {
-  // //const notifiers = await Notifier.find( {}, 'user conversations.sent friendships.sent' ).populate( 'user' ).populate( 'friendships.id' ).populate( 'conversations.id' ).exec()
-  // const notifiers = await Notifier.find( {}, 'user conversations.sent friendships.sent' ).populate( 'user' ).populate({ path: 'friendships.id', populate: { path: 'users.id' } }).populate( 'conversations.id' ).exec()
-  // const notificationPayload = {
-    // 'notification': {
-      // 'title': 'Saoirse',
-      // //'body': `New Secure Message(s) From ${ name }`,
-      // 'icon': '/assets/images/active.jpg',
-      // 'vibrate': [100, 50, 100],
-      // 'data': {
-        // 'dateOfArrival': Date.now(),
-        // 'primaryKey': 1,
-        // 'count': 1,
-        // //'name': name
-      // }
-    // }
-  // }
+const
+  webpush                  = require( 'web-push' ),
+  cron                     = require( 'node-cron' ),
+  db                       = require( './models' ),
+  User                     = db.User,
+  Conversation             = db.Conversation,
+  Friendship               = db.Friendship,
+  ConversationNotification = db.ConversationNotification,
+  FriendshipNotification   = db.FriendshipNotification
 
-  // for ( const notifier of notifiers ) {
-    // if ( notifier.user.pushSub && Object.keys( notifier.user.pushSub ).length ) {
-      // for ( const conversation of notifier.conversations ) {
-        // if ( !conversation.sent ) {
-          // notificationPayload.notification.body = `New Secure Message(s) From ${ conversation.id.name }`
-          // notificationPayload.notification.data.url = `/conversations/${ conversation.id._id }`
-          // conversation.sent = true
+const vapidKeys = {
+  'publicKey':'BJR1Re278d9CtW2ya3Ik59JV3w683LjZtYzMes0G9Pbg6U4OnWcrW_LsuMrRrw5B2A7GghYlaxZYD3OH44-oVkY',
+  'privateKey': process.env.PRIVATE_VAPID_KEY
+}
 
-          // try {
-            // await webpush.sendNotification(
-              // notifier.user.pushSub,
-              // JSON.stringify( notificationPayload )
-            // )
-          // } catch ( e ) {
-            // console.log( e )
-          // }
-        // }
-      // }
+webpush.setVapidDetails(
+  'mailto:jpbland@mtu.edu',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+)
 
-      // for ( const friendship of notifier.friendships ) {
-        // if ( !friendship.sent ) {
-          // let name = ''
+cron.schedule( '*/3 * * * * *', async () => {
+  const conversationNotifications = await ConversationNotification.findAll({
+    where: { sent: false },
+    include: [
+      {
+        model: User,
+        as: 'user',
+        where: { [db.Sequelize.Op.not]: { pushSub: null } },
+        required: true,
+      },
+      {
+        model: Conversation,
+        as: 'conversation',
+      }
+    ]
+  })
 
-          // for ( const user of friendship.id.users ) {
-            // if ( user.id._id.toString() != notifier.user._id.toString() ) {
-              // name = user.id.username
-            // }
-          // }
+  const friendshipNotifications = await FriendshipNotification.findAll({
+    where: { sent: false },
+    include: [
+      {
+        model: User,
+        as: 'user',
+        where: { [db.Sequelize.Op.not]: { pushSub: null } },
+        required: true,
+      },
+      {
+        model: Friendship,
+        as: 'friendship',
+        include: [
+          {
+            model: User,
+            as: 'userOne',
+            attributes: ['username'],
+          },
+          {
+            model: User,
+            as: 'userTwo',
+            attributes: ['username'],
+          },
+        ]
+      },
+    ]
+  })
 
-          // notificationPayload.notification.body = `New Secure Message(s) From ${ name }`
-          // notificationPayload.notification.data.url = `/friends/${ friendship.id._id }`
-          // friendship.sent = true
+  const notificationPayload = {
+    message: '',
+    url: '',
+  }
 
-          // try {
-            // await webpush.sendNotification(
-              // notifier.user.pushSub,
-              // JSON.stringify( notificationPayload )
-            // )
-          // } catch ( e ) {
-            // console.log( e )
-          // }
-        // }
-      // }
+  for ( const notification of conversationNotifications ) {
+    if ( Number( new Date() ) - Number( notification.createdAt ) > 3 * 1000 ) {
+      try {
+        notificationPayload.message = `New Secure Message(s) From ${ notification.conversation.name }`
+        notificationPayload.url = `/conversations/${ notification.conversationId }`
 
-      // await notifier.save()
-    // }
-  // }
-// } )
+        await webpush.sendNotification(
+          notification.user.pushSub,
+          JSON.stringify( notificationPayload )
+        )
+
+        notification.sent = true
+
+        await notification.save()
+      } catch( err ) {
+        console.log( err )
+      }
+    }
+  }
+
+  for ( const notification of friendshipNotifications ) {
+    if ( Number( new Date() ) - Number( notification.createdAt ) > 3 * 1000 ) {
+      try {
+        notificationPayload.message = `New Secure Message(s) From ${ notification.friendship.userOneId == notification.userId ? notification.friendship.userTwo.username : notification.friendship.userOne.username }`
+        notificationPayload.url = `/friendships/${ notification.friendshipId }`
+
+        await webpush.sendNotification(
+          notification.user.pushSub,
+          JSON.stringify( notificationPayload )
+        )
+
+        notification.sent = true
+
+        await notification.save()
+      } catch( err ) {
+        console.log( err )
+      }
+    }
+  }
+} )

@@ -187,6 +187,19 @@ const vuex =  new Vuex.Store({
 
       Vue.set( state.typingNames, name, timeout );
     },
+
+    setPushSub( state ) {
+      Vue.set( state.user, 'pushSub', true );
+    },
+
+    clearPushSub( state ) {
+      Vue.delete( state.user, 'pushSub' );
+    },
+
+    leaveRooms( state ) {
+      Vue.set( state, 'conversationId', 0 );
+      Vue.set( state, 'friendshipId', 0 );
+    },
   },
 
   actions: {
@@ -616,6 +629,32 @@ const vuex =  new Vuex.Store({
       return Api().delete( `/friendships/${ id }/notifications` )
         .then( () => {
           return dispatch( 'getFriendship', id );
+        } );
+    },
+
+    // PushSub
+    setPushSub( { commit }, pushSub: any ) {
+      return Api().post( `/pushSub`, pushSub )
+        .then( () => {
+          commit( 'setPushSub' );
+        } );
+    },
+
+    getPushSub( { commit } ) {
+      return Api().get( `/pushSub` )
+        .then( ( res ) => {
+          if ( res.data ) {
+            commit( 'setPushSub' );
+          } else {
+            commit( 'clearPushSub' );
+          }
+        } );
+    },
+
+    clearPushSub( { commit } ) {
+      return Api().delete( `/pushSub` )
+        .then( () => {
+          commit( 'clearPushSub' );
         } );
     },
   },

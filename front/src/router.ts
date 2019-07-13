@@ -10,7 +10,7 @@ import Messenger from './views/Messenger.vue';
 import EditConversation from './views/EditConversation.vue';
 import EditFriendship from './views/EditFriendship.vue';
 
-// import Settings from './views/Settings.vue';
+import Settings from './views/Settings.vue';
 
 Vue.use(Router);
 
@@ -58,6 +58,11 @@ export default new Router({
       path: '/signup',
       name: 'signup',
       component: SignIn,
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: Settings,
     },
   ],
 });

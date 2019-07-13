@@ -84,7 +84,7 @@ export default class EditMessage extends Vue {
         payload.message = '!vid ' + payload.message;
       }
 
-      payload.message = store.getters.getEncryptedMessage({ message: unescape( encodeURIComponent( payload.message ) ), key: this.accessKey });
+      payload.message = store.getters.getEncryptedMessage({ message: unescape( encodeURIComponent( payload.message + '' ) ), key: this.accessKey });
 
       if ( router.currentRoute.name === 'conversation' ) {
         p = store.dispatch( 'createConversationMessage', { id: +this.$route.params.id, message: payload } );

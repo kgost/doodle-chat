@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 3000",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build && grunt",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -26,6 +26,8 @@
     "@vue/cli-plugin-pwa": "^3.4.0",
     "@vue/cli-plugin-typescript": "^3.4.0",
     "@vue/cli-service": "^3.4.0",
+    "grunt": "^1.0.4",
+    "grunt-insert": "^0.1.0",
     "typescript": "^3.0.0",
     "vue-template-compiler": "^2.5.21"
   }
