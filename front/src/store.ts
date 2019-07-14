@@ -675,7 +675,7 @@ socketService.socket.on( 'update-conversation-message', ( payload ) => {
 } );
 
 socketService.socket.on( 'notify-conversation', ( id ) => {
-  if ( vuex.state.conversationId === id ) {
+  if ( vuex.state.conversationId === id && document.hasFocus() ) {
     vuex.dispatch( 'removeConversationNotifications', id );
   } else {
     vuex.dispatch( 'getConversation', id );
@@ -701,7 +701,7 @@ socketService.socket.on( 'update-friendship-message', ( payload ) => {
 } );
 
 socketService.socket.on( 'notify-friendship', ( id ) => {
-  if ( vuex.state.friendshipId === id ) {
+  if ( vuex.state.friendshipId === id && document.hasFocus() ) {
     vuex.dispatch( 'removeFriendshipNotifications', id );
   } else {
     vuex.dispatch( 'getFriendship', id );
