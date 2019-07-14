@@ -1,14 +1,21 @@
 <template>
   <div>
-    <textarea ref="textarea" cols="30" rows="10" v-model="message.message"></textarea>
-    <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
+    <textarea ref="textarea" rows="5" v-model="message.message"></textarea>
 
-    <button v-if="message.id" v-on:click="onCancel">Cancel</button>
-    <button v-on:click="onSubmit">Submit</button>
-    <button v-on:click="$refs.mediaUpload.click()">
-      Media
-      <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
-    </button>
+    <div class="actions">
+      <div class="buttons">
+        <button v-on:click="onSubmit">Submit</button>
+
+        <button v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
+          Media
+          <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
+        </button>
+
+        <button v-if="message.id" v-on:click="onCancel">Cancel</button>
+      </div>
+
+      <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
+    </div>
   </div>
 </template>
 
@@ -134,7 +141,32 @@ export default class EditMessage extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-.media-upload {
-  display: none;
+textarea {
+  display: inline-block;
+  width: calc( 100% - 105px );
+  height: 100%;
+  padding: 0;
+}
+
+.actions {
+  display: inline-block;
+  width: calc( 105px - 2px );
+  height: 100%;
+  vertical-align: top;
+
+  .buttons {
+    display: inline-block;
+    width: 60px;
+    height: 100%;
+
+    button {
+      width: 100%;
+      height: 50%;
+    }
+
+    .media-upload {
+      display: none;
+    }
+  }
 }
 </style>

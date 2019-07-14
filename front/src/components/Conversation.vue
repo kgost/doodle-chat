@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <h1 v-if="conversation">{{ conversation.name }}</h1>
 
     <div class="message-list">
@@ -162,6 +162,7 @@ export default class Conversation extends Vue {
     store.commit( 'clearMessages' );
     store.dispatch( 'getConversation', +router.currentRoute.params.id )
       .then( () => {
+        store.commit( 'setName', this.conversation.name );
         store.dispatch( 'joinConversation', +router.currentRoute.params.id );
         store.dispatch( 'getConversationMessages', { id: +router.currentRoute.params.id, offset: 0 } );
       } );
@@ -171,8 +172,24 @@ export default class Conversation extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .message-list {
+    overflow: auto;
+  }
+}
+
 .emoji {
   height: 32px;
+}
+
+@media only screen and (max-width: 600px) {
+  h1 {
+    display: none;
+  }
 }
 </style>
 

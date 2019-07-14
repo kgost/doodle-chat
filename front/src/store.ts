@@ -27,6 +27,8 @@ const vuex =  new Vuex.Store({
 
     typingNames: {},
 
+    name: '',
+
     // Conversations
     conversationId: 0,
     conversations: {},
@@ -174,6 +176,10 @@ const vuex =  new Vuex.Store({
 
     clearMessages( state, id ) {
       Vue.set( state, 'messages', {} );
+    },
+
+    setName( state, name ) {
+      Vue.set( state, 'name', name );
     },
 
     setTyping( state, name: string ) {

@@ -1,15 +1,16 @@
 <template>
-  <div>
-    <img v-show="!showPicker" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji">
+  <div class="container">
+    <img v-show="!showPicker" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji open">
+    <button v-show="showPicker" v-on:click="toggleShow">✗</button>
 
-    <div v-show="showPicker">
-      <img v-on:click="activeHeader = i" v-for="( header, i ) of headers" :key="i" :src="emojify( header.emoji )" :alt="header.title" class="emoji">
-
+    <div class="picker-wrapper" v-show="showPicker">
       <div>
-        <img v-for="( emoji, i ) of emojis[activeHeader]" v-on:click="pickEmoji( emoji )" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
+        <img v-on:click="activeHeader = i" v-for="( header, i ) of headers" :key="i" :src="emojify( header.emoji )" :alt="header.title" class="emoji">
       </div>
 
-      <button v-show="showPicker" v-on:click="toggleShow">Close</button>
+      <div class="picker-body">
+        <img v-for="( emoji, i ) of emojis[activeHeader]" v-on:click="pickEmoji( emoji )" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
+      </div>
     </div>
   </div>
 </template>
@@ -139,7 +140,53 @@ export default class EmojiPicker extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.container {
+  display: inline-block;
+  height: 100%;
+  vertical-align: top;
+
+  .open {
+    margin-top: 30px;
+    margin-left: 5px;
+  }
+
+  button {
+    width: 43px;
+    height: 100%;
+  }
+
+  .picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    bottom: 81px;
+    width: 305px;
+    height: 300px;
+    background-color: #FFFFFF;
+    border: 1px solid grey;
+
+    .picker-body {
+      overflow: auto;
+
+      img {
+        margin-right: 2px;
+      }
+    }
+  }
+}
+
 .emoji {
   height: 32px;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    .picker-wrapper {
+      width: auto;
+      left: 0;
+      right: 0;
+    }
+  }
 }
 </style>

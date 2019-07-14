@@ -1,11 +1,8 @@
 <template>
-  <div>
-    <div class="flex-container">
-      <SideBar></SideBar>
-      <Conversation v-if="showConversation"></Conversation>
+  <div class="messenger">
+    <Conversation v-if="showConversation"></Conversation>
 
-      <Friendship v-if="showFriendship"></Friendship>
-    </div>
+    <Friendship v-if="showFriendship"></Friendship>
   </div>
 </template>
 
@@ -19,13 +16,11 @@ import SocketService from '@/services/SocketService';
 
 const socketService = new SocketService();
 
-import SideBar from '@/components/SideBar.vue';
 import Conversation from '@/components/Conversation.vue';
 import Friendship from '@/components/Friendship.vue';
 
 @Component({
   components: {
-    SideBar,
     Conversation,
     Friendship,
   },
@@ -55,3 +50,9 @@ export default class Messenger extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.messenger {
+  overflow: hidden;
+}
+</style>
