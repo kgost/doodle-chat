@@ -2,7 +2,7 @@
   <div class="container">
     <h1 v-if="conversation">{{ conversation.name }}</h1>
 
-    <div class="message-list">
+    <div id="test" ref="messageList" v-on:scroll="onScroll" class="message-list">
       <div v-for="message of messages" :key="message.id">
         <div>
           <img v-if="message.isImage" :src="message.message">
@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
 import twemoji from 'twemoji';
 
 import store from '@/store.ts';
@@ -49,6 +49,27 @@ export default class Conversation extends Vue {
     id: 0,
     message: '',
   };
+
+  private lastMessage = false;
+
+  private oldScrollHeight = 0;
+
+  $refs!: {
+    messageList: HTMLElement,
+  };
+
+  @Watch( 'messages.length' )
+  private onMessageLengthChange( current, old ) {
+    if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 10 && ( current === old + 1 || !old ) ) {
+      window.setTimeout( () => {
+        Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
+      }, 10 );
+    } else if ( this.$refs.messageList.scrollTop === 0 && current > old ) {
+      window.setTimeout( () => {
+        Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight - this.oldScrollHeight );
+      }, 10 );
+    }
+  }
 
   get messages() {
     return Object.values( store.state.messages ).sort( ( a: any, b: any ) => {
@@ -158,7 +179,21 @@ export default class Conversation extends Vue {
     }
   }
 
+  private onScroll() {
+    if ( !this.lastMessage && this.$refs.messageList.scrollTop === 0 && this.messages.length % 20 === 0 ) {
+      Vue.set( this, 'oldScrollHeight', this.$refs.messageList.scrollHeight );
+      store.dispatch( 'getConversationMessages', { id: +router.currentRoute.params.id, offset: this.messages.length / 20 } )
+        .catch( ( err ) => {
+          if ( err.response.status === 404 ) {
+            Vue.set( this, 'lastMessage', true );
+          }
+        } );
+    }
+  }
+
   private mounted() {
+    Vue.set( this, 'lastMessage', false );
+    Vue.set( this, 'oldScrollHeight', 0 );
     store.commit( 'clearMessages' );
     store.dispatch( 'getConversation', +router.currentRoute.params.id )
       .then( () => {
@@ -178,6 +213,7 @@ export default class Conversation extends Vue {
   height: 100%;
 
   .message-list {
+    min-height: calc( 100% - 82px );;
     overflow: auto;
   }
 }

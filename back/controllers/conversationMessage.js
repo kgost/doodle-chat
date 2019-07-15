@@ -59,7 +59,8 @@ const actions = {
         conversationId: req.params.id
       },
       limit: 20,
-      offset: parseInt( req.query.offset ),
+      offset: parseInt( req.query.offset ) * 20,
+      order: [['createdAt', 'DESC']],
       include: [
         { model: User, as: 'author', attributes: ['username'] },
         { model: Reaction, as: 'reactions' },

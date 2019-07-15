@@ -53,6 +53,7 @@ export default class Messenger extends Vue {
 
 <style lang="scss" scoped>
 .messenger {
+  height: 100%;
   overflow: hidden;
 }
 </style>
