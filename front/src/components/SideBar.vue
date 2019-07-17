@@ -14,7 +14,7 @@
         <router-link to="/conversations/new"  class="new">new</router-link>
         <ul>
           <li v-for="( conversation, i ) of conversations" :key="i">
-            <router-link :to="`/conversations/${ conversation.id }`">{{ conversation.name }} {{ conversation.notifications.length ? conversation.notifications.length : '' }}</router-link>
+            <router-link v-on:click="onMessageNavigate" :to="`/conversations/${ conversation.id }`">{{ conversation.name }} {{ conversation.notifications.length ? conversation.notifications.length : '' }}</router-link>
             <router-link :to="`/conversations/${ conversation.id }/edit`">Edit</router-link>
             <button v-if="isOwner( conversation.userId )" v-on:click="onDeleteConversation( conversation.id )">Delete</button>
           </li>
@@ -98,6 +98,10 @@ export default class SideBar extends Vue {
     this.$emit( 'open', false );
   }
 
+  private onMessageNavigate() {
+    store.commit( 'clearMessages' );
+  }
+
   private mounted() {
     store.dispatch( 'getConversations' );
     store.dispatch( 'getFriendships' );
@@ -114,6 +118,7 @@ export default class SideBar extends Vue {
   top: 0;
   left: 0;
   bottom: 0;
+  z-index: 1;
   background-color: #FFFFFF;
 
   .mobile-header {

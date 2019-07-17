@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <img v-show="!showPicker" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji open">
-    <button v-show="showPicker" v-on:click="toggleShow">✗</button>
+    <span v-show="showPicker" v-on:click="toggleShow">✗</span>
 
     <div class="picker-wrapper" v-show="showPicker">
-      <div>
+      <div class="header">
         <img v-on:click="activeHeader = i" v-for="( header, i ) of headers" :key="i" :src="emojify( header.emoji )" :alt="header.title" class="emoji">
       </div>
 
@@ -150,8 +150,7 @@ export default class EmojiPicker extends Vue {
   vertical-align: top;
 
   .open {
-    margin-top: 30px;
-    margin-left: 5px;
+    margin-top: 7px;
   }
 
   button {
@@ -164,11 +163,19 @@ export default class EmojiPicker extends Vue {
     flex-direction: column;
     position: absolute;
     right: 0;
-    bottom: 81px;
+    bottom: 51px;
     width: 305px;
     height: 300px;
     background-color: #FFFFFF;
     border: 1px solid grey;
+
+    .header {
+      border-bottom: 1px solid #000000;
+
+      .emoji {
+        height: 48px;
+      }
+    }
 
     .picker-body {
       overflow: auto;

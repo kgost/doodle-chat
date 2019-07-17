@@ -1,8 +1,8 @@
 <template>
   <div class="messenger">
-    <Conversation v-if="showConversation"></Conversation>
+    <!--<Conversation v-if="showConversation"></Conversation>-->
 
-    <Friendship v-if="showFriendship"></Friendship>
+    <!--<Friendship v-if="showFriendship"></Friendship>-->
   </div>
 </template>
 
@@ -16,14 +16,20 @@ import SocketService from '@/services/SocketService';
 
 const socketService = new SocketService();
 
-import Conversation from '@/components/Conversation.vue';
-import Friendship from '@/components/Friendship.vue';
+// import Conversation from '@/components/Conversation.vue';
+// import Friendship from '@/components/Friendship.vue';
 
 @Component({
   components: {
-    Conversation,
-    Friendship,
+    // Conversation,
+    // Friendship,
   },
+
+  beforeRouteUpdate( to, from, next ) {
+    console.log( 'feff' );
+    next();
+  },
+
   beforeRouteLeave( to, from, next ) {
     store.commit( 'clearMessages' );
 

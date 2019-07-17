@@ -2,20 +2,23 @@
   <div class="container">
     <h1 v-if="conversation">{{ conversation.name }}</h1>
 
-    <div id="test" ref="messageList" v-on:scroll="onScroll" class="message-list">
-      <div v-for="message of messages" :key="message.id">
-        <div>
-          <img v-if="message.isImage" :src="message.message">
+    <div ref="messageList" v-on:scroll="onScroll" class="message-list">
+      <div v-on:mouseover="activeActions = message.id" v-on:mouseleave="activeActions = 0" v-for="( message, i ) of messages" :key="message.id" class="message-wrapper">
+        <div class="message-container">
+          <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
+          <img v-if="message.isImage" :src="message.message.substr( 4 )">
           <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )"></video>
-          <span v-else v-html="emojifyMessage( message.message )" class="message"></span>
-          <span>{{ getUsername( message.userId ) }}</span>
-          <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
-          <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+          <div v-else v-html="emojifyMessage( message.message )" class="message"></div>
         </div>
 
         <div>
           <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
-          <EditReaction :messageId="message.id" :accessKey="accessKey"></EditReaction>
+        </div>
+
+        <div class="actions" v-if="message.id === openReaction || message.id === activeActions">
+          <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
+          <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+          <EditReaction v-on:toggle="openReaction = $event ? message.id : 0" :messageId="message.id" :accessKey="accessKey"></EditReaction>
         </div>
       </div>
     </div>
@@ -38,6 +41,25 @@ import EditReaction from '@/components/EditReaction.vue';
 import TypingNames from '@/components/TypingNames.vue';
 
 @Component({
+  beforeRouteUpdate( to, from, next ) {
+    Vue.set( this, 'lastMessage', false );
+    Vue.set( this, 'oldScrollHeight', 0 );
+    store.commit( 'clearMessages' );
+    store.dispatch( 'getConversation', +to.params.id )
+      .then( () => {
+        store.dispatch( 'joinConversation', +to.params.id );
+        store.dispatch( 'getConversationMessages', { id: +to.params.id, offset: 0 } )
+          .finally( () => {
+            next();
+          } );
+      } );
+  },
+
+  beforeRouteLeave( to, from, next ) {
+    store.commit( 'clearMessages' );
+    next();
+  },
+
   components: {
     EditMessage,
     EditReaction,
@@ -54,21 +76,54 @@ export default class Conversation extends Vue {
 
   private oldScrollHeight = 0;
 
+  private activeActionsId = 0;
+
+  private openReactionId = 0;
+
   $refs!: {
     messageList: HTMLElement,
   };
 
+  @Watch( 'conversation.name' )
+  onConversationNameChange( current ) {
+    if ( current ) {
+      store.commit( 'setName', this.conversation.name );
+    }
+  }
+
   @Watch( 'messages.length' )
   private onMessageLengthChange( current, old ) {
-    if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 10 && ( current === old + 1 || !old ) ) {
-      window.setTimeout( () => {
-        Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
-      }, 10 );
-    } else if ( this.$refs.messageList.scrollTop === 0 && current > old ) {
-      window.setTimeout( () => {
-        Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight - this.oldScrollHeight );
-      }, 10 );
+    if ( current !== undefined ) {
+      if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 10 && ( current === old + 1 || !old ) ) {
+        window.setTimeout( () => {
+          Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
+        }, 10 );
+      } else if ( this.$refs.messageList.scrollTop === 0 && current > old ) {
+        window.setTimeout( () => {
+          Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight - this.oldScrollHeight );
+        }, 10 );
+      }
     }
+  }
+
+  set activeActions( id: number ) {
+    window.setTimeout( () => {
+      Vue.set( this, 'activeActionsId', id );
+    }, 10 );
+  }
+
+  set openReaction( id: number ) {
+    window.setTimeout( () => {
+      Vue.set( this, 'openReactionId', id );
+    }, 10 );
+  }
+
+  get activeActions() {
+    return this.activeActionsId;
+  }
+
+  get openReaction() {
+    return this.openReactionId;
   }
 
   get messages() {
@@ -83,17 +138,32 @@ export default class Conversation extends Vue {
     } ).map( ( message: any ) => {
       const result: any = JSON.parse( JSON.stringify( message ) );
 
-      result.message = this.decode( this.decrypt( result.message ) );
+      result.message = this.decrypt( result.message );
 
-      if ( result.message.indexOf( '!img' ) === 0 ) {
-        result.isMedia = true;
-        result.isImage = true;
-      } else if ( result.message.indexOf( '!vid' ) === 0 ) {
-        result.isMedia = true;
-        result.isVideo = true;
+      return result
+    } ).filter( ( message: any ) => {
+      if ( !message.message ) {
+        return false;
       }
 
-      return result;
+      try {
+        this.decode( message.message );
+        return true;
+      } catch ( err ) {
+        return false;
+      }
+    } ).map( ( message: any ) =>{
+      message.message = this.decode( message.message );
+
+      if ( message.message.indexOf( '!img' ) === 0 ) {
+        message.isMedia = true;
+        message.isImage = true;
+      } else if ( message.message.indexOf( '!vid' ) === 0 ) {
+        message.isMedia = true;
+        message.isVideo = true;
+      }
+
+      return message;
     } );
   }
 
@@ -211,10 +281,47 @@ export default class Conversation extends Vue {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 
   .message-list {
-    min-height: calc( 100% - 82px );;
+    min-height: calc( 100% - 51px );;
     overflow: auto;
+
+    .message-wrapper {
+      position: relative;
+
+      &:hover {
+        background: #d8d8d8;
+      }
+
+      .author {
+        font-size: 1.15em;
+      }
+
+      .message-container {
+        margin: 5px 10px;
+
+        .message {
+          padding: 5px 0;
+        }
+      }
+
+      .actions {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        right: 0;
+        text-align: right;
+
+        &.open {
+          display: initial;
+        }
+
+        button {
+          vertical-align: top;
+        }
+      }
+    }
   }
 }
 

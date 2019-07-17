@@ -1,13 +1,17 @@
 <template>
-  <div>
-    <img v-show="!showReactions" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji">
-    <img v-show="showReactions" v-on:click="onSubmit( emoji )" v-for="( emoji, i ) of emojis" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
-    <button v-show="showReactions" v-on:click="toggleShow">Close</button>
+  <div class="reaction-container" v-on-click-outside="close">
+    <img v-show="!showReactions" v-on:click.stop="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji">
+    <div>
+      <img v-show="showReactions" v-on:click.stop="onSubmit( emoji )" v-for="( emoji, i ) of emojis" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
+      <button v-show="showReactions" v-on:click.stop="toggleShow">Close</button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Model, Prop, Vue } from 'vue-property-decorator';
+import { Component, Model, Prop, Mixins, Vue } from 'vue-property-decorator';
+import { mixins } from 'vue-class-component'
+import { mixin as onClickOutside } from 'vue-on-click-outside';
 import twemoji from 'twemoji';
 
 import store from '@/store.ts';
@@ -15,15 +19,21 @@ import router from '@/router.ts';
 
 @Component({
 })
-export default class EditReaction extends Vue {
+export default class EditReaction extends mixins( onClickOutside ) {
   @Prop( String ) private readonly accessKey!: string;
   @Prop( Number ) private readonly messageId!: string;
 
-  private emojis = ['🤔', '😂', '😍', '😤', '😢', '👍', '🏊🏿‍♂️', '🔫'];
+  private emojis = ['🤔', '😂', '😍', '😤', '😢', '👍', /*'🏊🏿‍♂️',*/ '🔫'];
   private showReactions = false;
 
   private toggleShow() {
-    this.showReactions = !this.showReactions;
+    Vue.set( this, 'showReactions', !this.showReactions );
+    this.$emit( 'toggle', this.showReactions );
+  }
+
+  private close() {
+    Vue.set( this, 'showReactions', false );
+    this.$emit( 'toggle', false );
   }
 
   private emojify( emoji: string ) {
@@ -54,6 +64,10 @@ export default class EditReaction extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.reaction-container {
+  display: inline-block;
+}
+
 .emoji {
   height: 32px;
 }

@@ -1,20 +1,22 @@
 <template>
   <div>
-    <textarea ref="textarea" rows="5" v-model="message.message"></textarea>
+    <textarea ref="textarea" rows="3" v-model="message.message"></textarea>
 
     <div class="actions">
       <div class="buttons">
-        <button v-on:click="onSubmit">Submit</button>
+        <button v-on:click="onSubmit"><span class="glyphicon glyphicon-send"></span></button>
 
         <button v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
-          Media
+          <span class="glyphicon glyphicon-picture"></span>
           <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
         </button>
 
         <button v-if="message.id" v-on:click="onCancel">Cancel</button>
-      </div>
 
-      <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
+        <button class="emoji-button">
+          <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -143,25 +145,30 @@ export default class EditMessage extends Vue {
 <style lang="scss" scoped>
 textarea {
   display: inline-block;
-  width: calc( 100% - 105px );
-  height: 100%;
+  width: calc( 100% - 122px );
+  height: calc( 100% - 3px );
   padding: 0;
 }
 
 .actions {
   display: inline-block;
-  width: calc( 105px - 2px );
+  width: calc( 122px - 2px );
   height: 100%;
   vertical-align: top;
 
   .buttons {
     display: inline-block;
-    width: 60px;
+    width: 120px;
     height: 100%;
 
     button {
-      width: 100%;
-      height: 50%;
+      width: 40px;
+      height: calc( 100% - 1px );
+
+      &.emoji-button {
+        padding: 0;
+        vertical-align: top;
+      }
     }
 
     .media-upload {
