@@ -54,6 +54,10 @@ export default class SignIn extends Vue {
 
       p.then( () => {
         router.push({ path: '/' });
+        store.dispatch( 'consumeNonce' );
+        store.dispatch( 'getPushSub' );
+        store.dispatch( 'getConversations' );
+        store.dispatch( 'getFriendships' );
       } );
     }
   }
