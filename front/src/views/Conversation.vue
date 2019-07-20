@@ -167,47 +167,6 @@ export default class Conversation extends Vue {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-
-  .message-list {
-    min-height: calc( 100% - 51px );;
-    overflow: auto;
-
-    .message-wrapper {
-      position: relative;
-
-      &:hover {
-        background: #d8d8d8;
-      }
-
-      .author {
-        font-size: 1.15em;
-      }
-
-      .message-container {
-        margin: 5px 10px;
-
-        .message {
-          padding: 5px 0;
-        }
-      }
-
-      .actions {
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        right: 0;
-        text-align: right;
-
-        &.open {
-          display: initial;
-        }
-
-        button {
-          vertical-align: top;
-        }
-      }
-    }
-  }
 }
 
 .emoji {

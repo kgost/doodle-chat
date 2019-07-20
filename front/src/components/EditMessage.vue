@@ -1,17 +1,17 @@
 <template>
-  <div>
+  <div class="edit-container">
     <textarea ref="textarea" rows="3" v-model="message.message"></textarea>
 
     <div class="actions">
       <div class="buttons">
-        <button v-on:click="onSubmit"><span class="glyphicon glyphicon-send"></span></button>
+        <button class="submit" v-on:click="onSubmit"><span class="glyphicon glyphicon-send"></span></button>
 
-        <button v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
+        <button class="media" v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
           <span class="glyphicon glyphicon-picture"></span>
           <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
         </button>
 
-        <button v-if="message.id" v-on:click="onCancel">Cancel</button>
+        <button class="cancel" v-if="message.id" v-on:click="onCancel">Cancel</button>
 
         <button class="emoji-button">
           <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
@@ -143,36 +143,55 @@ export default class EditMessage extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-textarea {
-  display: inline-block;
-  width: calc( 100% - 122px );
-  height: calc( 100% - 3px );
-  padding: 0;
-}
+.edit-container {
+  min-height: 51px;
 
-.actions {
-  display: inline-block;
-  width: calc( 122px - 2px );
-  height: 100%;
-  vertical-align: top;
-
-  .buttons {
+  textarea {
     display: inline-block;
-    width: 120px;
+    width: calc( 100% - 122px );
+    height: calc( 100% - 2px );
+    max-height: 56px;
+    padding: 0;
+  }
+
+  .actions {
+    display: inline-block;
+    width: calc( 122px - 2px );
     height: 100%;
+    vertical-align: top;
 
-    button {
-      width: 40px;
-      height: calc( 100% - 1px );
+    .buttons {
+      display: inline-block;
+      width: 120px;
+      height: 100%;
 
-      &.emoji-button {
+      button {
+        width: 40px;
+        height: 100%;
+        border: 1px solid grey;
+        background-color: white;
         padding: 0;
-        vertical-align: top;
-      }
-    }
+        margin: 0;
+        border-radius: 7px;
 
-    .media-upload {
-      display: none;
+        &.submit {
+          color: white;
+          background-color: #54abba;
+        }
+
+        &.cancel {
+          background-color: #d4b168;
+        }
+
+        &.emoji-button {
+          padding: 0;
+          vertical-align: top;
+        }
+      }
+
+      .media-upload {
+        display: none;
+      }
     }
   }
 }

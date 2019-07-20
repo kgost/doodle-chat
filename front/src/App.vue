@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="main-body">
     <div class="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/signin">Sign In</router-link> |
@@ -63,7 +63,7 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.main-body {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -78,7 +78,7 @@ export default class App extends Vue {
 }
 
 @media only screen and (max-width: 600px) {
-  .container {
+  .main-body {
     .nav {
       display: none;
     }

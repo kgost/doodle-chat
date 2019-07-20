@@ -202,7 +202,7 @@ export default class MessageList extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .message-list {
-  min-height: calc( 100% - 51px );;
+  height: calc( 100% - 51px );;
   overflow: auto;
 
   .message-wrapper {
