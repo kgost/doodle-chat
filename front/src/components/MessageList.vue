@@ -21,8 +21,8 @@
       </div>
 
       <div class="actions" v-if="message.id === openReaction || message.id === activeActions">
-        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
-        <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
+        <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia"><span class="glyphicon glyphicon-edit"></span></button>
+        <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )"><span class="glyphicon glyphicon-trash"></span></button>
         <EditReaction v-on:toggle="openReaction = $event ? message.id : 0" :messageId="message.id" :accessKey="accessKey"></EditReaction>
       </div>
     </div>
@@ -253,6 +253,11 @@ export default class MessageList extends Vue {
 
       button {
         vertical-align: top;
+        font-size: 18px;
+
+        .glyphicon {
+          padding: 7px;
+        }
       }
     }
   }

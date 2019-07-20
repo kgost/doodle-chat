@@ -62,6 +62,16 @@ export default class App extends Vue {
 }
 </script>
 
+<style lang="scss">
+button {
+  border: 1px solid grey;
+  background-color: white;
+  padding: 0;
+  margin: 0;
+  border-radius: 7px;
+}
+</style>
+
 <style lang="scss" scoped>
 .main-body {
   display: flex;

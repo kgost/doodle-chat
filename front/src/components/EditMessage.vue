@@ -166,11 +166,6 @@ export default class EditMessage extends Vue {
       button {
         width: 40px;
         height: 100%;
-        border: 1px solid grey;
-        background-color: white;
-        padding: 0;
-        margin: 0;
-        border-radius: 7px;
 
         &.submit {
           color: white;

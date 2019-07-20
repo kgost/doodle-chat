@@ -1,6 +1,8 @@
 <template>
   <div class="reaction-container" v-on-click-outside="close">
-    <img v-show="!showReactions" v-on:click.stop="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji">
+    <button v-show="!showReactions" v-on:click.stop="toggleShow">
+      <img src="/img/emojis/1f914.png" alt="🤔" class="emoji">
+    </button>
     <div :class="{ open: showReactions }">
       <img v-show="showReactions" v-on:click.stop="onSubmit( emoji )" v-for="( emoji, i ) of emojis" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
       <button v-show="showReactions" v-on:click.stop="toggleShow">Close</button>
@@ -73,7 +75,8 @@ export default class EditReaction extends mixins( onClickOutside ) {
   }
 }
 
-.emoji {
-  height: 32px;
+img.emoji {
+  height: 18px;
+  font-size: 18px;
 }
 </style>
