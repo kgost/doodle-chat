@@ -1,6 +1,6 @@
 <template>
   <div ref="messageList" v-on:scroll="onScroll" class="message-list">
-    <div v-on:mouseover="activeActions = message.id" v-on:mouseleave="activeActions = 0" v-for="( message, i ) of messages" :key="message.id" class="message-wrapper">
+    <div v-on:touchstart.stop="activeActions = message.id" v-on:mouseover.stop="activeActions = message.id" v-on:mouseleave.stop="activeActions = 0" v-for="( message, i ) of messages" :key="message.id" :class="{ hover: activeActions === message.id }" class="message-wrapper">
       <div class="message-container">
         <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
         <img v-if="message.isImage" :src="message.message.substr( 4 )">
@@ -42,6 +42,8 @@ export default class MessageList extends Vue {
   @Prop( Number ) private oldScrollHeight: number = 0;
   @Prop( Object ) private usernameMap;
 
+  private stopActions = false;
+
   private activeActionsId = 0;
 
   private openReactionId = 0;
@@ -74,15 +76,17 @@ export default class MessageList extends Vue {
   }
 
   set activeActions( id: number ) {
+    Vue.set( this, 'stopActions', true );
+
     window.setTimeout( () => {
-      Vue.set( this, 'activeActionsId', id );
+      Vue.set( this, 'stopActions', false );
     }, 10 );
+
+    Vue.set( this, 'activeActionsId', id );
   }
 
   set openReaction( id: number ) {
-    window.setTimeout( () => {
-      Vue.set( this, 'openReactionId', id );
-    }, 10 );
+    Vue.set( this, 'openReactionId', id );
   }
 
   get activeActions() {
@@ -186,14 +190,18 @@ export default class MessageList extends Vue {
   }
 
   private onEdit( message: any ) {
-    if ( message.id === this.activeActions ) {
-      this.$emit( 'active-message', { id: message.id, message: message.message } );
+    if ( !this.stopActions ) {
+      if ( message.id === this.activeActions ) {
+        this.$emit( 'active-message', { id: message.id, message: message.message } );
+      }
     }
   }
 
   private onDelete( messageId: number ) {
-    if ( messageId === this.activeActions ) {
-      this.$emit( 'delete', messageId );
+    if ( !this.stopActions ) {
+      if ( messageId === this.activeActions ) {
+        this.$emit( 'delete', messageId );
+      }
     }
   }
 }
@@ -208,7 +216,7 @@ export default class MessageList extends Vue {
   .message-wrapper {
     position: relative;
 
-    &:hover {
+    &:hover, &.hover {
       background-color: #d8d8d8;
     }
 
