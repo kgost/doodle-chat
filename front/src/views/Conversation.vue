@@ -2,26 +2,22 @@
   <div class="container">
     <h1 v-if="conversation">{{ conversation.name }}</h1>
 
-    <div ref="messageList" v-on:scroll="onScroll" class="message-list">
-      <div v-on:mouseover="activeActions = message.id" v-on:mouseleave="activeActions = 0" v-for="( message, i ) of messages" :key="message.id" class="message-wrapper">
-        <div class="message-container">
-          <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
-          <img v-if="message.isImage" :src="message.message.substr( 4 )">
-          <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )"></video>
-          <div v-else v-html="emojifyMessage( message.message )" class="message"></div>
-        </div>
+    <MessageList
+      :lastMessage="lastMessage"
+      v-on:last-message="lastMessage = $event"
 
-        <div>
-          <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
-        </div>
+      :accessKey="accessKey"
 
-        <div class="actions" v-if="message.id === openReaction || message.id === activeActions">
-          <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia">Edit</button>
-          <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )">Delete</button>
-          <EditReaction v-on:toggle="openReaction = $event ? message.id : 0" :messageId="message.id" :accessKey="accessKey"></EditReaction>
-        </div>
-      </div>
-    </div>
+      :activeMessage="activeMessage"
+      v-on:active-message="activeMessage = $event"
+
+      :oldScrollHeight="oldScrollHeight"
+      v-on:old-scroll-height="oldScrollHeight = $event"
+
+      :usernameMap="usernameMap"
+
+      v-on:delete="onDelete( $event )"
+    ></MessageList>
 
     <TypingNames :names="typingNames"></TypingNames>
 
@@ -36,6 +32,7 @@ import twemoji from 'twemoji';
 import store from '@/store.ts';
 import router from '@/router.ts';
 
+import MessageList from '@/components/MessageList.vue';
 import EditMessage from '@/components/EditMessage.vue';
 import EditReaction from '@/components/EditReaction.vue';
 import TypingNames from '@/components/TypingNames.vue';
@@ -61,6 +58,7 @@ import TypingNames from '@/components/TypingNames.vue';
   },
 
   components: {
+    MessageList,
     EditMessage,
     EditReaction,
     TypingNames,
@@ -76,95 +74,11 @@ export default class Conversation extends Vue {
 
   private oldScrollHeight = 0;
 
-  private activeActionsId = 0;
-
-  private openReactionId = 0;
-
-  $refs!: {
-    messageList: HTMLElement,
-  };
-
   @Watch( 'conversation.name' )
   onConversationNameChange( current ) {
     if ( current ) {
       store.commit( 'setName', this.conversation.name );
     }
-  }
-
-  @Watch( 'messages.length' )
-  private onMessageLengthChange( current, old ) {
-    if ( current !== undefined ) {
-      if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 10 && ( current === old + 1 || !old ) ) {
-        window.setTimeout( () => {
-          Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
-        }, 10 );
-      } else if ( this.$refs.messageList.scrollTop === 0 && current > old ) {
-        window.setTimeout( () => {
-          Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight - this.oldScrollHeight );
-        }, 10 );
-      }
-    }
-  }
-
-  set activeActions( id: number ) {
-    window.setTimeout( () => {
-      Vue.set( this, 'activeActionsId', id );
-    }, 10 );
-  }
-
-  set openReaction( id: number ) {
-    window.setTimeout( () => {
-      Vue.set( this, 'openReactionId', id );
-    }, 10 );
-  }
-
-  get activeActions() {
-    return this.activeActionsId;
-  }
-
-  get openReaction() {
-    return this.openReactionId;
-  }
-
-  get messages() {
-    return Object.values( store.state.messages ).sort( ( a: any, b: any ) => {
-      if ( a.createdAt > b.createdAt ) {
-        return 1;
-      } else if ( b.createdAt > a.createdAt ) {
-        return -1;
-      }
-
-      return 0;
-    } ).map( ( message: any ) => {
-      const result: any = JSON.parse( JSON.stringify( message ) );
-
-      result.message = this.decrypt( result.message );
-
-      return result
-    } ).filter( ( message: any ) => {
-      if ( !message.message ) {
-        return false;
-      }
-
-      try {
-        this.decode( message.message );
-        return true;
-      } catch ( err ) {
-        return false;
-      }
-    } ).map( ( message: any ) =>{
-      message.message = this.decode( message.message );
-
-      if ( message.message.indexOf( '!img' ) === 0 ) {
-        message.isMedia = true;
-        message.isImage = true;
-      } else if ( message.message.indexOf( '!vid' ) === 0 ) {
-        message.isMedia = true;
-        message.isVideo = true;
-      }
-
-      return message;
-    } );
   }
 
   get conversation() {
@@ -201,12 +115,22 @@ export default class Conversation extends Vue {
     }
   }
 
-  private decrypt( message: string ) {
-    return store.getters.getDecryptedMessage({ message, key: this.accessKey });
+  get usernameMap() {
+    if ( !this.conversation ) {
+      return {};
+    }
+
+    const result = {};
+
+    for ( const participant of this.conversation.participants ) {
+      result[participant.userId] = participant.user.username;
+    }
+
+    return result;
   }
 
-  private isOwner( id: number ) {
-    return store.state.user.id === id;
+  private decrypt( message: string ) {
+    return store.getters.getDecryptedMessage({ message, key: this.accessKey });
   }
 
   private onEdit( message: any ) {
@@ -223,51 +147,12 @@ export default class Conversation extends Vue {
     }
   }
 
-  private emojify( emoji: string ) {
-    return `/img/emojis/${ twemoji.convert.toCodePoint( decodeURIComponent( emoji ) ) }.png`;
-  }
-
-  private emojifyMessage( message: string ) {
-    return twemoji.parse( message, ( icon, options, variant ) => {
-      return `/img/emojis/${ icon }.png`;
-    } );
-  }
-
-  private decode( message: string ) {
-    return decodeURIComponent( escape( message ) );
-  }
-
-  private getUsername( id: number ) {
-    for ( const participant of this.conversation.participants ) {
-      if ( participant.userId === id ) {
-        if ( participant.nickname ) {
-          return participant.nickname;
-        }
-
-        return participant.user.username;
-      }
-    }
-  }
-
-  private onScroll() {
-    if ( !this.lastMessage && this.$refs.messageList.scrollTop === 0 && this.messages.length % 20 === 0 ) {
-      Vue.set( this, 'oldScrollHeight', this.$refs.messageList.scrollHeight );
-      store.dispatch( 'getConversationMessages', { id: +router.currentRoute.params.id, offset: this.messages.length / 20 } )
-        .catch( ( err ) => {
-          if ( err.response.status === 404 ) {
-            Vue.set( this, 'lastMessage', true );
-          }
-        } );
-    }
-  }
-
   private mounted() {
     Vue.set( this, 'lastMessage', false );
     Vue.set( this, 'oldScrollHeight', 0 );
     store.commit( 'clearMessages' );
     store.dispatch( 'getConversation', +router.currentRoute.params.id )
       .then( () => {
-        store.commit( 'setName', this.conversation.name );
         store.dispatch( 'joinConversation', +router.currentRoute.params.id );
         store.dispatch( 'getConversationMessages', { id: +router.currentRoute.params.id, offset: 0 } );
       } );

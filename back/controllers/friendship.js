@@ -18,8 +18,8 @@ const actions = {
 
     const result = await Friendship.findByPk( friendship.id, {
       include:[
-        { model: User, as: 'userOne' },
-        { model: User, as: 'userTwo' },
+        { model: User, as: 'userOne', attributes: ['id', 'username'] },
+        { model: User, as: 'userTwo', attributes: ['id', 'username'] },
         {
           model: Notification,
           as: 'notifications',
@@ -41,8 +41,8 @@ const actions = {
         }
       },
       include:[
-        { model: User, as: 'userOne' },
-        { model: User, as: 'userTwo' },
+        { model: User, as: 'userOne', attributes: ['id', 'username'] },
+        { model: User, as: 'userTwo', attributes: ['id', 'username'] },
         {
           model: Notification,
           as: 'notifications',
@@ -62,8 +62,8 @@ const actions = {
   show: async ( req ) => {
     const friendship = await Friendship.findByPk( req.params.id, {
       include:[
-        { model: User, as: 'userOne' },
-        { model: User, as: 'userTwo' },
+        { model: User, as: 'userOne', attributes: ['id', 'username'] },
+        { model: User, as: 'userTwo', attributes: ['id', 'username'] },
         {
           model: Notification,
           as: 'notifications',
