@@ -432,6 +432,7 @@ const vuex =  new Vuex.Store({
       return Api().post( '/friendships', friendship )
         .then( ( res ) => {
           socketService.addFriendship( friendship.userTwoId );
+          socketService.listenFriendship( res.data.id );
 
           commit( 'setFriendship', res.data );
         } );
