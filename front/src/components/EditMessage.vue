@@ -13,9 +13,7 @@
 
         <button class="cancel" v-if="message.id" v-on:click="onCancel">Cancel</button>
 
-        <button class="emoji-button">
-          <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
-        </button>
+        <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
       </div>
     </div>
   </div>
@@ -181,11 +179,6 @@ export default class EditMessage extends Vue {
 
         &.cancel {
           background-color: #d4b168;
-        }
-
-        &.emoji-button {
-          padding: 0;
-          vertical-align: top;
         }
       }
 

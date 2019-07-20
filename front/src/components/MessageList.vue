@@ -1,6 +1,14 @@
 <template>
   <div ref="messageList" v-on:scroll="onScroll" class="message-list">
-    <div v-on:touchstart.stop="activeActions = message.id" v-on:mouseover.stop="activeActions = message.id" v-on:mouseleave.stop="activeActions = 0" v-for="( message, i ) of messages" :key="message.id" :class="{ hover: activeActions === message.id }" class="message-wrapper">
+    <div
+      v-on:touchstart.stop="activeActions = message.id"
+      v-on:mouseover.stop="activeActions = message.id"
+      v-on:mouseleave.stop="activeActions = 0"
+      v-for="( message, i ) of messages"
+      :key="message.id"
+      :class="{ hover: activeActions === message.id }"
+      class="message-wrapper">
+
       <div class="message-container">
         <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
         <img v-if="message.isImage" :src="message.message.substr( 4 )">

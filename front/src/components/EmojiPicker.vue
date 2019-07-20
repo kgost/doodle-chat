@@ -1,7 +1,9 @@
 <template>
   <div class="container">
-    <img v-show="!showPicker" v-on:click="toggleShow" src="/img/emojis/1f914.png" alt="🤔" class="emoji open">
-    <span v-show="showPicker" v-on:click="toggleShow">✗</span>
+    <button v-on:click="toggleShow" class="emoji-button">
+      <img v-show="!showPicker" src="/img/emojis/1f914.png" alt="🤔" class="emoji open">
+      <span v-show="showPicker">✗</span>
+    </button>
 
     <div class="picker-wrapper" v-show="showPicker">
       <div class="header">
@@ -153,9 +155,17 @@ export default class EmojiPicker extends Vue {
     margin-top: 7px;
   }
 
-  button {
-    width: 43px;
+  .emoji-button {
+    width: 40px;
     height: 100%;
+    border: 1px solid grey;
+    background-color: white;
+    padding: 0;
+    margin: 0;
+    border-radius: 7px;
+    padding: 0;
+    vertical-align: top;
+    font-size: 28px;
   }
 
   .picker-wrapper {
