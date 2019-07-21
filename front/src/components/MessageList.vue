@@ -13,7 +13,7 @@
         <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
         <img v-if="message.isImage" :src="message.message.substr( 4 )">
         <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )"></video>
-        <div v-else v-html="emojifyMessage( message.message )" class="message"></div>
+        <div v-else v-html="$sanitize( emojifyMessage( message.message ) )" class="message"></div>
       </div>
 
       <div>

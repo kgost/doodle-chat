@@ -4,7 +4,10 @@ import router from './router';
 import store from './store';
 import './registerServiceWorker';
 
+import sanitizeHTML from 'sanitize-html';
+
 Vue.config.productionTip = false;
+Vue.prototype.$sanitize = sanitizeHTML;
 
 new Vue({
   router,
