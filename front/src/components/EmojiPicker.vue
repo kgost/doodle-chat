@@ -181,9 +181,10 @@ export default class EmojiPicker extends Vue {
 
     .header {
       border-bottom: 1px solid #000000;
+      text-align: center;
 
       .emoji {
-        height: 48px;
+        height: 38px;
       }
     }
 
