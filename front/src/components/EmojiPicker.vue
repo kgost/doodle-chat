@@ -168,6 +168,7 @@ export default class EmojiPicker extends Vue {
     position: absolute;
     right: 0;
     bottom: 51px;
+    z-index: 2;
     width: 305px;
     height: 300px;
     background-color: #FFFFFF;
