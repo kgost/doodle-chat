@@ -4,7 +4,7 @@
 
     <div class="actions">
       <div class="buttons">
-        <button class="submit" v-on:click="onSubmit"><span class="glyphicon glyphicon-send"></span></button>
+        <button :disabled="!valid" class="submit" v-on:click="onSubmit"><span class="glyphicon glyphicon-send"></span></button>
 
         <button class="media" v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
           <span class="glyphicon glyphicon-picture"></span>
@@ -47,6 +47,10 @@ export default class EditMessage extends Vue {
 
   get encoding() {
     return unescape( encodeURIComponent( this.message.message ) );
+  }
+
+  get valid() {
+    return !!this.message.message.length;
   }
 
   @Watch( 'message.message' )
@@ -104,30 +108,32 @@ export default class EditMessage extends Vue {
   }
 
   private onSubmit() {
-    let p;
+    if ( this.valid ) {
+      let p;
 
-    const payload = { id: this.message.id, message: this.encryptedMessage };
+      const payload = { id: this.message.id, message: this.encryptedMessage };
 
-    if ( router.currentRoute.name === 'conversation' ) {
-      if ( this.message.id ) {
-        p = store.dispatch( 'updateConversationMessage', { id: +this.$route.params.id, messageId: this.message.id, message: payload } );
+      if ( router.currentRoute.name === 'conversation' ) {
+        if ( this.message.id ) {
+          p = store.dispatch( 'updateConversationMessage', { id: +this.$route.params.id, messageId: this.message.id, message: payload } );
+        } else {
+          p = store.dispatch( 'createConversationMessage', { id: +this.$route.params.id, message: payload } );
+        }
       } else {
-        p = store.dispatch( 'createConversationMessage', { id: +this.$route.params.id, message: payload } );
+        if ( this.message.id ) {
+          p = store.dispatch( 'updateFriendshipMessage', { id: +this.$route.params.id, messageId: this.message.id, message: payload } );
+        } else {
+          p = store.dispatch( 'createFriendshipMessage', { id: +this.$route.params.id, message: payload } );
+        }
       }
-    } else {
-      if ( this.message.id ) {
-        p = store.dispatch( 'updateFriendshipMessage', { id: +this.$route.params.id, messageId: this.message.id, message: payload } );
-      } else {
-        p = store.dispatch( 'createFriendshipMessage', { id: +this.$route.params.id, message: payload } );
-      }
+
+      p.then( () => {
+        Vue.set( this.message, 'id', 0 );
+        Vue.set( this.message, 'message', '' );
+
+        this.$emit( 'on-submit', this.message );
+      } );
     }
-
-    p.then( () => {
-      Vue.set( this.message, 'id', 0 );
-      Vue.set( this.message, 'message', '' );
-
-      this.$emit( 'on-submit', this.message );
-    } );
   }
 
   private onCancel() {
@@ -164,6 +170,7 @@ export default class EditMessage extends Vue {
       height: 100%;
 
       button {
+        font-size: 20px;
         width: 40px;
         height: 100%;
 
@@ -173,9 +180,10 @@ export default class EditMessage extends Vue {
         }
 
         &.cancel {
-          color: white;
           vertical-align: top;
           background-color: #ffc663;
+          color: white;
+          font-size: 28px;
         }
       }
 
