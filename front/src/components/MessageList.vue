@@ -16,7 +16,7 @@
         <div v-else v-html="emojifyMessage( $sanitize( message.message ) )" class="message"></div>
       </div>
 
-      <div>
+      <div class="reactions-container">
         <span class="reaction-wrapper" v-for="( reaction, i ) of message.reactions" :key="i">
           <img v-on:click="showUsername = reaction.id" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
           <span v-show="showUsername === reaction.id" class="popover">{{ getUsername( reaction.userId ) }}</span>
@@ -252,16 +252,20 @@ export default class MessageList extends Vue {
       background-color: #d8d8d8;
     }
 
-    .reaction-wrapper {
-      position: relative;
+    .reactions-container {
+      margin-left: 35px;
 
-      .popover {
-        position: absolute;
-        top: -45px;
-        left: 0px;
-        padding: 5px;
-        border: 1px solid gray;
-        background-color: white;
+      .reaction-wrapper {
+        position: relative;
+
+        .popover {
+          position: absolute;
+          top: -45px;
+          left: 0px;
+          padding: 5px;
+          border: 1px solid gray;
+          background-color: white;
+        }
       }
     }
 
