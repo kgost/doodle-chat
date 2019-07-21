@@ -264,6 +264,6 @@ export default class MessageList extends Vue {
 }
 
 .emoji {
-  height: 32px;
+  height: 24px;
 }
 </style>
