@@ -11,7 +11,7 @@
           <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
         </button>
 
-        <button class="cancel" v-if="message.id" v-on:click="onCancel">Cancel</button>
+        <button class="cancel" v-if="message.id" v-on:click="onCancel">✗</button>
 
         <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
       </div>
@@ -173,7 +173,9 @@ export default class EditMessage extends Vue {
         }
 
         &.cancel {
-          background-color: #d4b168;
+          color: white;
+          vertical-align: top;
+          background-color: #e0b72f;
         }
       }
 

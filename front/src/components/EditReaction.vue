@@ -3,9 +3,10 @@
     <button v-show="!showReactions" v-on:click.stop="toggleShow">
       <img src="/img/emojis/1f914.png" alt="🤔" class="emoji">
     </button>
+
     <div :class="{ open: showReactions }">
       <img v-show="showReactions" v-on:click.stop="onSubmit( emoji )" v-for="( emoji, i ) of emojis" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
-      <button v-show="showReactions" v-on:click.stop="toggleShow">Close</button>
+      <button v-show="showReactions" v-on:click.stop="toggleShow" class="close">✗</button>
     </div>
   </div>
 </template>
@@ -69,14 +70,21 @@ export default class EditReaction extends mixins( onClickOutside ) {
 .reaction-container {
   display: inline-block;
 
-  .open {
-    padding: 5px;
-    background-color: #d8d8d8;
+  button {
+    font-size: 18px;
+    &.open {
+      padding: 5px;
+      background-color: #d8d8d8;
+    }
+
+    &.close {
+      padding: 2px 10px;
+    }
   }
 }
 
 img.emoji {
-  height: 18px;
-  font-size: 18px;
+  height: 21px;
+  font-size: 21px;
 }
 </style>

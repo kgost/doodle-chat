@@ -256,7 +256,7 @@ export default class MessageList extends Vue {
         font-size: 18px;
 
         .glyphicon {
-          padding: 7px;
+          padding: 4px;
         }
       }
     }
