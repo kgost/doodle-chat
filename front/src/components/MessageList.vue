@@ -11,8 +11,8 @@
 
       <div class="message-container">
         <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
-        <img v-if="message.isImage" :src="message.message.substr( 4 )">
-        <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )"></video>
+        <img v-if="message.isImage" :src="message.message.substr( 4 )" class="media">
+        <video v-on:click.stop controls v-else-if="message.isVideo" :src="message.message.substr( 4 )" class="media"></video>
         <div v-else v-html="$sanitize( emojifyMessage( message.message ) )" class="message"></div>
       </div>
 
@@ -271,6 +271,10 @@ export default class MessageList extends Vue {
 
     .message-container {
       padding: 5px 10px;
+
+      .media {
+        max-width: 100%;
+      }
 
       .message {
         padding: 5px 0;
