@@ -81,11 +81,11 @@ export default class EditReaction extends Vue {
     font-size: 18px;
 
     &.open {
-      padding: 0 3px;
+      padding: 1px 3px;
 
       img {
         font-size: 30px;
-        height: 28px;
+        height: 30px;
       }
     }
 
