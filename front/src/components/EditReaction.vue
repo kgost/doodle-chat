@@ -78,13 +78,15 @@ export default class EditReaction extends Vue {
 
   button {
     font-size: 18px;
+
     &.open {
       padding: 5px;
       background-color: #d8d8d8;
     }
 
     &.close {
-      padding: 2px 10px;
+      font-size: 15px;
+      padding: 0 8px;
     }
   }
 }
