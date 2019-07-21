@@ -98,7 +98,6 @@ export default class SideBar extends Vue {
   }
 
   private onClose() {
-    console.log( 'feff' );
     this.$emit( 'open', false );
   }
 
@@ -112,6 +111,7 @@ export default class SideBar extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .sidebar {
+  border-right: 1px solid black;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -119,6 +119,7 @@ export default class SideBar extends Vue {
   left: 0;
   bottom: 0;
   z-index: 3;
+  width: 300px;
   background-color: #FFFFFF;
 
   .mobile-header {
@@ -173,6 +174,7 @@ export default class SideBar extends Vue {
   .sidebar {
     width: 100%;
     left: -100%;
+    border: none;
 
     &.open {
       left: 0;
