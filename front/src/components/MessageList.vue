@@ -17,7 +17,10 @@
       </div>
 
       <div>
-        <img v-for="( reaction, i ) of message.reactions" :key="i" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
+        <span class="reaction-wrapper" v-for="( reaction, i ) of message.reactions" :key="i">
+          <img v-on:click="showUsername = reaction.id" :src="emojify( decrypt( reaction.emoji ) )" :alt="decrypt( reaction.emoji )" :title="getUsername( reaction.userId )" class="emoji">
+          <span v-show="showUsername === reaction.id" class="popover">{{ getUsername( reaction.userId ) }}</span>
+        </span>
       </div>
 
       <div class="actions" v-if="message.id === openReaction || message.id === activeActions">
@@ -55,6 +58,10 @@ export default class MessageList extends Vue {
   private activeActionsId = 0;
 
   private openReactionId = 0;
+
+  private showUsernameId = 0;
+
+  private showUsernameTimeout = 0;
 
   $refs!: {
     messageList: HTMLElement,
@@ -97,12 +104,25 @@ export default class MessageList extends Vue {
     Vue.set( this, 'openReactionId', id );
   }
 
+  set showUsername( id: number ) {
+    Vue.set( this, 'showUsernameId', id );
+    window.clearTimeout( this.showUsernameTimeout );
+
+    this.showUsernameTimeout = window.setTimeout( () => {
+      Vue.set( this, 'showUsernameId', 0 );
+    }, 2000 );
+  }
+
   get activeActions() {
     return this.activeActionsId;
   }
 
   get openReaction() {
     return this.openReactionId;
+  }
+
+  get showUsername() {
+    return this.showUsernameId;
   }
 
   get messages() {
@@ -226,6 +246,19 @@ export default class MessageList extends Vue {
 
     &:hover, &.hover {
       background-color: #d8d8d8;
+    }
+
+    .reaction-wrapper {
+      position: relative;
+
+      .popover {
+        position: absolute;
+        top: -45px;
+        left: 0px;
+        padding: 5px;
+        border: 1px solid gray;
+        background-color: white;
+      }
     }
 
     .author {
