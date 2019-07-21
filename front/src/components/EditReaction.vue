@@ -1,10 +1,10 @@
 <template>
   <div class="reaction-container">
-    <button v-show="!showReactions" v-on:click.stop="toggleShow">
+    <button v-show="!showReactions" v-on:click.stop="toggleShow" class="open">
       <img src="/img/emojis/1f914.png" alt="🤔" class="emoji">
     </button>
 
-    <div :class="{ open: showReactions }">
+    <div v-show="showReactions">
       <img v-show="showReactions" v-on:click.stop="onSubmit( emoji )" v-for="( emoji, i ) of emojis" :key="i" :src="emojify( emoji )" :alt="emoji" class="emoji">
       <button v-show="showReactions" v-on:click.stop="toggleShow" class="close">✗</button>
     </div>
@@ -75,25 +75,30 @@ export default class EditReaction extends Vue {
 <style lang="scss" scoped>
 .reaction-container {
   display: inline-block;
+  background-color: #d8d8d8;
 
   button {
     font-size: 18px;
 
     &.open {
-      padding: 5px;
-      background-color: #d8d8d8;
+      padding: 0 3px;
+
+      img {
+        font-size: 30px;
+        height: 28px;
+      }
     }
 
     &.close {
       vertical-align: top;
-      font-size: 15px;
-      padding: 0 8px;
+      font-size: 17px;
+      padding: 0 10px;
     }
   }
 }
 
 img.emoji {
-  height: 21px;
-  font-size: 21px;
+  height: 32px;
+  font-size: 32px;
 }
 </style>

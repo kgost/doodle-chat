@@ -23,7 +23,7 @@
         </span>
       </div>
 
-      <div class="actions" v-if="message.id === openReaction || message.id === activeActions">
+      <div class="actions" v-show="message.id === openReaction || message.id === activeActions">
         <button v-on:click="onEdit( message )" v-if="isOwner( message.userId ) && !message.isMedia"><span class="glyphicon glyphicon-edit"></span></button>
         <button v-on:click="onDelete( message.id )" v-if="isOwner( message.userId )"><span class="glyphicon glyphicon-trash"></span></button>
         <EditReaction v-on:toggle="openReaction = $event ? message.id : 0" :activeId="openReaction" :messageId="message.id" :accessKey="accessKey"></EditReaction>
@@ -95,7 +95,7 @@ export default class MessageList extends Vue {
 
     window.setTimeout( () => {
       Vue.set( this, 'stopActions', false );
-    }, 10 );
+    }, 1 );
 
     Vue.set( this, 'activeActionsId', id );
   }
@@ -222,6 +222,8 @@ export default class MessageList extends Vue {
       if ( message.id === this.activeActions ) {
         this.$emit( 'active-message', { id: message.id, message: message.message } );
       }
+    } else {
+      Vue.set( this, 'stopActions', false );
     }
   }
 
@@ -230,6 +232,8 @@ export default class MessageList extends Vue {
       if ( messageId === this.activeActions ) {
         this.$emit( 'delete', messageId );
       }
+    } else {
+      Vue.set( this, 'stopActions', false );
     }
   }
 }
@@ -266,7 +270,7 @@ export default class MessageList extends Vue {
     }
 
     .message-container {
-      margin: 5px 10px;
+      padding: 5px 10px;
 
       .message {
         padding: 5px 0;
@@ -286,7 +290,7 @@ export default class MessageList extends Vue {
 
       button {
         vertical-align: top;
-        font-size: 18px;
+        font-size: 26px;
 
         .glyphicon {
           padding: 4px;

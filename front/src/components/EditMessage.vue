@@ -175,7 +175,7 @@ export default class EditMessage extends Vue {
         &.cancel {
           color: white;
           vertical-align: top;
-          background-color: #e0b72f;
+          background-color: #ffc663;
         }
       }
 
