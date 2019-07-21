@@ -8,7 +8,7 @@
 
         <button class="media" v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
           <span class="glyphicon glyphicon-picture"></span>
-          <input type="file" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
+          <input type="file" accept="image/*,video/mp4,video/webm" ref="mediaUpload" v-on:change="onMediaUpload" class="media-upload">
         </button>
 
         <button class="cancel" v-if="message.id" v-on:click="onCancel">✗</button>
