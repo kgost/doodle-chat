@@ -1,35 +1,38 @@
 <template>
   <div class="sidebar" :class="{ open: open }">
     <div class="mobile-header">
-      <h3>Saoirse</h3>
+      <h3>
+        Saoirse
 
-      <router-link to="/settings">Settings</router-link>
+        <router-link to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
+      </h3>
 
-      <button v-on:click="onClose" class="close">Close</button>
+
+      <span v-on:click="onClose" class="glyphicon glyphicon-remove close"></span>
     </div>
 
     <div class="container">
       <div class="wrapper">
         <h3>Conversations</h3>
-        <router-link to="/conversations/new"  class="new">new</router-link>
+        <router-link to="/conversations/new"  class="new"><span class="glyphicon glyphicon-plus"></span></router-link>
         <ul>
           <li v-for="( conversation, i ) of conversations" :key="i">
-            <router-link v-on:click="onMessageNavigate" :to="`/conversations/${ conversation.id }`">{{ conversation.name }} {{ conversation.notifications.length ? conversation.notifications.length : '' }}</router-link>
-            <router-link :to="`/conversations/${ conversation.id }/edit`">Edit</router-link>
-            <button v-if="isOwner( conversation.userId )" v-on:click="onDeleteConversation( conversation.id )">Delete</button>
+            <router-link v-on:click.native="onClose" :to="`/conversations/${ conversation.id }`">{{ conversation.name }} <span v-show="conversation.notifications.length" class="notifications">{{ conversation.notifications.length ? conversation.notifications.length : '' }}</span></router-link>
+            <router-link :to="`/conversations/${ conversation.id }/edit`"><span class="glyphicon glyphicon-edit"></span></router-link>
+            <span v-if="isOwner( conversation.userId )" v-on:click="onDeleteConversation( conversation.id )" class="glyphicon glyphicon-trash"></span>
           </li>
         </ul>
       </div>
 
       <div class="wrapper">
         <h3>Friends</h3>
-        <router-link to="/friendships/new"  class="new">new</router-link>
+        <router-link to="/friendships/new"  class="new"><span class="glyphicon glyphicon-plus"></span></router-link>
         <ul>
           <li v-for="( friendship, i ) of friendships" :key="i">
-            <router-link :to="`/friendships/${ friendship.id }`">{{ getFriendName( friendship ) }} {{ friendship.notifications.length ? friendship.notifications.length : '' }}</router-link>
+            <router-link v-on:click.native="onClose" :to="`/friendships/${ friendship.id }`">{{ getFriendName( friendship ) }} <span v-show="friendship.notifications.length" class="notifications">{{ friendship.notifications.length ? friendship.notifications.length : '' }}</span></router-link>
             <button v-if="showAccept( friendship )" v-on:click="onAccept( friendship )">Accept</button>
             <span v-if="!showAccept( friendship ) && showPending( friendship )">Pending</span>
-            <button v-on:click="onDeleteFriendship( friendship.id )">Delete</button>
+            <span v-on:click="onDeleteFriendship( friendship.id )" class="glyphicon glyphicon-trash"></span>
           </li>
         </ul>
       </div>
@@ -95,11 +98,8 @@ export default class SideBar extends Vue {
   }
 
   private onClose() {
+    console.log( 'feff' );
     this.$emit( 'open', false );
-  }
-
-  private onMessageNavigate() {
-    store.commit( 'clearMessages' );
   }
 
   private mounted() {
@@ -118,14 +118,16 @@ export default class SideBar extends Vue {
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 1;
+  z-index: 3;
   background-color: #FFFFFF;
 
   .mobile-header {
+    padding-left: 10px;
     display: none;
   }
 
   .container {
+    padding-left: 10px;
     overflow: auto;
 
     .wrapper {
@@ -135,6 +137,32 @@ export default class SideBar extends Vue {
         position: absolute;
         top: 0;
         right: 0;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+        font-size: 18px;
+
+        li {
+          .router-link-exact-active {
+            color: #2b9ce3;
+          }
+
+          .glyphicon {
+            margin-left: 5px;
+            font-size: 20px;
+          }
+
+          .notifications {
+            background-color: red;
+            border-radius: 5px;
+            padding: 4px 4px 0;
+            color: white;
+            font-size: 17px;
+            font-weight: bolder;
+          }
+        }
       }
     }
   }
@@ -153,10 +181,15 @@ export default class SideBar extends Vue {
     .mobile-header {
       display: block;
 
+      .settings {
+        display: inline-block;
+      }
+
       .close {
         position: absolute;
         top: 0;
         right: 0;
+        font-size: 25px;
       }
     }
   }

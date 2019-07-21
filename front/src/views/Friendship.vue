@@ -53,6 +53,7 @@ import TypingNames from '@/components/TypingNames.vue';
 
   beforeRouteLeave( to, from, next ) {
     store.commit( 'clearMessages' );
+    store.commit( 'setName', '' );
     next();
   },
 
@@ -149,10 +150,15 @@ export default class Friendship extends Vue {
     }
   }
 
-  private mounted() {
+ private mounted() {
     Vue.set( this, 'lastMessage', false );
     Vue.set( this, 'oldScrollHeight', 0 );
     store.commit( 'clearMessages' );
+
+    if ( this.friendName ) {
+      store.commit( 'setName', this.friendName );
+    }
+
     store.dispatch( 'getFriendship', +router.currentRoute.params.id )
       .then( () => {
         store.dispatch( 'joinFriendship', +router.currentRoute.params.id );

@@ -8,7 +8,7 @@
     </div>
 
     <div v-show="!showSideBar" class="mobile-header">
-      <div v-on:click="showSideBar = !showSideBar" class="hamberger">
+      <div v-on:click="showSideBar = !showSideBar" :class="{ notifications: notifications }" class="hamberger">
         <div class="line"></div>
         <div class="line"></div>
         <div class="line"></div>
@@ -48,6 +48,10 @@ export default class App extends Vue {
     return store.state.name;
   }
 
+  get notifications() {
+    return store.getters.notifications;
+  }
+
   private created() {
     store.dispatch( 'consumeNonce' );
     store.dispatch( 'getPushSub' );
@@ -69,6 +73,12 @@ button {
   padding: 0;
   margin: 0;
   border-radius: 7px;
+  cursor: pointer;
+}
+
+a {
+  color: black;
+  text-decoration: none;
 }
 </style>
 
@@ -107,6 +117,12 @@ button {
           width: 20px;
           height: 5px;
           background-color: #000000;
+        }
+
+        &.notifications {
+          .line {
+            background-color: red;
+          }
         }
       }
 

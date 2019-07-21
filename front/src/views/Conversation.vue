@@ -54,6 +54,7 @@ import TypingNames from '@/components/TypingNames.vue';
 
   beforeRouteLeave( to, from, next ) {
     store.commit( 'clearMessages' );
+    store.commit( 'setName', '' );
     next();
   },
 
@@ -151,6 +152,11 @@ export default class Conversation extends Vue {
     Vue.set( this, 'lastMessage', false );
     Vue.set( this, 'oldScrollHeight', 0 );
     store.commit( 'clearMessages' );
+
+    if ( this.conversation ) {
+      store.commit( 'setName', this.conversation.name );
+    }
+
     store.dispatch( 'getConversation', +router.currentRoute.params.id )
       .then( () => {
         store.dispatch( 'joinConversation', +router.currentRoute.params.id );

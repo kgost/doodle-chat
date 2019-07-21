@@ -57,6 +57,26 @@ const vuex =  new Vuex.Store({
     getEncryptedMessage: ( state ) => ({ message, key }) => {
       return authService.encryptAes( message, key );
     },
+
+    notifications: ( state ) => {
+      for ( const conversation of Object.values( state.conversations ) ) {
+        const c: any = conversation;
+
+        if ( c.notifications.length ) {
+          return true;
+        }
+      }
+
+      for ( const friendship of Object.values( state.friendships ) ) {
+        const f: any = friendship;
+
+        if ( f.notifications.length ) {
+          return true;
+        }
+      }
+
+      return false;
+    },
   },
 
   mutations: {
