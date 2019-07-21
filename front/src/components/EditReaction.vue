@@ -1,5 +1,5 @@
 <template>
-  <div class="reaction-container" v-on-click-outside="close">
+  <div class="reaction-container">
     <button v-show="!showReactions" v-on:click.stop="toggleShow">
       <img src="/img/emojis/1f914.png" alt="🤔" class="emoji">
     </button>
@@ -12,9 +12,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Model, Prop, Mixins, Vue } from 'vue-property-decorator';
-import { mixins } from 'vue-class-component'
-import { mixin as onClickOutside } from 'vue-on-click-outside';
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
 import twemoji from 'twemoji';
 
 import store from '@/store.ts';
@@ -22,12 +20,21 @@ import router from '@/router.ts';
 
 @Component({
 })
-export default class EditReaction extends mixins( onClickOutside ) {
+export default class EditReaction extends Vue {
   @Prop( String ) private readonly accessKey!: string;
   @Prop( Number ) private readonly messageId!: string;
+  @Prop( Number ) private readonly activeId!: number;
 
   private emojis = ['🤔', '😂', '😍', '😤', '😢', '👍', /*'🏊🏿‍♂️',*/ '🔫'];
   private showReactions = false;
+
+  @Watch( 'activeId' )
+  private onActiveIdChange( current ) {
+    console.log( current );
+    if ( current !== this.messageId ) {
+      this.close();
+    }
+  }
 
   private toggleShow() {
     Vue.set( this, 'showReactions', !this.showReactions );
@@ -36,7 +43,6 @@ export default class EditReaction extends mixins( onClickOutside ) {
 
   private close() {
     Vue.set( this, 'showReactions', false );
-    this.$emit( 'toggle', false );
   }
 
   private emojify( emoji: string ) {
