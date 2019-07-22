@@ -20,7 +20,7 @@ const Not: any = Notification;
   components: {
   },
 })
-export default class Messenger extends Vue {
+export default class Settings extends Vue {
   @Watch( 'subscribed' )
   private onSubscribeLoad( current ) {
     if ( current ) {

@@ -19,7 +19,7 @@
 
     <SideBar v-model="showSideBar"></SideBar>
 
-    <router-view/>
+    <router-view class="view"/>
   </div>
 </template>
 
@@ -88,12 +88,22 @@ a {
   flex-direction: column;
   height: 100vh;
 
+  .nav {
+    width: calc( 100% - 300px );
+    margin-left: auto;
+  }
+
   .mobile-header {
     display: none;
   }
 
   .main {
     overflow: hidden;
+  }
+
+  .view {
+    width: calc( 100% - 300px );
+    margin-left: auto;
   }
 }
 
@@ -129,6 +139,10 @@ a {
       h1 {
         text-align: center;
       }
+    }
+
+    .view {
+      width: 100%;
     }
   }
 }
