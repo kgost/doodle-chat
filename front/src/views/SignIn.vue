@@ -7,13 +7,22 @@
 
       <small v-show="!showSignIn">Have an account? <router-link to="/signin">Sign In</router-link></small>
 
+      <p v-show="error" class="error">{{ error }}</p>
+
       <form v-on:submit.prevent="onSubmit">
         <div class="input-group">
           <h3>Username</h3>
+
+          <small v-show="username === ''" class="error">Must Enter A Username</small>
+          <small v-show="usernameTaken" class="error">Username Taken</small>
+
           <input type="text" v-model="username" placeholder="username">
         </div>
         <div class="input-group">
           <h3>Password</h3>
+
+          <small v-show="password.length < 10" class="error">Password Must be at Least 10 Characters</small>
+
           <input type="password" v-model="password" placeholder="password">
         </div>
         <button :disabled="!valid" type="submit">{{ showSignIn ? 'Sign In' : 'Sign Up' }}</button>
@@ -23,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Watch, Vue } from 'vue-property-decorator';
 
 import store from '@/store.ts';
 import router from '@/router.ts';
@@ -37,7 +46,31 @@ import router from '@/router.ts';
 })
 export default class SignIn extends Vue {
   private username = '';
+
   private password = '';
+
+  private error = '';
+
+  private usernameTaken = false;
+
+  private usernameChecked = false;
+
+  @Watch( 'username' )
+  private onUsernameChange() {
+    if ( !this.username.length ) {
+      return false;
+    }
+
+    if ( router.currentRoute.name === 'signup' ) {
+      Vue.set( this, 'usernameChecked', false );
+
+      store.dispatch( 'usernameTaken', this.username )
+        .then( ( res: any ) => {
+          Vue.set( this, 'usernameChecked', true );
+          Vue.set( this, 'usernameTaken', !!res.data );
+        } );
+    }
+  }
 
   get showSignIn() {
     if ( this.$route.name === 'signin' ) {
@@ -46,11 +79,17 @@ export default class SignIn extends Vue {
   }
 
   get valid() {
-    return this.username !== '' && this.password.length >= 10;
+    if ( router.currentRoute.name === 'signin' ) {
+      return this.username !== '' && this.password.length >= 10;
+    } else {
+      return this.username !== '' && this.password.length >= 10 && !this.usernameTaken && this.usernameChecked;
+    }
   }
 
   private onSubmit() {
     if ( this.username !== '' && this.password.length >= 10 ) {
+      Vue.set( this, 'error', '' );
+
       let p;
 
       if ( router.currentRoute.name === 'signin' ) {
@@ -65,6 +104,10 @@ export default class SignIn extends Vue {
         store.dispatch( 'getPushSub' );
         store.dispatch( 'getConversations' );
         store.dispatch( 'getFriendships' );
+      } ).catch( ( err ) => {
+        if ( err.response.status ) {
+          Vue.set( this, 'error', 'Invalid Login Credentials' );
+        }
       } );
     }
   }
@@ -85,6 +128,10 @@ export default class SignIn extends Vue {
     }
   }
 
+  .error {
+    color: red;
+  }
+
   input {
     width: 100%;
     border: 1px solid gray;
@@ -95,10 +142,14 @@ export default class SignIn extends Vue {
 
   button {
     float: right;
-    padding: 5px;
+    padding: 8px;
     margin-top: 5px;
     background-color: #54abba;
     color: white;
+
+    &:disabled {
+      opacity: 0.7;
+    }
   }
 }
 </style>
