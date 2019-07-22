@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
+import store from './store';
+
 import Home from './views/Home.vue';
 
 import SignIn from './views/SignIn.vue';
@@ -16,6 +18,24 @@ import Settings from './views/Settings.vue';
 
 Vue.use(Router);
 
+const signinGuard = ( to, from, next ) => {
+  if ( !store.getters.signedIn ) {
+    next( '/signup' );
+    return false;
+  }
+
+  return true;
+};
+
+const newUserGuard = ( to, from, next ) => {
+  if ( store.getters.signedIn ) {
+    next( '/' );
+    return false;
+  }
+
+  return true;
+};
+
 export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
@@ -30,41 +50,81 @@ export default new Router({
       path: '/conversations/new',
       name: 'new-conversation',
       component: EditConversation,
+      beforeEnter: ( to, from, next ) => {
+        if ( signinGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/conversations/:id',
       name: 'conversation',
       component: Conversation,
+      beforeEnter: ( to, from, next ) => {
+        if ( signinGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/conversations/:id/edit',
       name: 'edit-conversation',
       component: EditConversation,
+      beforeEnter: ( to, from, next ) => {
+        if ( signinGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/friendships/new',
       name: 'new-friendship',
       component: EditFriendship,
+      beforeEnter: ( to, from, next ) => {
+        if ( signinGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/friendships/:id',
       name: 'friendship',
       component: Friendship,
+      beforeEnter: ( to, from, next ) => {
+        if ( signinGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/signin',
       name: 'signin',
       component: SignIn,
+      beforeEnter: ( to, from, next ) => {
+        if ( newUserGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/signup',
       name: 'signup',
       component: SignIn,
+      beforeEnter: ( to, from, next ) => {
+        if ( newUserGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
     {
       path: '/settings',
       name: 'settings',
       component: Settings,
+      beforeEnter: ( to, from, next ) => {
+        if ( signinGuard( to, from, next ) ) {
+          next();
+        }
+      },
     },
   ],
 });

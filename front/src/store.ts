@@ -77,6 +77,10 @@ const vuex =  new Vuex.Store({
 
       return false;
     },
+
+    signedIn: ( state ) => {
+      return !!state.token;
+    },
   },
 
   mutations: {
