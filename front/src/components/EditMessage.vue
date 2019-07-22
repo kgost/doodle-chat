@@ -1,10 +1,10 @@
 <template>
-  <div class="edit-container">
-    <textarea ref="textarea" rows="3" v-model="message.message"></textarea>
+  <form v-on:submit.prevent="onSubmit" class="edit-container">
+    <textarea v-on:keyup.enter="onSubmit" ref="textarea" rows="3" v-model="message.message"></textarea>
 
     <div class="actions">
       <div class="buttons">
-        <button :disabled="!valid" class="submit" v-on:click="onSubmit"><span class="glyphicon glyphicon-send"></span></button>
+        <button :disabled="!valid" type="submit" class="submit"><span class="glyphicon glyphicon-send"></span></button>
 
         <button class="media" v-if="!message.id" v-on:click="$refs.mediaUpload.click()">
           <span class="glyphicon glyphicon-picture"></span>
@@ -16,7 +16,7 @@
         <EmojiPicker v-on:pick-emoji="onPickEmoji( $event )"></EmojiPicker>
       </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <script lang="ts">
