@@ -174,8 +174,6 @@ export default class Conversation extends Vue {
   height: 100%;
   margin-left: auto;
   overflow: hidden;
-  width: calc( 100% - 300px );
-  margin-left: auto;
 }
 
 .emoji {
@@ -183,12 +181,8 @@ export default class Conversation extends Vue {
 }
 
 @media only screen and (max-width: 600px) {
-  .container {
-    width: 100%;
-
-    h1 {
-      display: none;
-    }
+  h1 {
+    display: none;
   }
 }
 </style>

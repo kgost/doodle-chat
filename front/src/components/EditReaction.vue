@@ -30,7 +30,6 @@ export default class EditReaction extends Vue {
 
   @Watch( 'activeId' )
   private onActiveIdChange( current ) {
-    console.log( current );
     if ( current !== this.messageId ) {
       this.close();
     }

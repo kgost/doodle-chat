@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Watch, Vue } from 'vue-property-decorator';
 
 import store from '@/store.ts';
 import router from '@/router.ts';
@@ -21,6 +21,13 @@ const Not: any = Notification;
   },
 })
 export default class Messenger extends Vue {
+  @Watch( 'subscribed' )
+  private onSubscribeLoad( current ) {
+    if ( current ) {
+      this.enablePushNotifications();
+    }
+  }
+
   get hasPush() {
     return 'PushManager' in window;
   }
