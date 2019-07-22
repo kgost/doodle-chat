@@ -282,6 +282,16 @@ const vuex =  new Vuex.Store({
       } );
     },
 
+    signOut( { commit } ) {
+      commit( 'clearToken' );
+      commit( 'clearUser' );
+      commit( 'clearEncPrivateKey' );
+      commit( 'clearKeys' );
+      commit( 'clearConversations' );
+      commit( 'clearFriendships' );
+      commit( 'clearFriendships' );
+    },
+
     usernameTaken( { commit, state }, username ) {
       return Api().get( `/auth/username-taken/${ encodeURIComponent( username ) }` );
     },

@@ -1,15 +1,16 @@
 <template>
   <div class="main-body">
-    <div class="nav">
+    <div :class="{ full: !signedIn }" class="nav">
       <h2>
         Saoirse
 
-        <router-link to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
+        <router-link v-show="signedIn" to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
+        <span v-show="signedIn" v-on:click="onSignOut" class="signOut glyphicon glyphicon-log-out"></span>
       </h2>
     </div>
 
     <div v-show="!showSideBar" class="mobile-header">
-      <div v-on:click="showSideBar = !showSideBar" :class="{ notifications: notifications }" class="hamberger">
+      <div v-show="signedIn" v-on:click="showSideBar = !showSideBar" :class="{ notifications: notifications }" class="hamberger">
         <div class="line"></div>
         <div class="line"></div>
         <div class="line"></div>
@@ -18,9 +19,9 @@
       <h1>{{ name }}</h1>
     </div>
 
-    <SideBar v-model="showSideBar"></SideBar>
+    <SideBar v-show="signedIn" v-model="showSideBar"></SideBar>
 
-    <router-view class="view"/>
+    <router-view :class="{ full: !signedIn }" class="view"/>
   </div>
 </template>
 
@@ -51,6 +52,15 @@ export default class App extends Vue {
 
   get notifications() {
     return store.getters.notifications;
+  }
+
+  get signedIn() {
+    return store.getters.signedIn;
+  }
+
+  private onSignOut() {
+    store.dispatch( 'signOut' );
+    router.push({ path: '/signin' })
   }
 
   private created() {
@@ -93,8 +103,17 @@ a {
     width: calc( 100% - 300px );
     margin-left: auto;
 
+    &.full {
+      width: 100%;
+      margin-left: 0;
+    }
+
     h2 {
       margin: 10px;
+
+      .signOut {
+        float: right;
+      }
     }
   }
 
@@ -109,6 +128,11 @@ a {
   .view {
     width: calc( 100% - 300px );
     margin-left: auto;
+
+    &.full {
+      width: 100%;
+      margin-left: 0;
+    }
   }
 }
 

@@ -5,8 +5,8 @@
         Saoirse
 
         <router-link to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
+        <span v-on:click="onSignOut" class="signOut glyphicon glyphicon-log-out"></span>
       </h3>
-
 
       <span v-on:click="onClose" class="glyphicon glyphicon-remove close"></span>
     </div>
@@ -99,6 +99,12 @@ export default class SideBar extends Vue {
 
   private onClose() {
     this.$emit( 'open', false );
+  }
+
+  private onSignOut() {
+    store.dispatch( 'signOut' );
+    this.onClose();
+    router.push({ path: '/signin' })
   }
 
   private mounted() {
