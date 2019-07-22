@@ -175,6 +175,10 @@ export default class Friendship extends Vue {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+
+  h1 {
+    margin: 10px;
+  }
 }
 
 @media only screen and (max-width: 600px) {

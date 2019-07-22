@@ -1,10 +1,11 @@
 <template>
   <div class="main-body">
     <div class="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/signin">Sign In</router-link> |
-      <router-link to="/signup">Sign Up</router-link> |
-      <router-link to="/settings">Settings</router-link>
+      <h2>
+        Saoirse
+
+        <router-link to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
+      </h2>
     </div>
 
     <div v-show="!showSideBar" class="mobile-header">
@@ -91,6 +92,10 @@ a {
   .nav {
     width: calc( 100% - 300px );
     margin-left: auto;
+
+    h2 {
+      margin: 10px;
+    }
   }
 
   .mobile-header {

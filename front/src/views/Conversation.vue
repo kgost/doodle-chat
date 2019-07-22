@@ -174,6 +174,10 @@ export default class Conversation extends Vue {
   height: 100%;
   margin-left: auto;
   overflow: hidden;
+
+  h1 {
+    margin: 10px;
+  }
 }
 
 .emoji {

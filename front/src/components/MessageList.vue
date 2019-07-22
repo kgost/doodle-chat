@@ -243,6 +243,7 @@ export default class MessageList extends Vue {
 <style lang="scss" scoped>
 .message-list {
   height: calc( 100% - 51px );;
+  border-top: 1px solid #dfdfdf;
   overflow: auto;
 
   .message-wrapper {
