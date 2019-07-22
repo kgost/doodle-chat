@@ -1,17 +1,24 @@
 <template>
   <div>
-    <h1>{{ showSignIn ? 'Sign In' : 'Sign Up' }}</h1>
-    <form v-on:submit.prevent="onSubmit">
-      <div class="input-group">
-        <h3>Username</h3>
-        <input type="text" v-model="username" placeholder="username">
-      </div>
-      <div class="input-group">
-        <h3>Password</h3>
-        <input type="password" v-model="password" placeholder="password">
-      </div>
-      <button :disabled="!valid" type="submit">{{ showSignIn ? 'Sign In' : 'Sign Up' }}</button>
-    </form>
+    <div class="container">
+      <h1>{{ showSignIn ? 'Sign In' : 'Sign Up' }}</h1>
+
+      <small v-show="showSignIn">Not a user? <router-link to="/signup">Sign Up</router-link></small>
+
+      <small v-show="!showSignIn">Have an account? <router-link to="/signin">Sign In</router-link></small>
+
+      <form v-on:submit.prevent="onSubmit">
+        <div class="input-group">
+          <h3>Username</h3>
+          <input type="text" v-model="username" placeholder="username">
+        </div>
+        <div class="input-group">
+          <h3>Password</h3>
+          <input type="password" v-model="password" placeholder="password">
+        </div>
+        <button :disabled="!valid" type="submit">{{ showSignIn ? 'Sign In' : 'Sign Up' }}</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -33,7 +40,7 @@ export default class SignIn extends Vue {
   private password = '';
 
   get showSignIn() {
-    if ( router.currentRoute.name === 'signin' ) {
+    if ( this.$route.name === 'signin' ) {
       return true;
     }
   }
@@ -63,3 +70,35 @@ export default class SignIn extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.container {
+  margin: 0 30px;
+
+  h1 {
+    margin-bottom: 0;
+  }
+
+  small {
+    a {
+      color: #0000EE;
+    }
+  }
+
+  input {
+    width: 100%;
+    border: 1px solid gray;
+    border-radius: 8px;
+    font-size: 16px;
+    padding: 6px 0;
+  }
+
+  button {
+    float: right;
+    padding: 5px;
+    margin-top: 5px;
+    background-color: #54abba;
+    color: white;
+  }
+}
+</style>
