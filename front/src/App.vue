@@ -73,6 +73,13 @@ export default class App extends Vue {
         router.push({ path: event.data.url });
       }
     } );
+
+    // We listen to the resize event
+    window.addEventListener('resize', () => {
+      // We execute the same script as before
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    });
   }
 }
 </script>
@@ -98,6 +105,7 @@ a {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
 
   .nav {
     width: calc( 100% - 300px );
