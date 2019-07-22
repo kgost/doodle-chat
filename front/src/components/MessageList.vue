@@ -249,7 +249,8 @@ export default class MessageList extends Vue {
     position: relative;
 
     &:hover, &.hover {
-      background-color: #d8d8d8;
+      margin-top: -1px;
+      border-top: 1px solid black;
     }
 
     .reactions-container {
