@@ -25,11 +25,6 @@ const socketService = new SocketService();
     // Friendship,
   },
 
-  beforeRouteUpdate( to, from, next ) {
-    console.log( 'feff' );
-    next();
-  },
-
   beforeRouteLeave( to, from, next ) {
     store.commit( 'clearMessages' );
 

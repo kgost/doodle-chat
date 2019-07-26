@@ -75,7 +75,7 @@ export default class Friendship extends Vue {
   private oldScrollHeight = 0;
 
   @Watch( 'friendName' )
-  onConversationNameChange( current ) {
+  private onConversationNameChange( current ) {
     if ( current ) {
       store.commit( 'setName', this.friendName );
     }

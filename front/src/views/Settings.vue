@@ -80,11 +80,11 @@ export default class Settings extends Vue {
 
   private enablePushNotifications() {
     if ( this.hasPush ) {
-      if ( Not.permission == 'granted' ) {
+      if ( Not.permission === 'granted' ) {
         this.submitSubscription();
       } else {
         this.requestPermission().then( ( permission ) => {
-          if ( permission == 'granted' ) {
+          if ( permission === 'granted' ) {
             this.submitSubscription();
           }
         } );

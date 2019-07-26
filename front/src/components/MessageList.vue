@@ -43,10 +43,14 @@ import router from '@/router.ts';
 
 @Component({
   components: {
-    EditReaction
+    EditReaction,
   },
 })
 export default class MessageList extends Vue {
+  public $refs!: {
+    messageList: HTMLElement,
+  };
+
   @Prop( Boolean ) private lastMessage: boolean = false;
   @Prop( String ) private accessKey: string = '';
   @Prop( Object ) private activeMessage!: { id: number, message: string };
@@ -62,10 +66,6 @@ export default class MessageList extends Vue {
   private showUsernameId = 0;
 
   private showUsernameTimeout = 0;
-
-  $refs!: {
-    messageList: HTMLElement,
-  };
 
   @Watch( 'messages.length' )
   private onMessageLengthChange( current, old ) {
@@ -100,8 +100,16 @@ export default class MessageList extends Vue {
     Vue.set( this, 'activeActionsId', id );
   }
 
+  get activeActions() {
+    return this.activeActionsId;
+  }
+
   set openReaction( id: number ) {
     Vue.set( this, 'openReactionId', id );
+  }
+
+  get openReaction() {
+    return this.openReactionId;
   }
 
   set showUsername( id: number ) {
@@ -111,14 +119,6 @@ export default class MessageList extends Vue {
     this.showUsernameTimeout = window.setTimeout( () => {
       Vue.set( this, 'showUsernameId', 0 );
     }, 2000 );
-  }
-
-  get activeActions() {
-    return this.activeActionsId;
-  }
-
-  get openReaction() {
-    return this.openReactionId;
   }
 
   get showUsername() {
@@ -139,7 +139,7 @@ export default class MessageList extends Vue {
 
       result.message = this.decrypt( result.message );
 
-      return result
+      return result;
     } ).filter( ( message: any ) => {
       if ( !message.message ) {
         return false;
@@ -151,7 +151,7 @@ export default class MessageList extends Vue {
       } catch ( err ) {
         return false;
       }
-    } ).map( ( message: any ) =>{
+    } ).map( ( message: any ) => {
       message.message = this.decode( message.message );
 
       if ( message.message.indexOf( '!img' ) === 0 ) {
@@ -200,9 +200,9 @@ export default class MessageList extends Vue {
     let action;
 
     if ( router.currentRoute.name === 'conversation' ) {
-      action = 'getConversationMessages'
+      action = 'getConversationMessages';
     } else {
-      action = 'getFriendshipMessages'
+      action = 'getFriendshipMessages';
     }
 
     return store.dispatch( action, { id: +router.currentRoute.params.id, offset: this.messages.length / 20 } )

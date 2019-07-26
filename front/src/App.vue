@@ -42,7 +42,7 @@ export default class App extends Vue {
   private showSideBar = false;
 
   @Watch( '$route' )
-  onRouteChange() {
+  private onRouteChange() {
     Vue.set( this, 'showSideBar', false );
   }
 
@@ -60,7 +60,7 @@ export default class App extends Vue {
 
   private onSignOut() {
     store.dispatch( 'signOut' );
-    router.push({ path: '/signin' })
+    router.push({ path: '/signin' });
   }
 
   private created() {
@@ -69,7 +69,7 @@ export default class App extends Vue {
     store.commit( 'setUser', store.state.user );
 
     navigator.serviceWorker.addEventListener( 'message', ( event ) => {
-      if ( event.data.type == 'PUSH' ) {
+      if ( event.data.type === 'PUSH' ) {
         router.push({ path: event.data.url });
       }
     } );
@@ -77,7 +77,7 @@ export default class App extends Vue {
     // We listen to the resize event
     window.addEventListener('resize', () => {
       // We execute the same script as before
-      let vh = window.innerHeight * 0.01;
+      const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
   }

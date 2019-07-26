@@ -30,16 +30,16 @@ import EmojiPicker from '@/components/EmojiPicker.vue';
 @Component({
   components: {
     EmojiPicker,
-  }
+  },
 })
 export default class EditMessage extends Vue {
+  public $refs!: {
+    textarea: HTMLFormElement,
+  };
+
   @Model( 'on-submit', { type: Object } ) private message!: { id: number, message: string };
   @Prop( String ) private readonly accessKey!: string;
   @Prop( String ) private readonly name!: string;
-
-  $refs!: {
-    textarea: HTMLFormElement
-  };
 
   get encryptedMessage() {
     return store.getters.getEncryptedMessage({ message: this.encoding, key: this.accessKey });
@@ -87,7 +87,7 @@ export default class EditMessage extends Vue {
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      const payload = { message: reader.result }
+      const payload = { message: reader.result };
 
       if ( file.type.indexOf( 'image' ) !== -1 ) {
         payload.message = '!img ' + payload.message;
@@ -102,7 +102,7 @@ export default class EditMessage extends Vue {
       } else {
         p = store.dispatch( 'createFriendshipMessage', { id: +this.$route.params.id, message: payload } );
       }
-    }
+    };
 
     reader.readAsDataURL( file );
   }

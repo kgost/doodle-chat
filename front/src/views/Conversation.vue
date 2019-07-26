@@ -76,7 +76,7 @@ export default class Conversation extends Vue {
   private oldScrollHeight = 0;
 
   @Watch( 'conversation.name' )
-  onConversationNameChange( current ) {
+  private onConversationNameChange( current ) {
     if ( current ) {
       store.commit( 'setName', this.conversation.name );
     }

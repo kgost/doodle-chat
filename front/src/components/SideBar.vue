@@ -104,7 +104,7 @@ export default class SideBar extends Vue {
   private onSignOut() {
     store.dispatch( 'signOut' );
     this.onClose();
-    router.push({ path: '/signin' })
+    router.push({ path: '/signin' });
   }
 
   private mounted() {

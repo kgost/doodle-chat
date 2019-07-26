@@ -19,7 +19,7 @@ import router from '@/router.ts';
   },
 })
 export default class TypingNames extends Vue {
-  @Prop( Array ) private names!: Array<string>;
+  @Prop( Array ) private names!: string[];
 
   private showComma( index: number ) {
     return this.names.length > 2 && index < this.names.length - 2;
