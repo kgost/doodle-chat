@@ -3,7 +3,7 @@ import Router from 'vue-router';
 
 import store from './store';
 
-import Home from './views/Home.vue';
+import About from './views/About.vue';
 
 import SignIn from './views/SignIn.vue';
 
@@ -44,6 +44,16 @@ export default new Router({
       path: '/',
       name: 'messenger',
       component: Messenger,
+      beforeEnter: ( to, from, next ) => {
+        if ( !store.getters.signedIn ) {
+          next( '/about' );
+        }
+      }
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: About,
     },
     // Conversations
     {

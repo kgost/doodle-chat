@@ -1,5 +1,12 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <p>Saoirse is an end to end encrypted messaging app, <router-link to="/signup">click here to sign up</router-link></p>
+    
   </div>
 </template>
+
+<style lang="scss" scoped>
+a {
+  color: #0000EE;
+}
+</style>
