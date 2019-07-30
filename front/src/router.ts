@@ -47,8 +47,10 @@ export default new Router({
       beforeEnter: ( to, from, next ) => {
         if ( !store.getters.signedIn ) {
           next( '/about' );
+        } else {
+          next();
         }
-      }
+      },
     },
     {
       path: '/about',
