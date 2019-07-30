@@ -52,7 +52,7 @@ export default class MessageList extends Vue {
   };
 
   @Prop( Boolean ) private lastMessage: boolean = false;
-  @Prop( String ) private accessKey: string = '';
+  @Prop( String ) private accessKey;
   @Prop( Object ) private activeMessage!: { id: number, message: string };
   @Prop( Number ) private oldScrollHeight: number = 0;
   @Prop( Object ) private usernameMap;
