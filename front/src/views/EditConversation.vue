@@ -38,8 +38,13 @@ import store from '@/store.ts';
 import router from '@/router.ts';
 
 @Component({
+  beforeRouteUpdate( to, from, next ) {
+    const vm: any = this;
+    vm.onLoad( to );
+    next();
+  }
 })
-export default class SignIn extends Vue {
+export default class EditConversation extends Vue {
   private conversation = {
     name: '',
     userId: 0,
@@ -128,9 +133,9 @@ export default class SignIn extends Vue {
     }
   }
 
-  private mounted() {
-    if ( router.currentRoute.name === 'edit-conversation' ) {
-      store.dispatch( 'getConversation', router.currentRoute.params.id )
+  private onLoad( route ) {
+    if ( route.name === 'edit-conversation' ) {
+      store.dispatch( 'getConversation', route.params.id )
         .then( ( conversation ) => {
           Vue.set( this, 'conversation', conversation );
           Vue.set( this, 'participants', conversation.participants );
@@ -138,6 +143,10 @@ export default class SignIn extends Vue {
     } else {
       Vue.set( this.conversation, 'userId', store.state.user.id );
     }
+  }
+
+  private mounted() {
+    this.onLoad( router.currentRoute );
   }
 }
 </script>
