@@ -681,11 +681,54 @@ const vuex =  new Vuex.Store({
         } );
     },
 
-    getPushSub( { commit } ) {
+    submitSubscription( { commit, dispatch } ) {
+      const base64String = 'BJR1Re278d9CtW2ya3Ik59JV3w683LjZtYzMes0G9Pbg6U4OnWcrW_LsuMrRrw5B2A7GghYlaxZYD3OH44-oVkY';
+
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+
+      const options = {
+        userVisibleOnly: true,
+        applicationServerKey: outputArray,
+      };
+
+      navigator.serviceWorker.ready.then( ( registration: ServiceWorkerRegistration | void ) => {
+        if ( registration ) {
+          registration.pushManager.subscribe( options ).then( ( subscription: PushSubscription ) => {
+            dispatch( 'setPushSub', subscription );
+          } ).catch( ( err ) => {
+            console.log( err );
+          } );
+        }
+      } );
+    },
+
+    getPushSub( { commit, dispatch } ) {
       return Api().get( `/pushSub` )
         .then( ( res ) => {
           if ( res.data ) {
-            commit( 'setPushSub' );
+            if ( 'PushManager' in window ) {
+              if ( Notification.permission === 'granted' ) {
+                dispatch( 'submitSubscription' );
+                commit( 'setPushSub' );
+              } else {
+                Notification.requestPermission().then( ( permission ) => {
+                  if ( permission === 'granted' ) {
+                    dispatch( 'submitSubscription' );
+                    commit( 'setPushSub' );
+                  }
+                } );
+              }
+            }
           } else {
             commit( 'clearPushSub' );
           }
@@ -756,6 +799,5 @@ socketService.socket.on( 'refresh-friendships', ( payload ) => {
 socketService.socket.on( 'user-typing', ( name ) => {
   vuex.commit( 'setTyping', name );
 } );
-
 
 export default vuex;
