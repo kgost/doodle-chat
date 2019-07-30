@@ -124,7 +124,7 @@ export default class Conversation extends Vue {
     const result = {};
 
     for ( const participant of this.conversation.participants ) {
-      result[participant.userId] = participant.user.username;
+      result[participant.userId] = participant.nickname || participant.user.username;
     }
 
     return result;
