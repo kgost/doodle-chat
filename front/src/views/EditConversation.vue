@@ -1,20 +1,21 @@
 <template>
   <div>
-    <form v-on:submit.prevent="onSubmit">
+    <form v-on:submit.prevent="onSubmit" class="edit-form">
       <div class="input-group">
         <h3>Name</h3>
-        <input v-if="isOwner" type="text" v-model="conversation.name" placeholder="username">
+        <input class="name" v-if="isOwner" type="text" v-model="conversation.name" placeholder="username">
         <h4 v-if="!isOwner">{{ conversation.name }}</h4>
       </div>
 
       <div class="participants">
         <h3>Participants</h3>
 
-        <button v-on:click.prevent="onAddParticipant" :disabled="!valid" class="new">new</button>
+        <button v-on:click.prevent="onAddParticipant" :disabled="!valid" class="new">Add Participant</button>
 
         <div class="participant" v-for="( participant, i ) of participants" :key="i">
           <div class="input-group">
-            <h4>Username</h4>
+            <h4>Username <span v-on:click="onRemoveParticipant( i )" class="glyphicon glyphicon-remove"></span></h4>
+
             <input v-if="isOwner" type="text" v-model="participant.username" placeholder="username">
             <span v-if="!isOwner">{{ participant.username }}</span>
           </div>
@@ -109,6 +110,10 @@ export default class EditConversation extends Vue {
     });
   }
 
+  private onRemoveParticipant( index: number ) {
+    this.participants.splice( index );
+  }
+
   private onSubmit() {
     if ( this.valid ) {
       let p;
@@ -151,20 +156,53 @@ export default class EditConversation extends Vue {
 }
 </script>
 <style lang="scss">
-.participants {
-  position: relative;
+.edit-form {
+  margin: 0 10px;
 
-  .participant {
+  .name {
+    width: calc( 50% - 10px );
+    border: 1px solid gray;
+    border-radius: 8px;
+    font-size: 16px;
+    padding: 6px 0 6px 6px;
+  }
 
-    .input-group {
-      display: inline-block;
+  button {
+    float: right;
+    padding: 8px;
+    margin-top: 5px;
+    background-color: #54abba;
+    color: white;
+
+    &:disabled {
+      opacity: 0.7;
+    }
+
+    &.new {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   }
 
-  .new {
-    position: absolute;
-    top: 0;
-    right: 0;
+  .participants {
+    position: relative;
+
+    .participant {
+
+      .input-group {
+        display: inline-block;
+        width: calc( 50% );
+
+        input {
+          width: calc( 100% - 10px );
+          border: 1px solid gray;
+          border-radius: 8px;
+          font-size: 16px;
+          padding: 6px 0 6px 6px;
+        }
+      }
+    }
   }
 }
 </style>
