@@ -337,6 +337,8 @@ const vuex =  new Vuex.Store({
           for ( const participant of res.data.participants ) {
             socketService.addConversation( participant.userId );
           }
+
+          return res.data;
         } );
     },
 
@@ -423,6 +425,8 @@ const vuex =  new Vuex.Store({
           socketService.updateConversation( conversation.id );
 
           commit( 'setConversation', res.data );
+
+          return res.data;
         } );
     },
 
@@ -432,6 +436,8 @@ const vuex =  new Vuex.Store({
           socketService.updateConversation( conversation.id );
 
           commit( 'setConversation', res.data );
+
+          return res.data;
         } );
     },
 

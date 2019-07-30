@@ -127,8 +127,8 @@ export default class EditConversation extends Vue {
           participants: this.participants } );
       }
 
-      p.then( () => {
-        router.push({ path: '/' });
+      p.then( ( conv: any ) => {
+        router.push({ path: `/conversations/${ conv.id }` });
       } );
     }
   }
