@@ -11,7 +11,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.TEXT
     }
-  }, {});
+  }, {
+    indexes: [
+      {
+        unique: true,
+        fields: ['conversationId', 'userId'],
+      }
+    ]
+  });
   Participant.associate = function(models) {
     Participant.belongsTo( models.Conversation, { as: 'conversation', foreignKey: 'conversationId', onDelete: 'CASCADE' } )
     Participant.belongsTo( models.User, { as: 'user', foreignKey: 'userId', onDelete: 'CASCADE' } )
