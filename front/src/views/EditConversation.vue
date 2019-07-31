@@ -5,16 +5,20 @@
         <h3>Name</h3>
         <input class="name" v-if="isOwner" type="text" v-model="conversation.name" placeholder="username">
         <h4 v-if="!isOwner">{{ conversation.name }}</h4>
+
+        <div v-show="errorIndex === -1">
+          <small class="error">{{ errorMessage }}</small>
+        </div>
       </div>
 
-      <div class="participants">
+      <div class="participants" :class="{ 'non-owner': !isOwner }">
         <h3>Participants</h3>
 
-        <button v-on:click.prevent="onAddParticipant" :disabled="!valid" class="new">Add Participant</button>
+        <button v-if="isOwner" v-on:click.prevent="onAddParticipant" :disabled="!valid" class="new">Add Participant</button>
 
         <div class="participant" v-for="( participant, i ) of participants" :key="i">
-          <div class="input-group">
-            <h4>Username <span v-on:click="onRemoveParticipant( i )" class="glyphicon glyphicon-remove"></span></h4>
+          <div class="input-group username">
+            <h4>Username <span v-if="isOwner" v-on:click="onRemoveParticipant( i )" class="glyphicon glyphicon-remove"></span></h4>
 
             <input v-if="isOwner" type="text" v-model="participant.username" placeholder="username">
             <span v-if="!isOwner">{{ participant.username }}</span>
@@ -24,6 +28,8 @@
             <h4>Nickname</h4>
             <input type="text" v-model="participant.nickname" placeholder="nickname">
           </div>
+
+          <small v-show="errorIndex == i" class="error">{{ errorMessage }}</small>
         </div>
       </div>
 
@@ -66,6 +72,10 @@ export default class EditConversation extends Vue {
     },
   ];
 
+  private errorMessage = '';
+
+  private errorIndex = -1;
+
   @Watch( 'participants', { deep: true } )
   private onParticipantChange( newParticipants ) {
     for ( const index in newParticipants ) {
@@ -75,15 +85,36 @@ export default class EditConversation extends Vue {
 
   get valid(): boolean {
     if ( !this.conversation.name || !this.conversation.userId ) {
+      Vue.set( this, 'errorMessage', 'Conversation Must Have A Name' );
+      Vue.set( this, 'errorIndex', -1 );
       return false;
     }
 
-    for ( const participant of this.participants ) {
+    for ( const i in this.participants ) {
+      const participant = this.participants[i];
+
       if ( !participant.userId ) {
+        Vue.set( this, 'errorMessage', 'User Not Found' );
+        Vue.set( this, 'errorIndex', i );
         return false;
+      }
+
+      let pCount = 0;
+
+      for ( const p of this.participants ) {
+        if ( p.userId === participant.userId ) {
+          pCount ++;
+        }
+
+        if ( pCount > 1 ) {
+          Vue.set( this, 'errorMessage', 'Cannot Have Duplicate Participants' );
+          Vue.set( this, 'errorIndex', i );
+          return false;
+        }
       }
     }
 
+    Vue.set( this, 'errorMessage', '' );
     return true;
   }
 
@@ -97,6 +128,9 @@ export default class EditConversation extends Vue {
         if ( res.data ) {
           this.participants[index].userId = res.data.id;
           this.participants[index].publicKey = res.data.publicKey;
+        } else {
+          this.participants[index].userId = 0;
+          this.participants[index].publicKey = '';
         }
       } );
   }
@@ -111,7 +145,7 @@ export default class EditConversation extends Vue {
   }
 
   private onRemoveParticipant( index: number ) {
-    this.participants.splice( index );
+    this.participants.splice( index, 1 );
   }
 
   private onSubmit() {
@@ -157,7 +191,8 @@ export default class EditConversation extends Vue {
 </script>
 <style lang="scss">
 .edit-form {
-  margin: 0 10px;
+  width: 80%;
+  margin: auto;
 
   .name {
     width: calc( 50% - 10px );
@@ -185,6 +220,10 @@ export default class EditConversation extends Vue {
     }
   }
 
+  .error {
+    color: red;
+  }
+
   .participants {
     position: relative;
 
@@ -192,7 +231,7 @@ export default class EditConversation extends Vue {
 
       .input-group {
         display: inline-block;
-        width: calc( 50% );
+        width: 50%;
 
         input {
           width: calc( 100% - 10px );
@@ -203,6 +242,24 @@ export default class EditConversation extends Vue {
         }
       }
     }
+
+    &.non-owner {
+      .participant {
+        .input-group {
+          width: 80%;
+
+          &.username {
+            width: 20%;
+          }
+        }
+      }
+    }
+  }
+}
+@media only screen and (max-width: 600px) {
+  .edit-form {
+    width: auto;
+    margin: 0 10px;
   }
 }
 </style>
