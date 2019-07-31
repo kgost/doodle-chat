@@ -1,10 +1,12 @@
 <template>
   <div>
-    <form v-on:submit.prevent="onSubmit">
+    <form class="edit-form" v-on:submit.prevent="onSubmit">
       <div class="input-group">
         <h3>User Name</h3>
-        <input type="text" v-model="username" placeholder="username">
+        <input type="text" v-model="username" placeholder="Username">
       </div>
+
+      <small class="error">{{ errorMessage }}</small>
 
       <button :disabled="!valid" type="submit">Submit</button>
     </form>
@@ -35,11 +37,15 @@ export default class SignIn extends Vue {
     },
   };
 
+  private errorMessage = '';
+
   get valid(): boolean {
     if ( !this.friendship.userOneId || !this.friendship.userTwoId ) {
+      Vue.set( this, 'errorMessage', 'Invalid Username' );
       return false;
     }
 
+    Vue.set( this, 'errorMessage', '' );
     return true;
   }
 
@@ -68,20 +74,34 @@ export default class SignIn extends Vue {
 }
 </script>
 <style lang="scss">
-.participants {
-  position: relative;
+.edit-form {
+  width: 60%;
+  margin: auto;
 
-  .participant {
-
-    .input-group {
-      display: inline-block;
+  .input-group {
+    input {
+      width: calc( 100% - 10px );
+      border: 1px solid gray;
+      border-radius: 8px;
+      font-size: 16px;
+      padding: 6px 0 6px 6px;
     }
   }
 
-  .new {
-    position: absolute;
-    top: 0;
-    right: 0;
+  button {
+    float: right;
+    padding: 8px;
+    margin-top: 5px;
+    background-color: #54abba;
+    color: white;
+
+    &:disabled {
+      opacity: 0.7;
+    }
+  }
+
+  .error {
+    color: red;
   }
 }
 </style>
