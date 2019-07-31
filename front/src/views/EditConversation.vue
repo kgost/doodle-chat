@@ -256,6 +256,7 @@ export default class EditConversation extends Vue {
     }
   }
 }
+
 @media only screen and (max-width: 600px) {
   .edit-form {
     width: auto;

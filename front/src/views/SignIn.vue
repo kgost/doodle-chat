@@ -25,6 +25,7 @@
 
           <input type="password" v-model="password" placeholder="password">
         </div>
+
         <button :disabled="!valid" type="submit">{{ showSignIn ? 'Sign In' : 'Sign Up' }}</button>
       </form>
     </div>
@@ -38,11 +39,6 @@ import store from '@/store.ts';
 import router from '@/router.ts';
 
 @Component({
-  computed: {
-  },
-
-  methods: {
-  },
 })
 export default class SignIn extends Vue {
   private username = '';
@@ -116,7 +112,8 @@ export default class SignIn extends Vue {
 
 <style lang="scss" scoped>
 .container {
-  margin: 0 30px;
+  width: 60%;
+  margin: auto;
 
   h1 {
     margin-bottom: 0;
@@ -150,6 +147,13 @@ export default class SignIn extends Vue {
     &:disabled {
       opacity: 0.7;
     }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    width: auto;
+    margin: 0 10px;
   }
 }
 </style>
