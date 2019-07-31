@@ -319,7 +319,11 @@ const vuex =  new Vuex.Store({
       socketService.leaveConversation( state.conversationId );
       socketService.leaveFriendship( state.friendshipId );
       socketService.joinConversation( id );
-      dispatch( 'removeConversationNotifications', id );
+
+      if ( state.conversations[id] && state.conversations[id].notifications.length ) {
+        dispatch( 'removeConversationNotifications', id );
+      }
+
       commit( 'setConversationId', id );
     },
 
@@ -455,7 +459,11 @@ const vuex =  new Vuex.Store({
       socketService.leaveConversation( state.conversationId );
       socketService.leaveFriendship( state.friendshipId );
       socketService.joinFriendship( id );
-      dispatch( 'removeFriendshipNotifications', id );
+
+      if ( state.friendships[id] && state.friendships[id].notifications.length ) {
+        dispatch( 'removeFriendshipNotifications', id );
+      }
+
       commit( 'setFriendshipId', id );
     },
 
