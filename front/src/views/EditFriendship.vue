@@ -68,6 +68,9 @@ export default class SignIn extends Vue {
       store.dispatch( 'createFriendship', this.friendship )
         .then( () => {
           router.push({ path: '/' });
+        } )
+        .catch( ( err ) => {
+          Vue.set( this, 'errorMessage', err.response.data.message );
         } );
     }
   }
