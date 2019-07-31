@@ -806,4 +806,12 @@ socketService.socket.on( 'user-typing', ( name ) => {
   vuex.commit( 'setTyping', name );
 } );
 
+window.addEventListener( 'focus', () => {
+  if ( vuex.state.friendshipId && vuex.state.friendships[vuex.state.friendshipId].notifications.length ) {
+    vuex.dispatch( 'removeFriendshipNotifications', vuex.state.friendshipId );
+  } else if ( vuex.state.conversationId && vuex.state.conversations[vuex.state.conversationId].notifications.length ) {
+    vuex.dispatch( 'removeConversationNotifications', vuex.state.conversationId );
+  }
+}, false );
+
 export default vuex;
