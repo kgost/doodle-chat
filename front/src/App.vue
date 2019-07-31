@@ -5,7 +5,9 @@
         Saoirse
 
         <router-link v-show="signedIn" to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
-        <span v-show="signedIn" v-on:click="onSignOut" class="signOut glyphicon glyphicon-log-out"></span>
+
+        <span v-show="signedIn" v-on:click="onSignOut" class="sign-out glyphicon glyphicon-log-out"></span>
+        <span class="username">{{ username }}</span>
       </h2>
     </div>
 
@@ -56,6 +58,10 @@ export default class App extends Vue {
 
   get signedIn() {
     return store.getters.signedIn;
+  }
+
+  get username() {
+    return store.state.user.username;
   }
 
   private onSignOut() {
@@ -119,7 +125,11 @@ a {
     h2 {
       margin: 10px;
 
-      .signOut {
+      .username {
+        margin-right: 20px;
+      }
+
+      .sign-out, .username {
         float: right;
       }
     }
