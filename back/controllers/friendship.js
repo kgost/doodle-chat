@@ -7,6 +7,25 @@ const
 
 const actions = {
   create: async ( req ) => {
+    const count = await Friendship.count({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            userOneId: req.user.id,
+            userTwoId: req.body.userTwoId,
+          },
+          {
+            userOneId: req.body.userTwoId,
+            userTwoId: req.user.id,
+          },
+        ],
+      },
+    })
+
+    if ( count ) {
+      throw { status: 400, message: 'Already Friends With This User' }
+    }
+
     const friendship = await Friendship.create({
       userOneId: req.user.id,
       userTwoId: req.body.userTwoId,
