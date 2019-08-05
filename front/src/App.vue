@@ -7,7 +7,7 @@
         <router-link v-show="signedIn" to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
 
         <span v-show="signedIn" v-on:click="onSignOut" class="sign-out glyphicon glyphicon-log-out"></span>
-        <span class="username">{{ username }}</span>
+        <span v-if="signedIn" class="username">{{ username }}</span>
       </h2>
     </div>
 
