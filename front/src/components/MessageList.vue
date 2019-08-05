@@ -104,7 +104,6 @@ export default class MessageList extends Vue {
 
       window.setTimeout( () => {
         Vue.set( this, 'stopActions', false );
-        console.log( this.stopActions );
       }, 1000 );
 
       Vue.set( this, 'activeActionsId', id );
@@ -239,7 +238,6 @@ export default class MessageList extends Vue {
   }
 
   private onEdit( message: any ) {
-    console.log( this.stopActions );
     if ( !this.stopActions ) {
       if ( message.id === this.activeActions ) {
         this.$emit( 'active-message', { id: message.id, message: message.message } );
