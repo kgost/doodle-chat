@@ -11,8 +11,8 @@
 
       <div class="message-container">
         <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
-        <img v-if="message.isImage" :src="message.message.substr( 4 )" class="media">
-        <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )" class="media"></video>
+        <img v-if="message.isImage" :src="message.message.substr( 4 )" v-on:load="onMediaLoad" class="media">
+        <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )" v-on:load="onMediaLoad" class="media"></video>
         <div v-else v-html="emojifyMessage( $sanitize( message.message ) )" class="message"></div>
       </div>
 
@@ -66,6 +66,8 @@ export default class MessageList extends Vue {
   private showUsernameId = 0;
 
   private showUsernameTimeout = 0;
+
+  private hasScrolled = false;
 
   @Watch( 'messages.length' )
   private onMessageLengthChange( current, old ) {
@@ -189,6 +191,7 @@ export default class MessageList extends Vue {
   }
 
   private onScroll() {
+    Vue.set( this, 'hasScrolled', true );
     if ( !this.lastMessage && this.$refs.messageList.scrollTop === 0 ) {
       this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
 
@@ -215,6 +218,16 @@ export default class MessageList extends Vue {
 
   private isOwner( id: number ) {
     return store.state.user.id === id;
+  }
+
+  private onMediaLoad() {
+    if ( this.$refs.messageList.scrollTop === 0 || !this.hasScrolled ) {
+      console.log( 'feff' );
+      window.setTimeout( () => {
+        Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
+        this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
+      }, 50 );
+    }
   }
 
   private onEdit( message: any ) {
