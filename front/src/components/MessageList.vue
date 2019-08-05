@@ -67,12 +67,18 @@ export default class MessageList extends Vue {
 
   private showUsernameTimeout = 0;
 
-  private hasScrolled = false;
+  private freshLoad = false;
 
   @Watch( 'messages.length' )
   private onMessageLengthChange( current, old ) {
     if ( current !== undefined ) {
       if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 10 && ( current === old + 1 || !old ) ) {
+        if ( !old ) {
+          Vue.set( this, 'freshLoad', true );
+        } else {
+          Vue.set( this, 'freshLoad', false );
+        }
+
         window.setTimeout( () => {
           Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
           this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
@@ -93,13 +99,16 @@ export default class MessageList extends Vue {
   }
 
   set activeActions( id: number ) {
-    Vue.set( this, 'stopActions', true );
+    if ( id !== this.activeActionsId ) {
+      Vue.set( this, 'stopActions', true );
 
-    window.setTimeout( () => {
-      Vue.set( this, 'stopActions', false );
-    }, 1 );
+      window.setTimeout( () => {
+        Vue.set( this, 'stopActions', false );
+        console.log( this.stopActions );
+      }, 1000 );
 
-    Vue.set( this, 'activeActionsId', id );
+      Vue.set( this, 'activeActionsId', id );
+    }
   }
 
   get activeActions() {
@@ -191,7 +200,6 @@ export default class MessageList extends Vue {
   }
 
   private onScroll() {
-    Vue.set( this, 'hasScrolled', true );
     if ( !this.lastMessage && this.$refs.messageList.scrollTop === 0 ) {
       this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
 
@@ -221,8 +229,8 @@ export default class MessageList extends Vue {
   }
 
   private onMediaLoad() {
-    if ( this.$refs.messageList.scrollTop === 0 || !this.hasScrolled ) {
-      console.log( 'feff' );
+    if ( this.$refs.messageList.scrollTop === 0 || this.freshLoad ) {
+      Vue.set( this, 'freshLoad', false );
       window.setTimeout( () => {
         Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
         this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
@@ -231,6 +239,7 @@ export default class MessageList extends Vue {
   }
 
   private onEdit( message: any ) {
+    console.log( this.stopActions );
     if ( !this.stopActions ) {
       if ( message.id === this.activeActions ) {
         this.$emit( 'active-message', { id: message.id, message: message.message } );
