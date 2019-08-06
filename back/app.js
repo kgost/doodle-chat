@@ -129,6 +129,9 @@ cron.schedule( '*/3 * * * * *', async () => {
         await notification.save()
       } catch( err ) {
         console.log( err )
+
+        notification.sent = true
+        await notification.save()
       }
     }
   }
@@ -149,6 +152,9 @@ cron.schedule( '*/3 * * * * *', async () => {
         await notification.save()
       } catch( err ) {
         console.log( err )
+
+        notification.sent = true
+        await notification.save()
       }
     }
   }
