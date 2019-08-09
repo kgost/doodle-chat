@@ -1,12 +1,12 @@
 <template>
   <div class="sidebar" :class="{ open: open }">
     <div class="mobile-header">
-      <h3>
+      <h2>
         Saoirse
 
         <router-link to="/settings" class="settings"><span class="glyphicon glyphicon-cog"></span></router-link>
-        <span v-on:click="onSignOut" class="signOut glyphicon glyphicon-log-out"></span>
-      </h3>
+        <span v-on:click="onSignOut" class="sign-out glyphicon glyphicon-log-out"></span>
+      </h2>
 
       <span v-on:click="onClose" class="glyphicon glyphicon-remove close"></span>
     </div>
@@ -189,8 +189,10 @@ export default class SideBar extends Vue {
     .mobile-header {
       display: block;
 
-      .settings {
+      .settings, .sign-out {
         display: inline-block;
+        margin-left: 10px;
+        font-size: 0.83em;
       }
 
       .close {
