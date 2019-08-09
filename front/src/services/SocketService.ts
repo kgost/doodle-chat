@@ -4,7 +4,11 @@ export default class ConversationService {
   public socket: any;
 
   constructor() {
-    this.socket = io( `${ location.protocol }//${ location.hostname }:8080` );
+    if ( location.hostname === 'staging.jackthelast.com' ) {
+      this.socket = io( `${ location.protocol }//staging-api.jackthelast.com` );
+    } else {
+      this.socket = io( `${ location.protocol }//${ location.hostname }:8080` );
+    }
   }
 
   public signIn( id: number ) {
