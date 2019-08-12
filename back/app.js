@@ -53,7 +53,7 @@ const
   FriendshipNotification   = db.FriendshipNotification
 
 const vapidKeys = {
-  'publicKey':'BJR1Re278d9CtW2ya3Ik59JV3w683LjZtYzMes0G9Pbg6U4OnWcrW_LsuMrRrw5B2A7GghYlaxZYD3OH44-oVkY',
+  'publicKey':'BN7O7tZnRi9-RktuYKO8-IO7LKW9ttqDwRlYOcBfFKBU48B_SRQXq956VGP6jYK6KF1ABY9OkTik30nEPbPc9Mk',
   'privateKey': process.env.PRIVATE_VAPID_KEY
 }
 
