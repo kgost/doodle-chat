@@ -1,5 +1,3 @@
-workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
-
 self.addEventListener( 'push', ( event ) => {
   self.clients.matchAll({
     type: 'window',

@@ -7,12 +7,6 @@ module.exports = function( grunt ) {
         dest: './dist/service-worker.js',
         match: 'self.__precacheManifest = [].concat(self.__precacheManifest || []);'
       },
-
-      on_push: {
-        src: './build-helpers/push-hanlder.js',
-        dest: './dist/service-worker.js',
-        match: 'workbox.precaching.precacheAndRoute(self.__precacheManifest, {});'
-      }
     }
   })
 

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port 3000",
-    "build": "vue-cli-service build && grunt",
+    "build": "vue-cli-service build && grunt && cp src/sw.js dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

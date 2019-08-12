@@ -70,7 +70,9 @@ cron.schedule( '*/3 * * * * *', async () => {
       {
         model: User,
         as: 'user',
-        where: { [db.Sequelize.Op.not]: { pushSub: null } },
+        where: {
+          [db.Sequelize.Op.not]: { pushSub: null },
+        },
         required: true,
       },
       {
@@ -86,7 +88,9 @@ cron.schedule( '*/3 * * * * *', async () => {
       {
         model: User,
         as: 'user',
-        where: { [db.Sequelize.Op.not]: { pushSub: null } },
+        where: {
+          [db.Sequelize.Op.not]: { pushSub: null },
+        },
         required: true,
       },
       {
@@ -114,7 +118,7 @@ cron.schedule( '*/3 * * * * *', async () => {
   }
 
   for ( const notification of conversationNotifications ) {
-    if ( Number( new Date() ) - Number( notification.createdAt ) > 3 * 1000 ) {
+    if ( Number( new Date() ) - Number( notification.createdAt ) > 3 * 1000 && Object.keys( notification.user.pushSub ).length ) {
       try {
         notificationPayload.message = `New Secure Message(s) From ${ notification.conversation.name }`
         notificationPayload.url = `/conversations/${ notification.conversationId }`
@@ -137,7 +141,7 @@ cron.schedule( '*/3 * * * * *', async () => {
   }
 
   for ( const notification of friendshipNotifications ) {
-    if ( Number( new Date() ) - Number( notification.createdAt ) > 3 * 1000 ) {
+    if ( Number( new Date() ) - Number( notification.createdAt ) > 3 * 1000 && Object.keys( notification.user.pushSub ).length ) {
       try {
         notificationPayload.message = `New Secure Message(s) From ${ notification.friendship.userOneId == notification.userId ? notification.friendship.userTwo.username : notification.friendship.userOne.username }`
         notificationPayload.url = `/friendships/${ notification.friendshipId }`
