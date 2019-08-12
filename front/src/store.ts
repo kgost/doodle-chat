@@ -696,7 +696,7 @@ const vuex =  new Vuex.Store({
     },
 
     submitSubscription( { commit, dispatch } ) {
-      const base64String = 'BJR1Re278d9CtW2ya3Ik59JV3w683LjZtYzMes0G9Pbg6U4OnWcrW_LsuMrRrw5B2A7GghYlaxZYD3OH44-oVkY';
+      const base64String = 'BN7O7tZnRi9-RktuYKO8-IO7LKW9ttqDwRlYOcBfFKBU48B_SRQXq956VGP6jYK6KF1ABY9OkTik30nEPbPc9Mk';
 
       const padding = '='.repeat((4 - base64String.length % 4) % 4);
       const base64 = (base64String + padding)

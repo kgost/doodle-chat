@@ -64,7 +64,7 @@ export default class Settings extends Vue {
 
     const options = {
       userVisibleOnly: true,
-      applicationServerKey: this.urlB64ToUint8Array( 'BJR1Re278d9CtW2ya3Ik59JV3w683LjZtYzMes0G9Pbg6U4OnWcrW_LsuMrRrw5B2A7GghYlaxZYD3OH44-oVkY' ),
+      applicationServerKey: this.urlB64ToUint8Array( 'BN7O7tZnRi9-RktuYKO8-IO7LKW9ttqDwRlYOcBfFKBU48B_SRQXq956VGP6jYK6KF1ABY9OkTik30nEPbPc9Mk' ),
     };
 
     navigator.serviceWorker.ready.then( ( registration: ServiceWorkerRegistration | void ) => {
