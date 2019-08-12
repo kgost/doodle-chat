@@ -124,7 +124,7 @@ cron.schedule( '*/3 * * * * *', async () => {
         notificationPayload.url = `/conversations/${ notification.conversationId }`
 
         await webpush.sendNotification(
-          notification.user.pushSub,
+          typeof notification.user.pushSub === 'string' ? JSON.parse( notification.user.pushSub ) : notification.user.pushSub,
           JSON.stringify( notificationPayload )
         )
 
@@ -147,7 +147,7 @@ cron.schedule( '*/3 * * * * *', async () => {
         notificationPayload.url = `/friendships/${ notification.friendshipId }`
 
         await webpush.sendNotification(
-          notification.user.pushSub,
+          typeof notification.user.pushSub === 'string' ? JSON.parse( notification.user.pushSub ) : notification.user.pushSub,
           JSON.stringify( notificationPayload )
         )
 
