@@ -69,10 +69,23 @@ export default class Settings extends Vue {
 
     navigator.serviceWorker.ready.then( ( registration: ServiceWorkerRegistration | void ) => {
       if ( registration ) {
-        registration.pushManager.subscribe( options ).then( ( subscription: PushSubscription ) => {
-          store.dispatch( 'setPushSub', subscription );
-        } ).catch( ( err ) => {
-          console.log( err );
+        new Promise( ( resolve, reject ) => {
+          registration.pushManager.getSubscription().then( ( subscription ) => {
+            if ( subscription ) {
+              subscription.unsubscribe().finally( () => {
+                resolve();
+              } );
+            } else {
+              resolve();
+            }
+          } ).catch( resolve );
+        } ).then( () => {
+          registration.pushManager.subscribe( options ).then( ( subscription: PushSubscription ) => {
+            store.dispatch( 'setPushSub', subscription );
+          } ).catch( ( err ) => {
+            console.log( err.message )
+            console.log( err );
+          } );
         } );
       }
     } );
