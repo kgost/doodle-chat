@@ -1,4 +1,9 @@
+self.addEventListener( 'activate', ( event ) => {
+  event.waitUntil( self.clients.claim() );
+} );
+
 self.addEventListener( 'push', ( event ) => {
+
   self.clients.matchAll({
     type: 'window',
   }).then( ( clientList ) => {
