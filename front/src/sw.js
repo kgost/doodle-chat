@@ -22,15 +22,11 @@ self.addEventListener( 'push', ( event ) => {
             }
           }
 
-          if ( show ) {
-            self.registration.showNotification( message, {
-              data: { url },
-            } ).finally( () => {
-              resolve();
-            } );
-          } else {
+          self.registration.showNotification( message, {
+            data: { url },
+          } ).finally( () => {
             resolve();
-          }
+          } );
         } ).catch( reject );
       }
     } ).catch( reject );
