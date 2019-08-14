@@ -11,8 +11,10 @@
 
       <div class="message-container">
         <div v-if="!i || message.userId !== messages[i - 1].userId || newMinute( i )"><strong class="author">{{ getUsername( message.userId ) }}</strong><em class="message-time">{{ formatDate( message.createdAt ) }}</em>:</div>
-        <img v-if="message.isImage" :src="message.message.substr( 4 )" v-on:load="onMediaLoad" class="media">
-        <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )" v-on:load="onMediaLoad" class="media"></video>
+        <div v-if="message.isMedia" class="media">
+          <img v-if="message.isImage" :src="message.message.substr( 4 )" :class="{ 'too-wide': tooWide( message.message ) }">
+          <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )" :class="{ 'too-wide': tooWide( message.message ) }"></video>
+        </div>
         <div v-else v-html="emojifyMessage( $sanitize( message.message ) )" class="message"></div><em v-if="message.createdAt !== message.updatedAt">(edited)</em>
       </div>
 
@@ -257,6 +259,24 @@ export default class MessageList extends Vue {
     }
   }
 
+  private tooWide( message: string ) {
+    if ( message.indexOf( '!img' ) === 0 ) {
+      const img = new Image();
+      img.src = message.substr( 4 );
+
+      const factor = 225 / img.height;
+
+      return img.width > 400 || img.width * factor > 400;
+    } else if ( message.indexOf( '!vid' ) === 0 ) {
+      const vid = document.createElement( 'video' );
+      vid.src = message.substr( 4 );
+
+      const factor = 225 / vid.videoHeight;
+
+      return vid.videoWidth > 400 || vid.videoHeight * factor > 400;
+    }
+  }
+
   private onMediaLoad() {
     if ( this.$refs.messageList.scrollTop === 0 || this.freshLoad ) {
       Vue.set( this, 'freshLoad', false );
@@ -333,7 +353,30 @@ export default class MessageList extends Vue {
       padding: 5px 10px;
 
       .media {
+        width: 400px;
+        height: 225px;
+        line-height: 225px;
         max-width: 100%;
+        border-radius: 5px;
+        background-color: black;
+
+        video, img {
+          display: block;
+          max-width: 400px;
+          max-height: 225px;
+          height: 225px;
+          padding: 0;
+          border-radius: 5px;
+          margin: auto;
+          margin-top: -3px;
+
+          &.too-wide {
+            display: initial;
+            height: initial;
+            width: 100%;
+            vertical-align: middle;
+          }
+        }
       }
 
       .message {
