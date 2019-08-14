@@ -46,7 +46,7 @@ export default class EditMessage extends Vue {
   }
 
   get encoding() {
-    return unescape( encodeURIComponent( this.message.message ) );
+    return unescape( encodeURIComponent( this.message.message.trim() ) );
   }
 
   get valid() {
