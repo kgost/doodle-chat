@@ -76,8 +76,8 @@ export default class App extends Vue {
 
     navigator.serviceWorker.addEventListener( 'message', ( event ) => {
       if ( event.data.type === 'PUSH' ) {
-        router.push({ path: '/' });
         router.push({ path: event.data.url });
+        location.reload();
       }
     } );
 
