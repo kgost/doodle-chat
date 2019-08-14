@@ -231,9 +231,9 @@ export default class MessageList extends Vue {
 
     hour = d.getHours() % 12 === 0 ? 12 : d.getHours() % 12;
 
-    minute = d.getMinutes();
+    minute = d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes();
 
-    suffix = d.getHours() > 12 ? 'pm' : 'am';
+    suffix = d.getHours() >= 12 ? 'pm' : 'am';
 
     return `${ hour }:${ minute } ${ suffix }`;
   }
