@@ -10,10 +10,10 @@
       class="message-wrapper">
 
       <div class="message-container">
-        <div v-if="!i || message.userId !== messages[i - 1].userId"><strong class="author">{{ getUsername( message.userId ) }}</strong>:</div>
+        <div v-if="!i || message.userId !== messages[i - 1].userId || newMinute( i )"><strong class="author">{{ getUsername( message.userId ) }}</strong><em class="message-time">{{ formatDate( message.createdAt ) }}</em>:</div>
         <img v-if="message.isImage" :src="message.message.substr( 4 )" v-on:load="onMediaLoad" class="media">
         <video controls v-else-if="message.isVideo" :src="message.message.substr( 4 )" v-on:load="onMediaLoad" class="media"></video>
-        <div v-else v-html="emojifyMessage( $sanitize( message.message ) )" class="message"></div>
+        <div v-else v-html="emojifyMessage( $sanitize( message.message ) )" class="message"></div><em v-if="message.createdAt !== message.updatedAt">(edited)</em>
       </div>
 
       <div class="reactions-container">
@@ -223,8 +223,38 @@ export default class MessageList extends Vue {
       } );
   }
 
+  private formatDate( date: string ) {
+    const d = new Date( date );
+    let hour;
+    let minute;
+    let suffix
+
+    hour = d.getHours() % 12 === 0 ? 12 : d.getHours() % 12;
+
+    minute = d.getMinutes();
+
+    suffix = d.getHours() > 12 ? 'pm' : 'am';
+
+    return `${ hour }:${ minute } ${ suffix }`;
+  }
+
   private isOwner( id: number ) {
     return store.state.user.id === id;
+  }
+
+  private newMinute( index: number ) {
+    if ( index === 0 ) {
+      return false;
+    }
+
+    const currDate = new Date( this.messages[index].createdAt );
+    const prevDate = new Date( this.messages[index - 1].createdAt );
+
+    if ( currDate.getDate() === prevDate.getDate() && currDate.getHours() === prevDate.getHours() && currDate.getMinutes() === prevDate.getMinutes() ) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   private onMediaLoad() {
@@ -293,6 +323,10 @@ export default class MessageList extends Vue {
 
     .author {
       font-size: 1.15em;
+    }
+
+    .message-time {
+      margin-left: 10px;
     }
 
     .message-container {
