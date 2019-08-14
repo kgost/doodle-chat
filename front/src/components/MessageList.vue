@@ -100,6 +100,16 @@ export default class MessageList extends Vue {
     }
   }
 
+  @Watch( '$route.params.id' )
+  private onFriendshipChange( current, old ) {
+    Vue.set( this, 'freshLoad', true );
+
+    window.setTimeout( () => {
+      Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
+      this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
+    }, 10 );
+  }
+
   set activeActions( id: number ) {
     if ( id !== this.activeActionsId ) {
       Vue.set( this, 'stopActions', true );
