@@ -173,6 +173,7 @@ export default class Conversation extends Vue {
   flex-direction: column;
   height: 100%;
   margin-left: auto;
+  position: relative;
   overflow: hidden;
 
   h1 {

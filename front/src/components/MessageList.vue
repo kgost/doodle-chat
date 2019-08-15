@@ -31,6 +31,8 @@
         <EditReaction v-on:toggle="openReaction = $event ? message.id : 0" :activeId="openReaction" :messageId="message.id" :accessKey="accessKey"></EditReaction>
       </div>
     </div>
+
+    <div class="spacer"></div>
   </div>
 </template>
 
@@ -74,7 +76,7 @@ export default class MessageList extends Vue {
   @Watch( 'messages.length' )
   private onMessageLengthChange( current, old ) {
     if ( current !== undefined ) {
-      if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 10 && ( current === old + 1 || !old ) ) {
+      if ( this.$refs.messageList.scrollHeight - ( this.$refs.messageList.scrollTop + this.$refs.messageList.offsetHeight ) < 50 && ( current === old + 1 || !old ) ) {
         if ( !old ) {
           Vue.set( this, 'freshLoad', true );
         } else {
@@ -107,6 +109,7 @@ export default class MessageList extends Vue {
     window.setTimeout( () => {
       Vue.set( this.$refs.messageList, 'scrollTop', this.$refs.messageList.scrollHeight );
       this.$emit( 'old-scroll-height', this.$refs.messageList.scrollHeight );
+      this.$refs.messageList.focus();
     }, 10 );
   }
 
@@ -339,6 +342,9 @@ export default class MessageList extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.spacer {
+  height: 30px;
+}
 .message-list {
   height: calc( 100% - 51px );;
   border-top: 1px solid #dfdfdf;
@@ -381,6 +387,7 @@ export default class MessageList extends Vue {
       padding: 5px 10px;
 
       .media {
+        max-width: 100%;
         width: 400px;
         height: 225px;
         line-height: 225px;
@@ -392,6 +399,7 @@ export default class MessageList extends Vue {
           display: block;
           max-width: 400px;
           max-height: 225px;
+          width: 100%;
           height: 225px;
           padding: 0;
           border-radius: 5px;

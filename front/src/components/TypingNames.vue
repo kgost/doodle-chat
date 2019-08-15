@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="typing-names">
     <span v-for="( name, i ) of names" :key="i">
       {{ name }}<span v-show="showComma( i )">,</span>
       <span v-show="showAnd( i )"> and</span>
@@ -35,5 +35,13 @@ export default class TypingNames extends Vue {
 <style lang="scss" scoped>
 .emoji {
   width: 32px;
+}
+
+.typing-names {
+  position: absolute;
+  left: 0;
+  bottom: 56px;
+  opacity: 0.5;
+  background-color: white;
 }
 </style>

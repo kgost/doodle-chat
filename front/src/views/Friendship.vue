@@ -171,6 +171,7 @@ export default class Friendship extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
