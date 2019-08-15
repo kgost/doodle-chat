@@ -14,6 +14,8 @@ const
   */
 router.post( '/signin', authController.signin )
 
+router.post( '/signin-challenge', authController.signinChallenge )
+
 
 /**
   * Auth(registration) route

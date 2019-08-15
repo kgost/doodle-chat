@@ -1,5 +1,6 @@
 const
-  bcrypt         = require( 'bcryptjs' ),
+  forge          = require( 'node-forge' ),
+  crypto         = require( 'crypto' ),
   jwt            = require( 'jsonwebtoken' ),
   db             = require( '../models' ),
   User           = db.User,
@@ -11,8 +12,18 @@ const actions = {
       where: { username: req.body.username }
     })
 
-    if ( !user || !bcrypt.compareSync( req.body.password, user.passHash ) )
+    if ( !user ) {
       throw { status: 400, message: 'invalid login credentials' }
+    }
+
+    const correctAnswer = user.challengeAnswer
+    user.challengeAnswer = null
+
+    await user.save()
+
+    if ( req.body.challengeAnswer !== correctAnswer ) {
+      throw { status: 400, message: 'invalid login credentials' }
+    }
 
     const token = jwt.sign( { user: { id: user.id, username: user.username } }, process.env.JWTKEY )
 
@@ -24,13 +35,36 @@ const actions = {
     } }
   },
 
+  signinChallenge: async ( req ) => {
+    const user = await User.findOne({
+      where: { username: req.body.username }
+    })
+
+    if ( !user )
+      throw { status: 400, message: 'invalid login credentials' }
+
+    const answer = crypto.randomBytes( 16 ).toString( 'base64' )
+
+    user.challengeAnswer = answer
+
+    await user.save()
+
+    const publicKey = getPublicKeyFromString( user.publicKey )
+
+    return {
+      body: {
+        challenge: publicKey.encrypt( answer ),
+        encPrivateKey: user.encPrivateKey,
+      }
+    }
+  },
+
   signup: async ( req ) => {
     if ( req.body.password.length < 10 )
       throw { status: 400, message: 'password must be 10 or more characters' }
 
     const user = await User.create({
       username: req.body.username,
-      passHash: bcrypt.hashSync( req.body.password, 10 ),
       publicKey: req.body.publicKey,
       encPrivateKey: req.body.encPrivateKey,
       pushSub: {}
@@ -71,6 +105,10 @@ const actions = {
 
     return { body: oldNonce }
   },
+}
+
+function getPublicKeyFromString( publicKeyString ) {
+  return forge.pki.publicKeyFromAsn1( forge.asn1.fromDer( publicKeyString ) );
 }
 
 module.exports = responseHelper.handleActions( actions )

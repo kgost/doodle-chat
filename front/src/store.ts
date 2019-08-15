@@ -234,26 +234,35 @@ const vuex =  new Vuex.Store({
 
   actions: {
     // AUTH
-    signIn( { commit, state, dispatch }, { username, password } ) {
-      return Api().post( '/auth/signin', { username, password } )
-        .then( ( res ) => {
-          const keyPair = {
-            publicKey: authService.getPublicKeyFromString( res.data.publicKey ),
-            privateKey: authService.getPrivateKeyFromString(
-              authService.decryptAes( res.data.encPrivateKey, authService.getAesKeyFromString( password ) ),
-            ),
-          };
+    signIn( { commit, state, dispatch, getters }, { username, password } ) {
+      return Api().post( '/auth/signin-challenge', { username } ).then( ( res ) => {
+        const privateKey = authService.getPrivateKeyFromString(
+          authService.decryptAes(
+            res.data.encPrivateKey, authService.getAesKeyFromString( password ),
+          ),
+        );
 
-          commit( 'setToken', res.data.token );
-          commit( 'setUser', res.data.user );
+        const challengeAnswer = privateKey.decrypt( res.data.challenge );
 
-          commit( 'setPublicKey', authService.publicKeyToString( keyPair.publicKey ) );
-          commit( 'setPrivateKey', authService.privateKeyToString( keyPair.privateKey ) );
+        return Api().post( '/auth/signin', { username, challengeAnswer } );
+      } ).then( ( res ) => {
+        const keyPair = {
+          publicKey: authService.getPublicKeyFromString( res.data.publicKey ),
+          privateKey: authService.getPrivateKeyFromString(
+            authService.decryptAes( res.data.encPrivateKey, authService.getAesKeyFromString( password ) ),
+          ),
+        };
 
-          commit( 'clearEncPrivateKey' );
+        commit( 'setToken', res.data.token );
+        commit( 'setUser', res.data.user );
 
-          return dispatch( 'consumeNonce' );
-        } );
+        commit( 'setPublicKey', authService.publicKeyToString( keyPair.publicKey ) );
+        commit( 'setPrivateKey', authService.privateKeyToString( keyPair.privateKey ) );
+
+        commit( 'clearEncPrivateKey' );
+
+        return dispatch( 'consumeNonce' );
+      } );
     },
 
     signUp( { commit, state, dispatch }, { username, password } ) {

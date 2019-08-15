@@ -5,9 +5,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.STRING
     },
-    passHash: {
-      allowNull: false,
-      type: DataTypes.TEXT
+    challengeAnswer: {
+      type: DataTypes.STRING
     },
     publicKey: {
       allowNull: false,
