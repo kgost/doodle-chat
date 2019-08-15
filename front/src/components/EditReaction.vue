@@ -90,7 +90,7 @@ export default class EditReaction extends Vue {
 
     &.close {
       vertical-align: top;
-      font-size: 17px;
+      font-size: 28px;
       padding: 0 10px;
     }
   }
