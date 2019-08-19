@@ -138,6 +138,10 @@ const vuex =  new Vuex.Store({
     // Conversations
     setConversation( state, conversation ) {
       Vue.set( state.conversations, conversation.id, conversation );
+
+      if ( conversation.notifications.length ) {
+        activeFavicon();
+      }
     },
 
     clearConversation( state, id ) {
@@ -145,8 +149,18 @@ const vuex =  new Vuex.Store({
     },
 
     setConversations( state, conversations ) {
+      let foundNotifications = false;
+
       for ( const conversation of conversations ) {
         Vue.set( state.conversations, conversation.id, conversation );
+
+        if ( conversation.notifications.length ) {
+          foundNotifications = true;
+        }
+      }
+
+      if ( foundNotifications ) {
+        activeFavicon();
       }
     },
 
@@ -162,6 +176,10 @@ const vuex =  new Vuex.Store({
     // Friendships
     setFriendship( state, friendship ) {
       Vue.set( state.friendships, friendship.id, friendship );
+
+      if ( friendship.notifications.length ) {
+        activeFavicon();
+      }
     },
 
     clearFriendship( state, id ) {
@@ -169,8 +187,18 @@ const vuex =  new Vuex.Store({
     },
 
     setFriendships( state, friendships ) {
+      let foundNotifications = false;
+
       for ( const friendship of friendships ) {
         Vue.set( state.friendships, friendship.id, friendship );
+
+        if ( friendship.notifications.length ) {
+          foundNotifications = true;
+        }
+      }
+
+      if ( foundNotifications ) {
+        activeFavicon();
       }
     },
 
@@ -837,11 +865,47 @@ socketService.socket.on( 'user-typing', ( name ) => {
 } );
 
 window.addEventListener( 'focus', () => {
+  inactiveFavicon();
+
   if ( vuex.state.friendshipId && vuex.state.friendships[vuex.state.friendshipId].notifications.length ) {
     vuex.dispatch( 'removeFriendshipNotifications', vuex.state.friendshipId );
   } else if ( vuex.state.conversationId && vuex.state.conversations[vuex.state.conversationId].notifications.length ) {
     vuex.dispatch( 'removeConversationNotifications', vuex.state.conversationId );
   }
 }, false );
+
+function activeFavicon() {
+  const link = document.createElement( 'link' );
+  const oldLink = document.getElementById( 'dynamic-favicon' );
+
+  link.id = 'dynamic-favicon';
+  link.rel = 'shortcut icon';
+  link.href = '/favicon-active.ico';
+
+  if ( document.head ) {
+    if ( oldLink ) {
+      document.head.removeChild( oldLink );
+    }
+
+    document.head.appendChild( link );
+  }
+}
+
+function inactiveFavicon() {
+  const link = document.createElement( 'link' );
+  const oldLink = document.getElementById( 'dynamic-favicon' );
+
+  link.id = 'dynamic-favicon';
+  link.rel = 'shortcut icon';
+  link.href = '/favicon.ico';
+
+  if ( document.head ) {
+    if ( oldLink ) {
+      document.head.removeChild( oldLink );
+    }
+
+    document.head.appendChild( link );
+  }
+}
 
 export default vuex;

@@ -101,6 +101,7 @@ export default class SignIn extends Vue {
         store.dispatch( 'getConversations' );
         store.dispatch( 'getFriendships' );
       } ).catch( ( err ) => {
+        console.log( err.message );
         if ( err.response.status ) {
           Vue.set( this, 'error', 'Invalid Login Credentials' );
         }
