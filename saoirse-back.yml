@@ -1,0 +1,147 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mariadb-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mariadb
+  clusterIP: None
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - image: mariadb:latest
+        name: mariadb
+        env:
+          # Use secret in real usage
+        - name: MYSQL_ROOT_PASSWORD
+          value: "toor"
+        - name: MYSQL_DATABASE
+          value: "saoirse_development"
+        - name: MYSQL_USER
+          value: "saoirse"
+        - name: MYSQL_PASSWORD
+          value: "dashword"
+        ports:
+        - containerPort: 3306
+          name: mariadb
+        volumeMounts:
+        - name: mariadb-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pv-claim
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    environmnet: development
+    name: saoirse-back-deployment
+  name: saoirse-back-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: saoirse-back-pod
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      name: saoirse-back-pod
+      labels:
+        name: saoirse-back-pod
+        environment: development
+    spec:
+      containers:
+      - name: saoirse-back-container
+        image: saoirse-back
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: 128m
+            memory: 128Mi
+          requests:
+            cpu: 64m
+            memory: 64Mi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: saoirse-back-service
+spec:
+  selector:
+    name: saoirse-back-pod
+  clusterIP: 10.96.1.1
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    name: saoirse-back-hpa
+  name: saoirse-back-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: saoirse-back-deployment
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 60

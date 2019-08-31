@@ -1,8 +1,5 @@
-FROM node:12 AS build-env
+FROM node:12
 
-RUN npm -g config set user root
-
-RUN npm i -g grunt-cli
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -15,13 +12,11 @@ COPY package*.json ./
 COPY . .
 
 RUN npm install
-RUN npm run build
-
-WORKDIR /usr/src/app/dist
 # If you are building your code for production
 # RUN npm ci --only=production
 
-FROM nginx:stable-alpine
-WORKDIR /usr/share/nginx/html
-COPY --from=build-env /usr/src/app/dist /usr/share/nginx/html
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+ENV JWTKEY="there is a jeff out there"
+ENV PRIVATE_VAPID_KEY=""
+ENV PORT=8080
+
+CMD [ "node", "app.js" ]

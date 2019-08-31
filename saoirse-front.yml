@@ -1,0 +1,70 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    environmnet: development
+    name: saoirse-front-deployment
+  name: saoirse-front-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: saoirse-front-pod
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      name: saoirse-front-pod
+      labels:
+        name: saoirse-front-pod
+        environment: development
+    spec:
+      containers:
+      - name: saoirse-front-container
+        image: saoirse-front
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: 128m
+            memory: 128Mi
+          requests:
+            cpu: 64m
+            memory: 64Mi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: saoirse-front-service
+spec:
+  selector:
+    name: saoirse-front-pod
+  clusterIP: 10.96.1.2
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    name: saoirse-front-hpa
+  name: saoirse-front-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: saoirse-front-deployment
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 60

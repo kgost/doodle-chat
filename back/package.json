@@ -13,7 +13,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
     "express-sanitizer": "^1.0.5",
     "heroku-ssl-redirect": "0.0.4",
     "http": "0.0.0",
